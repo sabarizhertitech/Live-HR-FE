@@ -1,0 +1,245 @@
+/* ProjectDetails.css */
+
+.project-details-container {
+  width: 100%;
+}
+
+/* ── Top Header Section ── */
+.project-details-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.project-details-page-subtitle {
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* ── Search Bar & Filter Header Row ── */
+.project-details-top-controls {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.project-details-search-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 12px;
+  min-width: 280px;
+  flex: 1;
+  max-width: 420px;
+  height: 38px;
+}
+
+.project-details-search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: #334155;
+  width: 100%;
+}
+
+.project-details-search-box input::placeholder {
+  color: #94a3b8;
+}
+
+.project-details-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.project-details-stats-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #dbeafe;
+}
+
+/* ── Filter Dropdown Panel ── */
+.project-details-filter-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-details-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.project-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.project-filter-field .custom-dropdown-container,
+.project-filter-field .custom-dropdown-trigger {
+  width: 100% !important;
+}
+
+.project-filter-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: 0.3px;
+}
+
+.project-filter-date-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.project-filter-date-wrap input[type="date"] {
+  width: 100%;
+  height: 38px;
+  padding: 6px 36px 6px 12px;
+  font-size: 13px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+}
+
+.project-filter-date-wrap input[type="date"]:focus {
+  border-color: #5977f8;
+}
+
+.project-filter-calendar-icon {
+  position: absolute;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.project-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+/* ── Table Styling ── */
+.project-category-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #f1f5f9;
+  color: #475569;
+  letter-spacing: 0.4px;
+}
+
+.project-name-text {
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.project-status-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #eff6ff;
+  color: #2563eb;
+  letter-spacing: 0.3px;
+}
+
+.project-status-tag.completed {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.project-status-tag.in-progress,
+.project-status-tag.inprocess,
+.project-status-tag.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.project-status-tag.pending {
+  background: #fefce8;
+  color: #ca8a04;
+}
+
+.project-status-tag.hold,
+.project-status-tag.blocked {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 768px) {
+  .project-details-top-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project-details-search-box {
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .project-details-right-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .project-details-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,120 @@
+.ha-notification-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.08);
+  animation: haBannerFadeIn 0.3s ease-out;
+}
+
+@keyframes haBannerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ha-notification-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ha-notification-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #ffedd5;
+  border: 1px solid #fdba74;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ea580c;
+}
+
+.ha-notification-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ha-notification-title {
+  color: #9a3412;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ha-notification-message {
+  color: #c2410c;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.ha-notification-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ha-notification-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ha-notification-action-btn:hover {
+  background: #c2410c;
+  box-shadow: 0 4px 8px rgba(194, 65, 12, 0.3);
+  transform: translateY(-1px);
+}
+
+.ha-notification-action-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .ha-notification-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .ha-notification-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .ha-notification-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

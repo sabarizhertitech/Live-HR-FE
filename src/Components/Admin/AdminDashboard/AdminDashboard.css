@@ -1,0 +1,2274 @@
+/* Container for the List of Popups */
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Individual Notification Card */
+.adminleavenotification-card {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+
+  animation: slideInRight 0.4s ease-out;
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Close (X) Button */
+.notif-close-x {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 25px;
+  color: #bbb;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.notif-close-x:hover {
+  color: #333;
+}
+
+/* Header Section */
+.notif-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notif-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 45%;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-title {
+  font-size: 14px;
+  color: #3a466d;
+  margin: 0;
+}
+
+.notif-text {
+  font-size: 12px;
+  margin: 0;
+  margin-top: 3px;
+
+}
+
+/* Action Buttons */
+.notif-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f8f8f8;
+}
+
+.notif-btn {
+  border: none;
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+
+}
+
+.btn-view {
+  color: #ffffff;
+  background-color: #3a466d;
+}
+
+.btn-view:hover {
+  background-color: #2a3554;
+}
+
+.btn-cancel {
+  color: #888;
+  background-color: #f5f5f5;
+}
+
+/* Holiday notification border */
+.border-holiday {
+  border-left: 4px solid #28a745 !important;
+  background: linear-gradient(to right, rgba(40, 167, 69, 0.05), transparent);
+}
+
+.wfh-badge {
+  /* background: #e3f2fd;
+  color: #1976d2; */
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ✅ PRESENT (GREEN) */
+.admin-dash-status.status-present {
+  background-color: #d5ffcf !important;
+  color: #00a814 !important;
+  font-weight: 600;
+}
+
+/* ❌ LATE (ORANGE) */
+.admin-dash-status.status-late {
+  background-color: #ffe5b4;
+  color: #ff8c00;
+  font-weight: 600;
+}
+
+/* ❌ ABSENT (RED) */
+.admin-dash-status.status-absent {
+
+  /* background-color: #fde2e2; */
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* Existing styles */
+.notification-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1050;
+  max-width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.adminleavenotification-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: slideIn 0.3s ease;
+}
+
+.adminleavenotification-card:hover {
+  transform: translateX(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+.border-security {
+  border-left: none !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(52, 152, 219, 0.1) !important;
+  padding: 16px !important;
+}
+
+.notif-security-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  background: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.notif-security-title {
+  color: #3498db;
+  font-weight: 700;
+  font-size: 11px !important;
+
+  letter-spacing: 0.8px;
+  margin-bottom: 2px !important;
+}
+
+.notif-security-message {
+  color: #3a466d;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.4;
+  margin-bottom: 4px !important;
+}
+
+.notif-security-status {
+  color: #5977f8;
+  font-size: 10px !important;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
+
+
+
+
+.notif-close-x {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.notif-close-x:hover {
+  color: #333;
+}
+
+.notif-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.notif-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+}
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+  color: #2d355f;
+
+}
+
+.notif-text {
+  margin: 5px 0 0 0;
+  font-size: 13px;
+
+}
+
+.notif-date {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Holiday specific styling */
+.notif-text.text-success {
+  color: #28a745 !important;
+}
+
+.notif-text.text-success b {
+  color: #1e7e34;
+}
+
+/* ==========================================================================
+   ADMIN TO DO LIST
+   ========================================================================== */
+
+.admin-to-do-list-card {
+  background: #ffffff;
+  border: 1px solid #e0e4ed;
+  border-radius: 12px !important;
+  padding-left: 12px;
+  padding-right: 12px;
+  margin-bottom: 24px;
+  margin-top: 24px;
+}
+
+.admin-to-do-list-card.p-4 {
+  padding: 1rem !important;
+}
+
+.admin-to-do-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-to-do-list-section-title {
+  color: #3e4b71;
+  font-weight: 500;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+/* ── Header Actions Container ── */
+.admin-to-do-list-header-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Todo Date Filter Dropdown ── */
+.admin-to-do-date-dropdown {
+  min-width: 130px;
+  margin-top: 18px;
+}
+
+/* ── Custom Date Range Inputs ── */
+.admin-to-do-custom-dates {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.admin-to-do-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-to-do-date-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.admin-to-do-custom-date-input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 145px;
+}
+
+.admin-to-do-custom-date-input:focus {
+  border-color: #8a8af5;
+  box-shadow: 0 0 0 3px rgba(138, 138, 245, 0.15);
+}
+
+.admin-to-do-custom-date-input:hover {
+  border-color: #8a8af5;
+}
+
+/* ── NEW: Status Filter Icon Button ── */
+.admin-to-do-status-filter-wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.admin-to-do-filter-icon-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.admin-to-do-filter-icon-btn:hover {
+  border-color: #5d7cff;
+  color: #5d7cff;
+  background: #f0f4ff;
+}
+
+.stat-icon.orange {
+  background: #ffe5b4;
+  color: #ff8c00;
+}
+
+.admin-to-do-filter-icon-btn--active {
+  border-color: #5d7cff;
+  background: #eef1ff;
+  color: #5d7cff;
+}
+
+/* Active indicator dot */
+.admin-to-do-filter-active-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* ── NEW: Status Dropdown ── */
+.admin-to-do-status-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-to-do-status-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+}
+
+.admin-to-do-status-dropdown-item:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.admin-to-do-status-dropdown-item--active {
+  background: #eef1ff;
+  color: #5d7cff;
+  font-weight: 600;
+}
+
+.admin-to-do-status-dropdown-item--active:hover {
+  background: #e5eaff;
+}
+
+/* ── Empty State Icon ── */
+.admin-to-do-empty-icon {
+  font-size: 30px;
+  color: #5d7cff;
+  opacity: 0.6;
+}
+
+.admin-to-do-list-timeline-label {
+  color: #9aa6c1;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 20px 0 12px;
+  display: block;
+}
+
+.admin-to-do-list-empty-text {
+  color: #8a92a6;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.admin-to-do-list-row {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 10px;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #eef1f7;
+  overflow: hidden;
+}
+
+.admin-to-do-list-row:hover {
+  border-color: #c3d1ff;
+}
+
+.admin-to-do-list-text-box {
+  flex: 1;
+  padding: 14px 16px;
+  color: #5a6b88;
+  font-size: 0.96rem;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-to-do-list-date-badge {
+  background: linear-gradient(135deg, #5d7cff, #3b4db7);
+  color: #ffffff;
+  width: 72px;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  border-radius: 0 10px 10px 0;
+}
+
+.admin-to-do-list-date-badge small {
+  font-size: 0.78rem;
+  margin-top: 3px;
+  opacity: 0.9;
+}
+
+/* Pending date badge (red) */
+.admin-to-do-list-date-badge.pending-date-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ee5253) !important;
+  /* box-shadow: 0 3px 10px rgba(238, 82, 83, 0.3) !important; */
+}
+
+/* Overdue date badge (orange) */
+.admin-to-do-list-date-badge.overdue-date-badge {
+  background: linear-gradient(135deg, #ff922b, #e8590c) !important;
+  /* box-shadow: 0 3px 10px rgba(232, 89, 12, 0.3) !important; */
+}
+
+/* Completed date badge (green) */
+.admin-to-do-list-completed-date-badge {
+  background: linear-gradient(135deg, #51cf66, #40c057) !important;
+  /* box-shadow: 0 3px 10px rgba(64, 192, 87, 0.3) !important; */
+}
+
+.admin-to-do-list-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff5f5;
+  color: #c92a2a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.admin-to-do-list-completed-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #d5ffcf;
+  color: #00d40e;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.admin-to-do-list-completed-row {
+  opacity: 0.94;
+  border-color: #c3fae8;
+  background-color: #f8fff9;
+}
+
+/* Add button */
+.admin-to-do-list-btn-add {
+  background: #e9edff !important;
+  color: #5d7cff !important;
+  border: none !important;
+  font-weight: 700 !important;
+  padding: 8px 20px !important;
+  border-radius: 10px !important;
+  transition: all 0.2s;
+}
+
+.admin-to-do-list-btn-add:hover {
+  background: #dbe4ff !important;
+}
+
+/* Schedule / Update button */
+.admin-to-do-list-schedule-btn {
+  background: #5d7cff !important;
+  border: none !important;
+  padding: 10px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: opacity 0.2s;
+}
+
+.admin-to-do-list-schedule-btn:hover {
+  opacity: 0.92;
+}
+
+/* Complete button */
+.admin-to-do-list-complete-btn {
+  background: #40c057 !important;
+  border: none !important;
+  padding: 10px 24px !important;
+  border-radius: 8px !important;
+  transition: opacity 0.2s;
+}
+
+.admin-to-do-list-complete-btn:hover {
+  opacity: 0.92;
+}
+
+/* Edit button */
+.admin-to-do-list-edit-btn {
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+/* Textarea & Date input */
+.admin-to-do-list-textarea,
+.admin-to-do-list-date-input {
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+/* Detail modal text */
+.admin-to-do-list-detail-text {
+  font-size: 1rem;
+  color: #495057;
+  margin: 0;
+}
+
+/* ==========================================================================
+   ADMIN TO DO LIST - PAGINATION
+   ========================================================================== */
+
+.admin-to-do-list-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 8px 0;
+}
+
+.admin-to-do-list-page,
+.admin-to-do-list-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.admin-to-do-list-page.admin-to-do-list-active {
+  background: #e5e7eb;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.admin-to-do-list-page:hover:not(.admin-to-do-list-active),
+.admin-to-do-list-arrow:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.admin-to-do-list-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   ADMIN TO DO LIST - EMPTY STATE
+   ========================================================================== */
+
+.admin-to-do-empty-container {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-to-do-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-to-do-empty-text-big {
+  font-size: 16px;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+.admin-to-do-create-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  background: #5d7cff !important;
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.admin-to-do-create-btn:hover {
+  background: #4a6ae5 !important;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   STATUS BADGES
+   ========================================================================== */
+
+.status-absent {
+  background-color: #fde2e2;
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   NEW PREMIUM TO-DO LIST (Matching Mockup)
+   ========================================================================== */
+
+.dash-todo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.dash-todo-title {
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+  margin: 0;
+}
+
+.dash-todo-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-todo-history {
+  background: #edf2ff !important;
+  color: #5977f8 !important;
+  border: none !important;
+  padding: 8px 30px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+}
+
+.btn-todo-history:hover {
+  background: #e0e7ff !important;
+}
+
+.btn-todo-create {
+  background: #5977f8 !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 30px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+}
+
+.btn-todo-create:hover {
+  background: #4b66de !important;
+}
+
+.dash-todo-card {
+  background: white;
+  border: 1px solid #f1f3f7;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.dash-todo-card:last-child {
+  margin-bottom: 0 !important;
+}
+
+.dash-todo-card:hover {
+  border-color: #d1d9e6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dash-todo-content {
+  flex: 1;
+}
+
+.dash-todo-item-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d355f;
+  margin: 0 0 4px 0;
+}
+
+.dash-todo-item-desc {
+  font-size: 14px;
+  color: #A29CC1;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dash-todo-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  text-align: right;
+  margin-left: 20px;
+  flex-shrink: 0;
+  gap: 15px !important;
+}
+
+.dash-todo-right .todo-create-date {
+  font-size: 11px;
+  font-weight: 500;
+  color: #A6A6A6 !important;
+}
+
+.dash-todo-status-badge {
+  background: #EE5C22 !important;
+  color: white !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: capitalize;
+  min-width: 80px !important;
+  text-align: center;
+  margin: 0 !important;
+}
+
+/* Holiday */
+.status-holiday {
+  background-color: #e6f0ff;
+  color: #007bff;
+  font-weight: 600;
+}
+
+/* Neutral (before 10 AM "-") */
+.status-neutral {
+  background-color: #f5f5f5;
+  color: #999;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   SPECIAL DAY BANNER
+   ========================================================================== */
+
+.special-day-banner {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 4px 25px rgba(255, 152, 0, 0.4);
+  }
+}
+
+.special-day-icon {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  animation: rotate-star 3s ease-in-out infinite;
+}
+
+@keyframes rotate-star {
+
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(15deg) scale(1.1);
+  }
+}
+
+.special-day-content {
+  flex: 1;
+}
+
+.special-day-content h4 {
+  margin: 0 0 8px 0;
+  color: #e65100;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.special-day-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.special-day-item {
+  background: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.special-day-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.special-day-date {
+  color: #666;
+  font-size: 12px;
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .admin-to-do-list-date-badge {
+    width: 64px;
+    height: 64px;
+    font-size: 1.2rem;
+  }
+
+  .admin-to-do-list-date-badge small {
+    font-size: 0.7rem;
+  }
+
+  .special-day-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .special-day-list {
+    justify-content: center;
+  }
+
+  /* ── Responsive Todo Header ── */
+  .admin-to-do-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-to-do-list-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .admin-to-do-custom-dates {
+    width: 100%;
+  }
+
+  .admin-to-do-custom-date-input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .admin-to-do-date-dropdown {
+    min-width: 110px;
+  }
+
+  /* ── Responsive Status Filter ── */
+  .admin-to-do-status-filter-wrapper {
+    align-self: flex-end;
+  }
+
+  .admin-to-do-status-dropdown {
+    left: auto;
+    right: 0;
+  }
+}
+
+.employee-activity-table th {
+  padding: 12px 15px !important;
+  background: #F6F6F6 !important;
+  color: #77728E !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  border-top: 1px solid #F1F5F9 !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+}
+
+.employee-activity-table td {
+  padding: 12px 16px !important;
+}
+
+.employee-activity-table th:nth-child(1),
+.employee-activity-table td:nth-child(1) {
+  width: 5%;
+  text-align: left;
+}
+
+.employee-activity-table th:nth-child(2),
+.employee-activity-table td:nth-child(2) {
+  width: 10%;
+  text-align: left;
+}
+
+.employee-activity-table th:nth-child(3),
+.employee-activity-table td:nth-child(3) {
+  width: 25%;
+}
+
+/* In Time Column */
+.employee-activity-table th:nth-child(4),
+.employee-activity-table td:nth-child(4) {
+  width: 15%;
+  text-align: center !important;
+}
+
+/* Out Time Column */
+.employee-activity-table th:nth-child(5),
+.employee-activity-table td:nth-child(5) {
+  width: 15%;
+  text-align: center !important;
+}
+
+.employee-activity-table th:last-child,
+.employee-activity-table td:last-child {
+  width: 15%;
+  white-space: nowrap;
+  text-align: center !important;
+}
+
+@media (max-width: 992px) {
+
+  .employee-activity-table th:last-child,
+  .employee-activity-table td:last-child {
+    max-width: 111px !important;
+    text-align: center !important;
+  }
+
+  .employee-activity-table th:nth-child(3),
+  .employee-activity-table td:nth-child(3) {
+    width: 20% !important;
+  }
+
+  .employee-activity-table th:nth-child(4),
+  .employee-activity-table td:nth-child(4) {
+    width: 10% !important;
+  }
+
+  .employee-activity-table th:nth-child(5),
+  .employee-activity-table td:nth-child(5) {
+    width: 10% !important;
+  }
+
+  .employee-activity-table th,
+  .employee-activity-table td {
+    padding: 8px 6px !important;
+  }
+}
+
+.admin-dash-status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  margin: 0 !important;
+  justify-content: flex-start !important;
+  position: relative !important;
+}
+
+.late-reason-tooltip-wrapper {
+  position: absolute !important;
+  right: -24px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.late-reason-info-icon {
+  color: #6b7280;
+  font-size: 16px;
+  transition: 0.2s ease;
+}
+
+.late-reason-info-icon:hover {
+  color: #374151;
+}
+
+.late-reason-tooltip-box {
+  position: absolute;
+  bottom: 140%;
+  /* Position above the icon */
+  right: 0;
+  min-width: 180px;
+  max-width: 300px;
+  background: #1f2937;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  /* Slide up on hover */
+  transition: all 0.2s ease;
+  z-index: 999;
+  word-break: break-word;
+}
+
+.late-reason-tooltip-wrapper:hover .late-reason-tooltip-box {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.employee-activity-card .table-responsive {
+  overflow-y: visible !important;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+/* ==========================================================================
+   TODO MODAL STYLES (MATCHING EMPLOYEE DASHBOARD)
+   ========================================================================== */
+
+.todo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.todo-modal-content {
+  background: white !important;
+  border-radius: 12px;
+  padding: 15px 15px !important;
+  width: 90%;
+  max-width: 460px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: modalScale 0.2s ease-out;
+  position: relative;
+}
+
+@keyframes modalScale {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.todo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.todo-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.edit-modal-content .todo-modal-body.common-modal-body {
+  background-color: #F6F6F6 !important;
+  padding: 18px !important;
+  border-radius: 10px;
+}
+
+.todo-modal-body.common-modal-body {
+  padding: 0 !important;
+}
+
+.modal-close-x {
+  font-size: 24px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.modal-close-x:hover {
+  color: #ef4444;
+}
+
+.todo-form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-form-group label {
+  font-size: 11px;
+  font-weight: 400;
+  color: #868585;
+}
+
+.todo-form-group input,
+.todo-form-group textarea {
+  width: 100%;
+  height: 35px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  font-size: 12px;
+  color: #77728E;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.todo-form-group input:focus,
+.todo-form-group textarea:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.todo-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 !important;
+  margin-top: 15px;
+}
+
+.edit-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.todo-modal-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-small-cancel {
+  background: #A6A6A6 !important;
+  color: #ffffff !important;
+}
+
+.btn-small-cancel:hover {
+  background: #919191 !important;
+  color: #ffffff !important;
+}
+
+.btn-update {
+  background: #5977f8;
+  color: white;
+}
+
+.btn-update:hover {
+  background: #4b66de;
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.2);
+}
+
+/* STATUS SELECTOR IN MODAL */
+.edit-status-container {
+  position: relative;
+}
+
+.edit-status-trigger {
+  height: 36px !important;
+  min-width: 120px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  padding: 0 16px !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  transition: all 0.2s ease;
+  border: none !important;
+}
+
+.status-pending {
+  background: #EE5C22;
+  color: white;
+}
+
+.status-completed {
+  background: #13E213;
+  color: white;
+}
+
+.status-on-hold {
+  background: #FACC15;
+  color: #854D0E;
+}
+
+.edit-status-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  min-width: 130px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.edit-status-option {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-status-option:hover {
+  background: #f8fafc;
+  color: #5977f8;
+}
+
+.todo-detail-modal-body {
+  padding: 20px !important;
+}
+
+.todo-detail-modal-body .admin-to-do-list-detail-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #475569;
+}
+
+/* Custom Modal Padding and Height */
+.admin-todo-detail-modal .modal-content {
+  padding: 15px !important;
+  min-height: auto !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-todo-detail-modal .modal-body {
+  flex: 1;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-todo-detail-modal .edit-modal-actions {
+  margin-top: 5px !important;
+}
+
+.admin-todo-detail-modal .modal-header {
+  padding: 0 !important;
+  margin-bottom: 5px;
+}
+
+/* ================= CUSTOM DATE PICKER FOR MODALS ================= */
+.todo-custom-date-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  background: #ffffff;
+}
+
+.todo-date-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.todo-date-text {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  font-weight: 400;
+  color: #374151;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.todo-calendar-icon {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* ── DIRECT EDITABLE DATE FIELD WITH CUSTOM ICON ── */
+.todo-date-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.todo-date-direct-input {
+  width: 100%;
+  padding: 10px 42px 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  font-size: 14px;
+  color: #374151;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  background: #ffffff;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.todo-date-direct-input:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.todo-date-direct-input::-webkit-calendar-picker-indicator {
+  display: none;
+  opacity: 0;
+  width: 0;
+  -webkit-appearance: none;
+}
+
+.todo-calendar-icon-btn {
+  position: absolute;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  pointer-events: all;
+}
+
+@media (min-width: 993px) {
+  .employee-activity-table {
+    min-width: 100% !important;
+    width: 100% !important;
+    table-layout: fixed;
+  }
+  .employee-activity-table td {
+    word-break: break-word;
+  }
+}
+
+.admin-todo-detail-modal .common-modal-title {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  margin-bottom: 10px !important;
+}
+
+.admin-todo-detail-modal .common-modal-close-x {
+  position: absolute !important;
+  top: 10px !important;
+  right: 15px !important;
+}
+
+/* ==========================================================================
+   UNASSIGNED YEAR HOLIDAY CALENDAR BANNER (ADMIN DASHBOARD)
+   ========================================================================== */
+
+.ha-unassigned-year-banner {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ha-unassigned-year-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(251, 146, 60, 0.18);
+}
+
+.ha-unassigned-year-banner__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ha-unassigned-year-banner__icon-wrap {
+  width: 44px;
+  height: 44px;
+  background: #ea580c;
+  color: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ha-unassigned-year-banner__title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #9a3412;
+  margin: 0 0 4px 0;
+}
+
+.ha-unassigned-year-banner__desc {
+  font-size: 12px;
+  color: #c2410c;
+  margin: 0;
+}
+
+.ha-unassigned-year-banner__btn {
+  background: #ea580c;
+  color: #ffffff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.ha-unassigned-year-banner__btn:hover {
+  background: #c2410c;
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   EMPLOYEE BIRTHDAY CARD COMPONENT (ADMIN DASHBOARD)
+   ═════════════════════════════════════════════════════════════════ */
+@keyframes bdayGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes bdayFloatIcon {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(8deg);
+  }
+}
+
+@keyframes bdayBadgePulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.25) rotate(14deg);
+  }
+}
+
+@keyframes bdayShimmerSweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  30%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes bdayCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bdayParticleFloat {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-18px) rotate(18deg) scale(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+@keyframes avatarAuraPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.65), 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(255, 255, 255, 0), 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes bdayPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(14px);
+  }
+  70% {
+    transform: scale(1.03) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Floating Low-Opacity Background Balloons Animation */
+@keyframes floatBalloonsUp {
+  0% {
+    transform: translateY(120%) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateY(0%) translateX(16px) rotate(10deg);
+    opacity: 0.22;
+  }
+  85% {
+    opacity: 0.18;
+  }
+  100% {
+    transform: translateY(-130%) translateX(-12px) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+.admin-birthday-card {
+  background: linear-gradient(135deg, #6366f1 0%, #55b4f7 35%, #8b5cf6 70%, #6452fd 100%);
+  background-size: 200% 200%;
+  animation: bdayCardSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards, bdayGradientFlow 8s ease infinite;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 24px;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.admin-birthday-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.admin-birthday-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  animation: bdayShimmerSweep 5s infinite ease-in-out;
+}
+
+.admin-birthday-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(99, 102, 241, 0.45);
+}
+
+/* Floating Low-Opacity Balloons */
+.admin-birthday-card__bg-balloon {
+  position: absolute;
+  pointer-events: none;
+  font-size: 32px;
+  user-select: none;
+  z-index: 1;
+  opacity: 0.18;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+  animation: floatBalloonsUp 9s ease-in-out infinite;
+}
+
+.admin-birthday-card__bg-balloon.b1 {
+  left: 8%;
+  bottom: -30px;
+  font-size: 28px;
+  animation-duration: 8s;
+  animation-delay: 0s;
+}
+
+.admin-birthday-card__bg-balloon.b2 {
+  left: 28%;
+  bottom: -30px;
+  font-size: 36px;
+  animation-duration: 10s;
+  animation-delay: 2s;
+}
+
+.admin-birthday-card__bg-balloon.b3 {
+  left: 52%;
+  bottom: -30px;
+  font-size: 30px;
+  animation-duration: 9s;
+  animation-delay: 4.5s;
+}
+
+.admin-birthday-card__bg-balloon.b4 {
+  left: 74%;
+  bottom: -30px;
+  font-size: 34px;
+  animation-duration: 11s;
+  animation-delay: 1.5s;
+}
+
+.admin-birthday-card__bg-balloon.b5 {
+  left: 90%;
+  bottom: -30px;
+  font-size: 26px;
+  animation-duration: 8.5s;
+  animation-delay: 3.5s;
+}
+
+/* Floating Particle Background Effects */
+.admin-birthday-card__bg-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 20px;
+  user-select: none;
+  z-index: 1;
+  animation: bdayParticleFloat 4.5s ease-in-out infinite;
+}
+
+.admin-birthday-card__bg-particle.p1 {
+  top: 12%;
+  right: 10%;
+  animation-delay: 0s;
+}
+
+.admin-birthday-card__bg-particle.p2 {
+  bottom: 18%;
+  right: 25%;
+  font-size: 24px;
+  animation-delay: 1.2s;
+}
+
+.admin-birthday-card__bg-particle.p3 {
+  top: 22%;
+  left: 48%;
+  font-size: 18px;
+  animation-delay: 2.2s;
+}
+
+.admin-birthday-card__bg-particle.p4 {
+  bottom: 12%;
+  left: 32%;
+  font-size: 22px;
+  animation-delay: 0.8s;
+}
+
+.admin-birthday-card__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 2;
+}
+
+.admin-birthday-card__icon-badge {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: bdayFloatIcon 3.5s ease-in-out infinite;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.admin-birthday-card__cake-icon {
+  font-size: 24px;
+  color: #ffffff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.admin-birthday-card__header-text {
+  flex: 1;
+}
+
+.admin-birthday-card__title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.2px;
+}
+
+.admin-birthday-card__subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-weight: 400;
+}
+
+.admin-birthday-card__grid {
+  display: grid;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.admin-birthday-card__item {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  animation: bdayPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.admin-birthday-card__item:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+.admin-birthday-card__avatar-wrap {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+.admin-birthday-card__avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  animation: avatarAuraPulse 3.2s ease-in-out infinite;
+}
+
+.admin-birthday-card__confetti-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  padding: 1px 3px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  animation: bdayBadgePulse 2.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+.admin-birthday-card__emp-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-birthday-card__emp-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-birthday-card__emp-id {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 1px 7px;
+  border-radius: 6px;
+  margin-bottom: 3px;
+  letter-spacing: 0.3px;
+}
+
+.admin-birthday-card__emp-meta {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.88);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-birthday-card__dot {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.admin-birthday-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 14px;
+  position: relative;
+  z-index: 5;
+}
+
+.admin-birthday-card__wish-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #4f46e5;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.admin-birthday-card__wish-btn:hover:not(:disabled) {
+  background: #ffffff;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.admin-birthday-card__wish-btn.wished,
+.admin-birthday-card__wish-btn:disabled {
+  background: #22c55e;
+  color: #ffffff;
+  cursor: not-allowed;
+  opacity: 0.9;
+  transform: none;
+  box-shadow: none;
+}
+
+.admin-birthday-card__reply-box {
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-style: italic;
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.admin-birthday-card__reply-tag {
+  font-weight: 500;
+  font-style: normal;
+  margin-right: 3px;
+  color: #fef08a;
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   SEND BIRTHDAY WISH MODAL
+   ═════════════════════════════════════════════════════════════════ */
+.birthday-wish-modal-custom .modal-content {
+  padding: 15px;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.birthday-wish-modal-custom .modal-header,
+.birthday-wish-modal-custom .bday-modal__header {
+  padding: 0 !important;
+  margin-bottom: 12px !important;
+  border: none !important;
+}
+
+.birthday-wish-modal-custom .modal-body,
+.birthday-wish-modal-custom .bday-modal__body {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.birthday-wish-modal-custom .modal-footer,
+.birthday-wish-modal-custom .bday-modal__footer {
+  padding: 0 !important;
+  border: none !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 12px !important;
+  /* margin-top: 15px !important; */
+  width: 100% !important;
+}
+
+.birthday-wish-modal-custom .modal-footer .btn-small-cancel,
+.birthday-wish-modal-custom .btn-small-cancel {
+  background: #A6A6A6 !important;
+  background-color: #A6A6A6 !important;
+  color: #ffffff !important;
+}
+
+.birthday-wish-modal-custom .modal-footer .btn-small-cancel:hover,
+.birthday-wish-modal-custom .btn-small-cancel:hover {
+  background: #919191 !important;
+  background-color: #919191 !important;
+  color: #ffffff !important;
+}
+
+.birthday-wish-modal-custom .modal-footer .btn-update,
+.birthday-wish-modal-custom .btn-update {
+  background: #5977f8 !important;
+  background-color: #5977f8 !important;
+  color: #ffffff !important;
+}
+
+.birthday-wish-modal-custom .modal-footer .btn-update:hover,
+.birthday-wish-modal-custom .btn-update:hover {
+  background: #4b66de !important;
+  background-color: #4b66de !important;
+  color: #ffffff !important;
+}
+
+.bday-modal__title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bday-modal__user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.bday-modal__user-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bday-modal__user-name {
+  margin: 0;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.bday-modal__user-info {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.bday-modal__label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #868585;
+  margin-bottom: 6px;
+}
+
+.bday-modal__textarea {
+  font-size: 12px;
+  color: #868585;
+  font-weight: 500;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  padding: 10px 12px;
+}
+
+.bday-modal__textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.bday-modal__cancel-btn {
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 18px;
+}
+
+.bday-modal__submit-btn {
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 18px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  border: none !important;
+}
+
+@media (max-width: 768px) {
+  .admin-birthday-card {
+    padding: 16px 18px;
+    border-radius: 12px;
+  }
+  .admin-birthday-card__grid {
+    grid-template-columns: 1fr;
+  }
+}
+

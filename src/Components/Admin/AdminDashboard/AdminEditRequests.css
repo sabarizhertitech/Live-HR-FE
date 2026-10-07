@@ -1,0 +1,301 @@
+/* ================= EDIT REQUESTS CARD ================= */
+.admin-editrequest-card {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.admin-editrequest-card .admin-editrequest-card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+
+.admin-editrequest-card .admin-editrequest-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-editrequest-card .admin-editrequest-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #8b5cf6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.admin-editrequest-card .admin-editrequest-header-left h5 {
+  margin: 0;
+  font-weight: 500;
+  color: #3A466D;
+  font-size: 18px;
+}
+
+.admin-editrequest-card .admin-editrequest-header-left p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.admin-editrequest-request-count-badge {
+  font-size: 12px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background-color: #fcd34d !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* ================= REQUESTS LIST ================= */
+.admin-editrequest-requests-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.admin-editrequest-request-item {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+}
+
+/* .admin-editrequest-request-item:hover {
+  background-color: #f9fafb;
+} */
+
+.admin-editrequest-request-item:last-child {
+  border-bottom: none;
+}
+
+.admin-editrequest-request-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.admin-editrequest-request-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-editrequest-request-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.admin-editrequest-request-header h6 {
+  margin: 0;
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 15px;
+}
+
+.admin-editrequest-request-time {
+  font-size: 12px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  margin-bottom: auto; /* Push buttons to the bottom */
+}
+
+.admin-editrequest-request-emp-id {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 10px 0;
+  font-weight: 500;
+}
+
+.admin-editrequest-request-message {
+  font-size: 14px;
+  color: #4b5563;
+  margin: 0;
+  background: #f3f4f6;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-editrequest-request-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-shrink: 0;
+  min-height: 80px;
+}
+
+.admin-editrequest-request-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: auto;
+}
+
+.admin-editrequest-request-actions .admin-editrequest-btn-reject {
+  background: #ffffff;
+  border: 1px solid #fecaca;
+  color: #ef4444;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.admin-editrequest-request-actions .admin-editrequest-btn-reject:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.admin-editrequest-request-actions .admin-editrequest-btn-approve {
+  background: #10b981;
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.admin-editrequest-request-actions .admin-editrequest-btn-approve:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* ================= CONFIRMATION MODAL ================= */
+.admin-editrequest-confirm-action-modal .modal-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.admin-editrequest-confirm-action-modal .modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 24px;
+}
+
+.admin-editrequest-confirm-action-modal .modal-title {
+  font-weight: 500;
+  font-size: 20px;
+  color: #1f2a44;
+}
+
+.admin-editrequest-confirm-action-modal .modal-body {
+  padding: 30px 24px;
+}
+
+.admin-editrequest-confirm-content {
+  text-align: center;
+}
+
+.admin-editrequest-confirm-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 2rem;
+}
+
+.admin-editrequest-confirm-icon.approved {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #059669;
+}
+
+.admin-editrequest-confirm-icon.rejected {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+}
+
+.admin-editrequest-confirm-content>p {
+  color: #4b5563;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.admin-editrequest-request-summary {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.admin-editrequest-request-summary p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.admin-editrequest-request-summary p:last-child {
+  margin-bottom: 0;
+}
+
+.admin-editrequest-approval-note {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin: 0;
+}
+
+.admin-editrequest-confirm-action-modal .modal-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 16px 24px;
+  gap: 12px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .admin-editrequest-request-item {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .admin-editrequest-request-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .admin-editrequest-request-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+

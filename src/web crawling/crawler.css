@@ -1,0 +1,2722 @@
+/* =========================================================
+   WebIntel — Enterprise WEBSITE Intelligence Platform
+   Design System v2.0 — Clean Light Mode
+   Reference: Stripe / Vercel / Datadog / Linear
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ---------------------------------------------------------
+   1. CSS CUSTOM PROPERTIES — DESIGN TOKENS
+   --------------------------------------------------------- */
+:root {
+  /* Surfaces */
+  --wi-bg:            #f8fafc;
+  --wi-surface:       #ffffff;
+  --wi-surface-2:     #f1f5f9;
+  --wi-surface-3:     #e8edf4;
+
+  /* Borders */
+  --wi-border:        #e2e8f0;
+  --wi-border-strong: #cbd5e1;
+
+  /* Text */
+  --wi-text-primary:   #0f172a;
+  --wi-text-secondary: #475569;
+  --wi-text-muted:     #94a3b8;
+  --wi-text-inverse:   #ffffff;
+
+  /* Accent — Indigo */
+  --wi-accent:        #4f46e5;
+  --wi-accent-light:  #eef2ff;
+  --wi-accent-hover:  #4338ca;
+
+  /* Semantic Colors */
+  --wi-success:       #059669;
+  --wi-success-bg:    #f0fdf4;
+  --wi-success-border:#bbf7d0;
+
+  --wi-warning:       #d97706;
+  --wi-warning-bg:    #fffbeb;
+  --wi-warning-border:#fde68a;
+
+  --wi-danger:        #dc2626;
+  --wi-danger-bg:     #fef2f2;
+  --wi-danger-border: #fecaca;
+
+  --wi-info:          #0284c7;
+  --wi-info-bg:       #f0f9ff;
+  --wi-info-border:   #bae6fd;
+
+  /* Sidebar */
+  --wi-sidebar-width:       240px;
+  --wi-sidebar-bg:          #ffffff;
+  --wi-sidebar-border:      #e2e8f0;
+  --wi-topbar-height:       60px;
+
+  /* Shadows */
+  --wi-shadow-xs:     0 1px 2px rgba(0,0,0,0.05);
+  --wi-shadow-sm:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --wi-shadow-md:     0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --wi-shadow-lg:     0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.04);
+
+  /* Radius */
+  --wi-radius-sm:     6px;
+  --wi-radius:        10px;
+  --wi-radius-lg:     14px;
+  --wi-radius-xl:     18px;
+
+  /* Transitions */
+  --wi-transition:    all 0.15s ease;
+  --wi-transition-md: all 0.25s ease;
+}
+
+/* ---------------------------------------------------------
+   2. LAYOUT SHELL
+   --------------------------------------------------------- */
+
+.wi-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--wi-bg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--wi-text-primary);
+}
+
+.wi-main-area {
+  flex: 1;
+  padding-left: var(--wi-sidebar-width);
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: padding-left var(--wi-transition-md);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.wi-page-content {
+  flex: 1;
+  padding: 2rem 2rem;
+  max-width: 1400px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------
+   3. SIDEBAR
+   --------------------------------------------------------- */
+
+.wi-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--wi-sidebar-width);
+  height: 100vh;
+  background: var(--wi-sidebar-bg);
+  border-right: 1px solid var(--wi-sidebar-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: transform var(--wi-transition-md);
+}
+
+.wi-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--wi-border);
+  text-decoration: none;
+}
+
+.wi-sidebar-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--wi-accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wi-sidebar-logo-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--wi-text-primary);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.wi-sidebar-logo-sub {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--wi-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wi-sidebar-nav {
+  flex: 1;
+  padding: 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.wi-nav-group-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--wi-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 0 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.wi-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wi-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--wi-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--wi-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  transition: var(--wi-transition);
+  position: relative;
+}
+
+.wi-nav-item:hover {
+  background: var(--wi-surface-2);
+  color: var(--wi-text-primary);
+  text-decoration: none;
+}
+
+.wi-nav-item.active {
+  background: var(--wi-accent-light);
+  color: var(--wi-accent);
+  font-weight: 600;
+}
+
+.wi-nav-item.active svg {
+  color: var(--wi-accent);
+}
+
+.wi-nav-item svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  transition: var(--wi-transition);
+}
+
+.wi-nav-item.active svg,
+.wi-nav-item:hover svg {
+  opacity: 1;
+}
+
+.wi-sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--wi-border);
+  font-size: 0.75rem;
+  color: var(--wi-text-muted);
+}
+
+/* ---------------------------------------------------------
+   4. TOPBAR (Mobile)
+   --------------------------------------------------------- */
+
+.wi-topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 150;
+  height: var(--wi-topbar-height);
+  background: var(--wi-surface);
+  border-bottom: 1px solid var(--wi-border);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  box-shadow: var(--wi-shadow-xs);
+}
+
+.wi-topbar-brand {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--wi-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wi-hamburger {
+  background: transparent;
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-sm);
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wi-text-secondary);
+  transition: var(--wi-transition);
+}
+
+.wi-hamburger:hover {
+  background: var(--wi-surface-2);
+  color: var(--wi-text-primary);
+}
+
+/* ---------------------------------------------------------
+   5. MOBILE DRAWER
+   --------------------------------------------------------- */
+
+.wi-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--wi-transition-md);
+}
+
+.wi-drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.wi-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--wi-sidebar-width);
+  height: 100vh;
+  background: var(--wi-surface);
+  z-index: 400;
+  transform: translateX(-100%);
+  transition: transform var(--wi-transition-md);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--wi-shadow-lg);
+}
+
+.wi-drawer.open {
+  transform: translateX(0);
+}
+
+/* ---------------------------------------------------------
+   6. CARDS
+   --------------------------------------------------------- */
+
+.wi-card {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--wi-shadow-sm);
+  transition: var(--wi-transition-md);
+  box-sizing: border-box;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.wi-card:hover {
+  box-shadow: var(--wi-shadow-md);
+}
+
+.wi-card-flat {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius);
+  padding: 1.25rem;
+}
+
+.wi-card-tinted {
+  background: var(--wi-surface-2);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius);
+  padding: 1rem 1.25rem;
+}
+
+/* ---------------------------------------------------------
+   7. STAT CARDS
+   --------------------------------------------------------- */
+
+.wi-stat-card {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-lg);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--wi-shadow-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: var(--wi-transition-md);
+}
+
+.wi-stat-card:hover {
+  box-shadow: var(--wi-shadow-md);
+  transform: translateY(-1px);
+}
+
+.wi-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--wi-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wi-stat-icon.indigo  { background: var(--wi-accent-light); color: var(--wi-accent); }
+.wi-stat-icon.green   { background: var(--wi-success-bg); color: var(--wi-success); }
+.wi-stat-icon.amber   { background: var(--wi-warning-bg); color: var(--wi-warning); }
+.wi-stat-icon.red     { background: var(--wi-danger-bg); color: var(--wi-danger); }
+.wi-stat-icon.blue    { background: var(--wi-info-bg); color: var(--wi-info); }
+
+.wi-stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--wi-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.wi-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--wi-text-primary);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.wi-stat-sub {
+  font-size: 0.75rem;
+  color: var(--wi-text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ---------------------------------------------------------
+   8. SCORE BARS
+   --------------------------------------------------------- */
+
+.wi-score-card {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius);
+  padding: 1rem 1.25rem;
+}
+
+.wi-score-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--wi-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.wi-score-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--wi-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.wi-score-bar-track {
+  height: 6px;
+  background: var(--wi-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.wi-score-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wi-score-bar-fill.indigo { background: var(--wi-accent); }
+.wi-score-bar-fill.green  { background: var(--wi-success); }
+.wi-score-bar-fill.amber  { background: var(--wi-warning); }
+.wi-score-bar-fill.red    { background: var(--wi-danger); }
+
+/* ---------------------------------------------------------
+   9. STATUS BADGES
+   --------------------------------------------------------- */
+
+.wi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.wi-badge-success  { background: var(--wi-success-bg);  color: var(--wi-success);  border: 1px solid var(--wi-success-border); }
+.wi-badge-warning  { background: var(--wi-warning-bg);  color: var(--wi-warning);  border: 1px solid var(--wi-warning-border); }
+.wi-badge-danger   { background: var(--wi-danger-bg);   color: var(--wi-danger);   border: 1px solid var(--wi-danger-border); }
+.wi-badge-info     { background: var(--wi-info-bg);     color: var(--wi-info);     border: 1px solid var(--wi-info-border); }
+.wi-badge-neutral  { background: var(--wi-surface-2);   color: var(--wi-text-secondary); border: 1px solid var(--wi-border); }
+.wi-badge-accent   { background: var(--wi-accent-light); color: var(--wi-accent);  border: 1px solid #c7d2fe; }
+
+/* ---------------------------------------------------------
+   10. BUTTONS
+   --------------------------------------------------------- */
+
+.wi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  border-radius: var(--wi-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--wi-transition);
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wi-btn-primary {
+  background: var(--wi-accent);
+  color: #ffffff;
+  border-color: var(--wi-accent);
+}
+.wi-btn-primary:hover {
+  background: var(--wi-accent-hover);
+  border-color: var(--wi-accent-hover);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.wi-btn-secondary {
+  background: var(--wi-surface);
+  color: var(--wi-text-secondary);
+  border-color: var(--wi-border);
+}
+.wi-btn-secondary:hover {
+  background: var(--wi-surface-2);
+  color: var(--wi-text-primary);
+  border-color: var(--wi-border-strong);
+  text-decoration: none;
+}
+
+.wi-btn-ghost {
+  background: transparent;
+  color: var(--wi-text-secondary);
+  border-color: transparent;
+}
+.wi-btn-ghost:hover {
+  background: var(--wi-surface-2);
+  color: var(--wi-text-primary);
+}
+
+.wi-btn-danger {
+  background: var(--wi-danger-bg);
+  color: var(--wi-danger);
+  border-color: var(--wi-danger-border);
+}
+.wi-btn-danger:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.wi-btn-sm {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.wi-btn-lg {
+  padding: 0.7rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.wi-btn-icon {
+  padding: 0.4rem;
+  border-radius: var(--wi-radius-sm);
+}
+
+/* ---------------------------------------------------------
+   11. SECTION HEADERS
+   --------------------------------------------------------- */
+
+.wi-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--wi-border);
+  margin-bottom: 1.25rem;
+}
+
+.wi-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wi-section-title h3,
+.wi-section-title h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--wi-text-primary);
+  margin: 0;
+}
+
+.wi-section-title svg {
+  color: var(--wi-text-muted);
+  flex-shrink: 0;
+}
+
+.wi-section-desc {
+  font-size: 0.8rem;
+  color: var(--wi-text-muted);
+  margin: 0.2rem 0 0 0;
+}
+
+/* ---------------------------------------------------------
+   12. TABLES
+   --------------------------------------------------------- */
+
+.wi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+}
+
+.wi-table th {
+  padding: 0.625rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--wi-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--wi-border);
+  background: var(--wi-surface-2);
+  white-space: nowrap;
+}
+
+.wi-table th:first-child { border-radius: var(--wi-radius-sm) 0 0 0; }
+.wi-table th:last-child  { border-radius: 0 var(--wi-radius-sm) 0 0; }
+
+.wi-table td {
+  padding: 0.875rem 1rem;
+  color: var(--wi-text-secondary);
+  border-bottom: 1px solid var(--wi-border);
+  vertical-align: middle;
+}
+
+.wi-table tr:last-child td {
+  border-bottom: none;
+}
+
+.wi-table tr {
+  transition: var(--wi-transition);
+}
+
+.wi-table tbody tr:hover {
+  background: var(--wi-surface-2);
+  cursor: pointer;
+}
+
+.wi-table-wrap {
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-lg);
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------
+   13. PAGE HEADER (Report / Sub-pages)
+   --------------------------------------------------------- */
+
+.wi-page-header {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-xl);
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--wi-shadow-sm);
+}
+
+.wi-page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--wi-text-primary);
+  letter-spacing: -0.4px;
+  margin: 0;
+  word-break: break-all;
+}
+
+.wi-page-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+  align-items: center;
+}
+
+.wi-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--wi-text-muted);
+}
+
+.wi-meta-item svg {
+  opacity: 0.7;
+}
+
+/* ---------------------------------------------------------
+   14. INFO GRID CELLS
+   --------------------------------------------------------- */
+
+.wi-info-cell {
+  padding: 0.875rem 1rem;
+  border-top: 1px solid var(--wi-border);
+  border-bottom: 1px solid var(--wi-border);
+  margin-top: -1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-sizing: border-box;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.wi-info-cell:last-child {
+  border-bottom: none;
+}
+
+.wi-info-key {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--wi-text-muted);
+  flex-shrink: 0;
+}
+
+.wi-info-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--wi-text-primary);
+  text-align: right;
+  word-break: break-all;
+}
+
+.wi-info-value.mono {
+  font-family: 'SFMono-Regular', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------
+   15. EMPTY STATES
+   --------------------------------------------------------- */
+
+.wi-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 2rem;
+  text-align: center;
+}
+
+.wi-empty-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--wi-surface-2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: var(--wi-text-muted);
+}
+
+.wi-empty-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--wi-text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.wi-empty-desc {
+  font-size: 0.825rem;
+  color: var(--wi-text-muted);
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------
+   16. ISSUE CARDS (Risk / SEO)
+   --------------------------------------------------------- */
+
+.wi-issue-card {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius);
+  padding: 1.25rem;
+  transition: var(--wi-transition-md);
+}
+
+.wi-issue-card:hover {
+  box-shadow: var(--wi-shadow-sm);
+}
+
+.wi-issue-card.severity-high {
+  border-left: 3px solid var(--wi-danger);
+}
+
+.wi-issue-card.severity-medium {
+  border-left: 3px solid var(--wi-warning);
+}
+
+.wi-issue-card.severity-low {
+  border-left: 3px solid var(--wi-success);
+}
+
+.wi-recommendation-box {
+  background: var(--wi-surface-2);
+  border-radius: var(--wi-radius-sm);
+  padding: 0.875rem 1rem;
+  margin-top: 0.875rem;
+  font-size: 0.8rem;
+  color: var(--wi-text-secondary);
+  line-height: 1.6;
+  border-left: 3px solid var(--wi-border-strong);
+}
+
+/* ---------------------------------------------------------
+   17. TECH STACK PILLS
+   --------------------------------------------------------- */
+
+.wi-tech-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.75rem;
+  background: var(--wi-surface-2);
+  border: 1px solid var(--wi-border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--wi-text-secondary);
+  transition: var(--wi-transition);
+}
+
+.wi-tech-pill:hover {
+  background: var(--wi-accent-light);
+  border-color: #c7d2fe;
+  color: var(--wi-accent);
+}
+
+/* ---------------------------------------------------------
+   18. STEP STEPPER (Analyze Form)
+   --------------------------------------------------------- */
+
+.wi-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.wi-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.wi-step + .wi-step::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--wi-border);
+  z-index: 0;
+}
+
+.wi-step.done + .wi-step::before { background: var(--wi-success); }
+.wi-step.active + .wi-step::before { background: var(--wi-border); }
+
+.wi-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--wi-border);
+  background: var(--wi-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--wi-text-muted);
+  z-index: 1;
+  transition: var(--wi-transition-md);
+}
+
+.wi-step.done   .wi-step-dot { border-color: var(--wi-success); background: var(--wi-success); color: #fff; }
+.wi-step.active .wi-step-dot { border-color: var(--wi-accent);  background: var(--wi-accent);  color: #fff; }
+.wi-step.error  .wi-step-dot { border-color: var(--wi-danger);  background: var(--wi-danger);  color: #fff; }
+
+.wi-step-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--wi-text-muted);
+  margin-top: 0.375rem;
+  text-align: center;
+}
+.wi-step.done   .wi-step-label { color: var(--wi-success); }
+.wi-step.active .wi-step-label { color: var(--wi-accent); }
+
+/* ---------------------------------------------------------
+   19. LOG STREAM (Analyze Form)
+   --------------------------------------------------------- */
+
+.wi-log-stream {
+  background: #f8fafc;
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius);
+  padding: 1rem;
+  height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: 'SFMono-Regular', 'Cascadia Code', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.wi-log-stream::-webkit-scrollbar { width: 4px; }
+.wi-log-stream::-webkit-scrollbar-track { background: transparent; }
+.wi-log-stream::-webkit-scrollbar-thumb { background: var(--wi-border-strong); border-radius: 999px; }
+
+.wi-log-line {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.1rem 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.wi-log-time  {
+  color: var(--wi-text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.wi-log-info  { color: var(--wi-info); }
+.wi-log-warn  { color: var(--wi-warning); }
+.wi-log-error { color: var(--wi-danger); }
+.wi-log-msg   {
+  color: var(--wi-text-secondary);
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* ---------------------------------------------------------
+   20. POLICY CHECKLIST
+   --------------------------------------------------------- */
+
+.wi-policy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--wi-border);
+  transition: var(--wi-transition);
+}
+
+.wi-policy-row:last-child { border-bottom: none; }
+.wi-policy-row:hover { background: var(--wi-surface-2); }
+
+.wi-clause-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--wi-border);
+}
+
+.wi-clause-row:last-child { border-bottom: none; }
+
+/* ---------------------------------------------------------
+   21. SEARCH BAR
+   --------------------------------------------------------- */
+
+.wi-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-sm);
+  padding: 0.4rem 0.75rem;
+  transition: var(--wi-transition);
+}
+
+.wi-search:focus-within {
+  border-color: var(--wi-accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.wi-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--wi-text-primary);
+  width: 100%;
+}
+
+.wi-search input::placeholder {
+  color: var(--wi-text-muted);
+}
+
+.wi-search svg {
+  color: var(--wi-text-muted);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------
+   22. FORM ELEMENTS — Crawler specific
+   --------------------------------------------------------- */
+
+.wi-form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--wi-text-secondary);
+  margin-bottom: 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wi-input {
+  width: 100%;
+  padding: 0.55rem 0.875rem;
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-sm);
+  font-size: 0.875rem;
+  color: var(--wi-text-primary);
+  transition: var(--wi-transition);
+  outline: none;
+  appearance: none;
+}
+
+.wi-input:focus {
+  border-color: var(--wi-accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.wi-input::placeholder { color: var(--wi-text-muted); }
+
+.wi-input-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-sm);
+  background: var(--wi-surface);
+  overflow: hidden;
+  transition: var(--wi-transition);
+}
+
+.wi-input-group:focus-within {
+  border-color: var(--wi-accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.wi-input-group-icon {
+  padding: 0 0.75rem;
+  color: var(--wi-text-muted);
+  display: flex;
+  align-items: center;
+  background: var(--wi-surface-2);
+  border-right: 1px solid var(--wi-border);
+  height: 100%;
+}
+
+.wi-input-group input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: var(--wi-text-primary);
+  background: transparent;
+}
+
+.wi-input-group input::placeholder { color: var(--wi-text-muted); }
+
+/* ---------------------------------------------------------
+   23. ALERT BANNERS
+   --------------------------------------------------------- */
+
+.wi-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--wi-radius);
+  font-size: 0.875rem;
+}
+
+.wi-alert-success { background: var(--wi-success-bg); border: 1px solid var(--wi-success-border); color: var(--wi-success); }
+.wi-alert-danger  { background: var(--wi-danger-bg);  border: 1px solid var(--wi-danger-border);  color: var(--wi-danger); }
+.wi-alert-warning { background: var(--wi-warning-bg); border: 1px solid var(--wi-warning-border); color: var(--wi-warning); }
+.wi-alert-info    { background: var(--wi-info-bg);    border: 1px solid var(--wi-info-border);    color: var(--wi-info); }
+
+/* ---------------------------------------------------------
+   24. PULSE INDICATOR
+   --------------------------------------------------------- */
+
+.wi-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--wi-success);
+  animation: wi-pulse-anim 2s infinite;
+}
+
+@keyframes wi-pulse-anim {
+  0%   { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(5, 150, 105, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+}
+
+/* ---------------------------------------------------------
+   25. FILTER TABS
+   --------------------------------------------------------- */
+
+.wi-filter-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--wi-surface-2);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-sm);
+  padding: 3px;
+}
+
+.wi-filter-tab {
+  padding: 0.3rem 0.75rem;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--wi-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--wi-transition);
+  white-space: nowrap;
+}
+
+.wi-filter-tab:hover { color: var(--wi-text-primary); }
+
+.wi-filter-tab.active {
+  background: var(--wi-surface);
+  color: var(--wi-text-primary);
+  font-weight: 600;
+  box-shadow: var(--wi-shadow-xs);
+}
+
+/* ---------------------------------------------------------
+   26. COPY BUTTON
+   --------------------------------------------------------- */
+
+.wi-copy-btn {
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--wi-border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--wi-text-muted);
+  font-size: 0.75rem;
+  transition: var(--wi-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.wi-copy-btn:hover {
+  background: var(--wi-surface-2);
+  color: var(--wi-text-primary);
+  border-color: var(--wi-border-strong);
+}
+
+/* ---------------------------------------------------------
+   27. LOADING SKELETON
+   --------------------------------------------------------- */
+
+.wi-skeleton {
+  background: linear-gradient(90deg, var(--wi-surface-2) 25%, var(--wi-surface-3) 50%, var(--wi-surface-2) 75%);
+  background-size: 400% 100%;
+  animation: wi-shimmer 1.5s infinite;
+  border-radius: var(--wi-radius-sm);
+}
+
+@keyframes wi-shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---------------------------------------------------------
+   28. SPINNER OVERRIDE
+   --------------------------------------------------------- */
+
+.wi-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--wi-border);
+  border-top-color: var(--wi-accent);
+  border-radius: 50%;
+  animation: wi-spin 0.7s linear infinite;
+}
+
+@keyframes wi-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------------------------------------------------
+   29. LOADING PAGE
+   --------------------------------------------------------- */
+
+.wi-loading-page {
+  min-height: 100vh;
+  background: var(--wi-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.wi-loading-card {
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-xl);
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: var(--wi-shadow-lg);
+  max-width: 380px;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------
+   30. RESPONSIVE BREAKPOINTS
+   --------------------------------------------------------- */
+
+@media (max-width: 991px) {
+  .wi-shell {
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .wi-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .wi-main-area {
+    padding-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .wi-topbar {
+    display: flex !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .wi-page-content {
+    padding: 1.25rem 1rem;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .wi-stat-card {
+    padding: 1rem;
+  }
+
+  .wi-page-header {
+    padding: 1.25rem;
+  }
+
+  .wi-page-title {
+    font-size: 1.1rem;
+  }
+
+  .wi-page-meta {
+    gap: 0.875rem;
+  }
+
+  .wi-card {
+    padding: 1rem;
+  }
+
+  .wi-stepper {
+    gap: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .wi-page-content {
+    padding: 1rem 0.75rem;
+  }
+
+  .wi-table th,
+  .wi-table td {
+    padding: 0.625rem 0.625rem;
+  }
+}
+
+/* ---------------------------------------------------------
+   ALL MOBILE DEVICES UP TO 450px (320px - 450px)
+   --------------------------------------------------------- */
+@media (max-width: 450px) {
+  /* Global shell & page layout */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  .wi-shell {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  .wi-main-area {
+    padding-left: 0 !important;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .wi-page-content {
+    padding: 0.75rem 0.5rem !important;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Topbar & Drawer */
+  .wi-topbar {
+    height: 52px;
+    padding: 0 0.75rem;
+  }
+
+  .wi-topbar-brand {
+    font-size: 0.85rem;
+    gap: 6px;
+  }
+
+  .wi-drawer {
+    width: min(280px, 85vw);
+  }
+
+  /* Typography & Headings */
+  h1, .wi-page-title {
+    font-size: 1.15rem !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Page headers & Actions */
+  .wi-page-header {
+    padding: 0.85rem 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .wi-page-meta {
+    gap: 0.4rem 0.6rem !important;
+    margin-bottom: 1rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  .wi-meta-item {
+    font-size: 0.72rem !important;
+    padding: 0.2rem 0.45rem !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+  }
+
+  .wi-dashboard-header,
+  .wi-report-action-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .wi-dashboard-actions,
+  .wi-report-action-bar {
+    display: flex !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+
+  .wi-dashboard-actions > button,
+  .wi-report-action-bar > button {
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+
+  /* Cards */
+  .wi-card {
+    padding: 0.85rem 0.75rem !important;
+    border-radius: var(--wi-radius) !important;
+  }
+
+  .wi-card > div[style*="padding: 1.25rem"],
+  .wi-card > div[style*="padding: 1rem"],
+  .wi-card > div[style*="padding: 1.5rem"] {
+    padding: 0.75rem 0.65rem !important;
+  }
+
+  .wi-dashboard-table-header {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 0.85rem !important;
+  }
+
+  .wi-search {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* Stat cards */
+  .row.g-3 {
+    margin-left: -0.25rem !important;
+    margin-right: -0.25rem !important;
+  }
+
+  .row.g-3 > [class*="col-"] {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  .wi-stat-card {
+    padding: 0.65rem 0.55rem !important;
+    gap: 0.45rem !important;
+    border-radius: var(--wi-radius) !important;
+  }
+
+  .wi-stat-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 6px !important;
+  }
+
+  .wi-stat-icon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .wi-stat-label {
+    font-size: 0.62rem !important;
+    letter-spacing: 0.2px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .wi-stat-value {
+    font-size: 1.15rem !important;
+  }
+
+  .wi-stat-sub {
+    font-size: 0.65rem !important;
+    margin-top: 2px !important;
+  }
+
+  /* Score Overview Bar Cards */
+  .wi-score-card {
+    padding: 0.6rem 0.65rem !important;
+  }
+
+  .wi-score-label {
+    font-size: 0.65rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .wi-score-value {
+    font-size: 1.15rem !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .wi-score-bar-track {
+    height: 5px !important;
+  }
+
+  /* Verdict Banner */
+  .wi-verdict-banner {
+    padding: 1rem 0.85rem !important;
+    gap: 0.75rem !important;
+    border-radius: var(--wi-radius) !important;
+  }
+
+  .wi-verdict-banner > div:first-child,
+  .wi-verdict-banner-inner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+
+  .wi-verdict-icon {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 8px !important;
+  }
+
+  .wi-verdict-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .wi-verdict-title {
+    font-size: 1.2rem !important;
+  }
+
+  .wi-verdict-sub {
+    font-size: 0.78rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .wi-verdict-score-pill {
+    width: 100% !important;
+    padding: 0.6rem 0.85rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .wi-verdict-score-num {
+    font-size: 1.6rem !important;
+  }
+
+  .wi-verdict-score-label {
+    font-size: 0.68rem !important;
+    margin: 0 !important;
+  }
+
+  /* Checklists & Contact Rows */
+  .wi-checklist-item {
+    padding: 0.65rem 0.6rem !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .wi-checklist-dot {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .wi-checklist-name {
+    font-size: 0.8rem !important;
+    min-width: 120px !important;
+  }
+
+  .wi-checklist-sub {
+    font-size: 0.7rem !important;
+  }
+
+  .wi-checklist-status {
+    font-size: 0.62rem !important;
+    padding: 0.15rem 0.45rem !important;
+    margin-left: auto !important;
+  }
+
+  .wi-contact-row {
+    padding: 0.65rem 0.6rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.4rem !important;
+  }
+
+  .wi-contact-present,
+  .wi-contact-missing {
+    align-self: flex-start !important;
+    font-size: 0.75rem !important;
+  }
+
+  .wi-info-cell {
+    padding: 0.65rem 0.6rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.25rem !important;
+  }
+
+  .wi-info-value {
+    text-align: left !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* Tables */
+  .wi-table-container,
+  div[style*="overflowX: auto"],
+  div[style*="overflow-x: auto"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .wi-table {
+    width: 100% !important;
+    min-width: 480px !important;
+  }
+
+  .wi-table th,
+  .wi-table td {
+    padding: 0.5rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Section Header */
+  .wi-section-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.85rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+
+  .wi-section-title h3,
+  .wi-section-title h4 {
+    font-size: 0.88rem !important;
+  }
+
+  .wi-section-desc {
+    font-size: 0.72rem !important;
+  }
+
+  /* Form & Stepper (New Scan) */
+  .wi-stepper {
+    width: 100% !important;
+    gap: 0 !important;
+  }
+
+  .wi-step-dot {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 0.65rem !important;
+  }
+
+  .wi-step-label {
+    font-size: 0.6rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .wi-step + .wi-step::before {
+    top: 11px !important;
+  }
+
+  .wi-input,
+  select.wi-input,
+  .wi-input-group input {
+    font-size: 0.82rem !important;
+    padding: 0.45rem 0.6rem !important;
+  }
+
+  .wi-input-group input {
+    padding-left: 2.2rem !important;
+  }
+
+  .wi-form-label {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .wi-btn {
+    font-size: 0.8rem !important;
+    padding: 0.45rem 0.75rem !important;
+  }
+
+  .wi-btn-lg {
+    font-size: 0.85rem !important;
+    padding: 0.55rem 0.85rem !important;
+  }
+
+  .wi-log-stream {
+    padding: 0.55rem !important;
+    font-size: 0.7rem !important;
+    max-height: 200px !important;
+  }
+
+  .wi-log-line {
+    font-size: 0.7rem !important;
+    gap: 4px !important;
+  }
+
+  .wi-log-time {
+    font-size: 0.62rem !important;
+  }
+
+  .wi-log-msg {
+    font-size: 0.7rem !important;
+    word-break: break-all !important;
+  }
+
+  /* Form Validation Testing Matrix */
+  .wi-form-validation-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .wi-form-metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Understanding Tier Rows */
+  .wi-compliance-tier-row,
+  .wi-risk-tier-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    padding: 0.6rem 0.75rem !important;
+  }
+
+  .wi-compliance-tier-row span,
+  .wi-risk-tier-row span {
+    min-width: unset !important;
+  }
+
+  /* Policy Rows (Compliance Page) */
+  .wi-policy-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    padding: 0.85rem 0.75rem !important;
+  }
+
+  .wi-policy-row > span {
+    align-self: flex-start !important;
+    margin-top: 0 !important;
+  }
+
+  .wi-checklist-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Risk Summary Quick Stats */
+  .wi-risk-quick-stats {
+    width: 100% !important;
+    margin-left: 0 !important;
+    justify-content: space-between !important;
+  }
+
+  /* Issue Cards */
+  .wi-issue-card {
+    padding: 0.85rem 0.75rem !important;
+  }
+
+  /* Missing Items Report */
+  .wi-missing-item {
+    padding: 0.65rem 0.65rem !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* Final Recommendation */
+  .wi-final-recommendation {
+    padding: 1.1rem 0.85rem !important;
+    border-radius: var(--wi-radius) !important;
+    margin-top: 1.25rem !important;
+  }
+
+  .wi-final-rec-title {
+    font-size: 1.05rem !important;
+  }
+
+  .wi-final-rec-issue {
+    font-size: 0.75rem !important;
+    padding: 0.45rem 0.65rem !important;
+  }
+
+  /* Pages Directory Pagination */
+  .wi-pages-pagination-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .wi-pages-pagination-footer > div:last-child {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+}
+
+/* ---------------------------------------------------------
+   31. UTILITY CLASSES
+   --------------------------------------------------------- */
+
+.wi-text-primary   { color: var(--wi-text-primary) !important; }
+.wi-text-secondary { color: var(--wi-text-secondary) !important; }
+.wi-text-muted     { color: var(--wi-text-muted) !important; }
+.wi-text-success   { color: var(--wi-success) !important; }
+.wi-text-danger    { color: var(--wi-danger) !important; }
+.wi-text-warning   { color: var(--wi-warning) !important; }
+.wi-text-accent    { color: var(--wi-accent) !important; }
+.wi-text-info      { color: var(--wi-info) !important; }
+
+.wi-divider {
+  height: 1px;
+  background: var(--wi-border);
+  margin: 1.25rem 0;
+}
+
+.wi-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wi-mono {
+  font-family: 'SFMono-Regular', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.85em;
+}
+
+/* ---------------------------------------------------------
+   32. FINTECH ONBOARDING — VERDICT BANNER
+   --------------------------------------------------------- */
+
+:root {
+  --wi-orange:        #ea580c;
+  --wi-orange-bg:     #fff7ed;
+  --wi-orange-border: #fed7aa;
+}
+
+.wi-verdict-banner {
+  border-radius: var(--wi-radius-xl);
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  box-shadow: var(--wi-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.wi-verdict-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background: repeating-linear-gradient(
+    45deg,
+    currentColor,
+    currentColor 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  pointer-events: none;
+}
+
+.wi-verdict-banner.approved  { background: var(--wi-success-bg); border: 2px solid var(--wi-success-border); color: var(--wi-success); }
+.wi-verdict-banner.review    { background: var(--wi-warning-bg); border: 2px solid var(--wi-warning-border); color: var(--wi-warning); }
+.wi-verdict-banner.high-risk { background: var(--wi-orange-bg);  border: 2px solid var(--wi-orange-border);  color: var(--wi-orange); }
+.wi-verdict-banner.rejected  { background: var(--wi-danger-bg);  border: 2px solid var(--wi-danger-border);  color: var(--wi-danger); }
+
+.wi-verdict-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.6);
+  flex-shrink: 0;
+}
+
+.wi-verdict-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin: 0 0 4px;
+}
+
+.wi-verdict-sub {
+  font-size: 0.875rem;
+  opacity: 0.75;
+  font-weight: 500;
+}
+
+.wi-verdict-score-pill {
+  background: rgba(255,255,255,0.7);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+
+.wi-verdict-score-num {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.wi-verdict-score-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* ---------------------------------------------------------
+   33. FINTECH ONBOARDING — CHECKLIST ITEMS
+   --------------------------------------------------------- */
+
+.wi-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.wi-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.875rem 1rem;
+  border-top: 1px solid var(--wi-border);
+  border-bottom: 1px solid var(--wi-border);
+  margin-top: -1px;
+  transition: var(--wi-transition);
+  box-sizing: border-box;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.wi-checklist-item:last-child {
+  border-bottom: none;
+}
+
+.wi-checklist-item:hover {
+  background: var(--wi-surface-2);
+}
+
+.wi-checklist-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+
+.wi-checklist-dot.found      { background: var(--wi-success-bg); color: var(--wi-success); }
+.wi-checklist-dot.missing    { background: var(--wi-danger-bg);  color: var(--wi-danger); }
+.wi-checklist-dot.unverified { background: var(--wi-warning-bg); color: var(--wi-warning); }
+.wi-checklist-dot.warn,
+.wi-checklist-dot.warning    { background: var(--wi-warning-bg); color: var(--wi-warning); }
+
+.wi-checklist-name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--wi-text-primary);
+}
+
+.wi-checklist-sub {
+  font-size: 0.75rem;
+  color: var(--wi-text-muted);
+  margin-top: 1px;
+}
+
+.wi-checklist-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.wi-checklist-status.found      { background: var(--wi-success-bg); color: var(--wi-success); border: 1px solid var(--wi-success-border); }
+.wi-checklist-status.missing    { background: var(--wi-danger-bg);  color: var(--wi-danger);  border: 1px solid var(--wi-danger-border); }
+.wi-checklist-status.unverified { background: var(--wi-warning-bg); color: var(--wi-warning); border: 1px solid var(--wi-warning-border); }
+.wi-checklist-status.warn,
+.wi-checklist-status.warning    { background: var(--wi-warning-bg); color: var(--wi-warning); border: 1px solid var(--wi-warning-border); }
+
+/* ---------------------------------------------------------
+   34. FINTECH ONBOARDING — MISSING ITEMS REPORT
+   --------------------------------------------------------- */
+
+.wi-missing-group {
+  margin-bottom: 1.25rem;
+}
+
+.wi-missing-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--wi-text-muted);
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wi-missing-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0.875rem 1rem;
+  background: var(--wi-surface);
+  border: 1px solid var(--wi-border);
+  border-radius: var(--wi-radius-sm);
+  margin-bottom: 6px;
+  transition: var(--wi-transition);
+}
+
+.wi-missing-item:hover {
+  box-shadow: var(--wi-shadow-sm);
+}
+
+.wi-missing-item-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.wi-missing-item-icon.high   { background: var(--wi-danger-bg); color: var(--wi-danger); }
+.wi-missing-item-icon.medium { background: var(--wi-warning-bg); color: var(--wi-warning); }
+.wi-missing-item-icon.low    { background: var(--wi-info-bg); color: var(--wi-info); }
+
+.wi-missing-item-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--wi-text-primary);
+  margin-bottom: 2px;
+}
+
+.wi-missing-item-desc {
+  font-size: 0.8rem;
+  color: var(--wi-text-secondary);
+  line-height: 1.5;
+}
+
+.wi-missing-item-fix {
+  font-size: 0.78rem;
+  color: var(--wi-info);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------
+   35. FINTECH ONBOARDING — FINAL RECOMMENDATION
+   --------------------------------------------------------- */
+
+.wi-final-recommendation {
+  border-radius: var(--wi-radius-xl);
+  padding: 2rem 2.5rem;
+  margin-top: 2rem;
+  border: 2px solid;
+}
+
+.wi-final-recommendation.approved  { border-color: var(--wi-success-border); background: var(--wi-success-bg); }
+.wi-final-recommendation.review    { border-color: var(--wi-warning-border); background: var(--wi-warning-bg); }
+.wi-final-recommendation.high-risk { border-color: var(--wi-orange-border);  background: var(--wi-orange-bg); }
+.wi-final-recommendation.rejected  { border-color: var(--wi-danger-border);  background: var(--wi-danger-bg); }
+
+.wi-final-rec-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.wi-final-rec-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.wi-final-rec-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.wi-final-rec-issue {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--wi-text-secondary);
+  padding: 0.625rem 0.875rem;
+  background: rgba(255,255,255,0.6);
+  border-radius: var(--wi-radius-sm);
+}
+
+/* ---------------------------------------------------------
+   36. CONTACT INFO INDICATOR
+   --------------------------------------------------------- */
+
+.wi-contact-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0.875rem 1rem;
+  border-top: 1px solid var(--wi-border);
+  border-bottom: 1px solid var(--wi-border);
+  margin-top: -1px;
+  box-sizing: border-box;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.wi-contact-row:last-child { border-bottom: none; }
+
+.wi-contact-present { color: var(--wi-success); font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
+.wi-contact-missing { color: var(--wi-danger);  font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
+
+/* badge-orange for high-risk label */
+.wi-badge-orange {
+  background: var(--wi-orange-bg);
+  color: var(--wi-orange);
+  border: 1px solid var(--wi-orange-border);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------
+   37. PRINT & PDF EXPORT OPTIMIZATIONS
+   --------------------------------------------------------- */
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .wi-card,
+  .wi-stat-card,
+  .wi-verdict-banner,
+  .wi-final-recommendation,
+  .wi-checklist-item,
+  .wi-contact-row,
+  .wi-info-cell,
+  .wi-missing-item,
+  .pdf-avoid-break,
+  .row,
+  table,
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* PDF Export Mode - applied during html2pdf download */
+.pdf-export-mode {
+  background: #ffffff !important;
+  padding: 0.2rem !important;
+}
+
+.pdf-export-mode .no-print {
+  display: none !important;
+}
+
+.pdf-export-mode .pdf-avoid-break,
+.pdf-export-mode .row,
+.pdf-export-mode .wi-card,
+.pdf-export-mode .wi-verdict-banner,
+.pdf-export-mode .wi-final-recommendation,
+.pdf-export-mode .wi-score-card,
+.pdf-export-mode .wi-checklist-item,
+.pdf-export-mode .wi-contact-row,
+.pdf-export-mode .wi-info-cell,
+.pdf-export-mode .wi-missing-item,
+.pdf-export-mode table,
+.pdf-export-mode tr {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+.pdf-export-mode .wi-card {
+  border: 1px solid var(--wi-border) !important;
+  border-top: 1px solid var(--wi-border) !important;
+  border-radius: var(--wi-radius-lg) !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  background: #ffffff !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.pdf-export-mode .col-lg-6 {
+  flex: 0 0 50% !important;
+  max-width: 50% !important;
+  width: 50% !important;
+  box-sizing: border-box !important;
+}
+
+.pdf-export-mode .col-6.col-md-3 {
+  flex: 0 0 25% !important;
+  max-width: 25% !important;
+  width: 25% !important;
+  box-sizing: border-box !important;
+}
+
+.pdf-export-mode .wi-checklist-item {
+  border-top: 1px solid var(--wi-border) !important;
+  border-bottom: 1px solid var(--wi-border) !important;
+  margin-top: -1px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.pdf-export-mode .wi-contact-row {
+  border-top: 1px solid var(--wi-border) !important;
+  border-bottom: 1px solid var(--wi-border) !important;
+  margin-top: -1px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.pdf-export-mode .wi-info-cell {
+  border-top: 1px solid var(--wi-border) !important;
+  border-bottom: 1px solid var(--wi-border) !important;
+  margin-top: -1px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.pdf-export-mode table {
+  border-collapse: collapse !important;
+  border: 1px solid var(--wi-border) !important;
+  border-top: 1px solid var(--wi-border) !important;
+  width: 100% !important;
+}
+
+.pdf-export-mode thead tr th {
+  border-top: 1px solid var(--wi-border) !important;
+  border-bottom: 2px solid var(--wi-border) !important;
+  background: var(--wi-surface-2) !important;
+}
+
+.pdf-export-mode tbody tr td {
+  border-top: 1px solid var(--wi-border) !important;
+  border-bottom: 1px solid var(--wi-border) !important;
+}
+
+/* ---------------------------------------------------------
+   32. MODAL & CONFIRMATION POPUP
+   --------------------------------------------------------- */
+.wi-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: wiFadeIn 0.18s ease-out;
+}
+
+@keyframes wiFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wi-modal-container {
+  background: var(--wi-surface, #ffffff);
+  border: 1px solid var(--wi-border, #e2e8f0);
+  border-radius: var(--wi-radius-lg, 14px);
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 45px -8px rgba(15, 23, 42, 0.25), 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: wiPopUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes wiPopUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.wi-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.wi-modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wi-modal-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wi-modal-icon-badge.danger {
+  background: var(--wi-danger-bg, #fef2f2);
+  color: var(--wi-danger, #dc2626);
+  border: 1px solid var(--wi-danger-border, #fecaca);
+}
+
+.wi-modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #3A466D;
+}
+
+.wi-modal-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--wi-text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.wi-modal-close-btn:hover {
+  background: var(--wi-surface-2, #f1f5f9);
+  color: var(--wi-text-primary, #0f172a);
+}
+
+.wi-modal-body {
+  padding: 10px;
+  color: var(--wi-text-secondary, #475569);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.wi-modal-target-card {
+  padding: 0.75rem 0.9rem;
+  background: var(--wi-surface-2, #f8fafc);
+  border: 1px solid var(--wi-border, #e2e8f0);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--wi-text-primary, #0f172a);
+  word-break: break-all;
+}
+
+.wi-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px;
+  background: var(--wi-surface, #ffffff);
+}
+
+/* ---------------------------------------------------------
+   33. TABLE PAGINATION & FILTER CONTROLS
+   --------------------------------------------------------- */
+.wi-table-pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 1.4rem;
+  border-top: 1px solid var(--wi-border);
+  background: var(--wi-surface, #ffffff);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.wi-table-pagination-footer .pagination-wrapper {
+  margin: 0 !important;
+}
+
+.wi-table-pagination-footer .pagination-container {
+  margin: 0 !important;
+}
+
+.wi-table-pagination-footer .pagination-container button {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 6px !important;
+  font-size: 13px !important;
+}
+
+.wi-table-pagination-footer .custom-dropdown-trigger {
+  height: 34px;
+  padding: 4px 8px;
+}
+
+.wi-table-pagination-footer .custom-dropdown-trigger span {
+  font-size: 13px !important;
+}
+
+.wi-dashboard-table-header {
+  padding: 1rem 1.4rem;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  flex-wrap: nowrap !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.wi-dashboard-table-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wi-dashboard-table-title span:first-of-type {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--wi-text-primary);
+  white-space: nowrap;
+}
+
+.wi-dashboard-table-controls {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+
+/* Page Size Dropdown - strictly reduced width */
+.wc-page-size-wrap {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  flex-shrink: 0 !important;
+}
+
+.wc-page-size-wrap .custom-dropdown-container,
+.wc-page-size-select.custom-dropdown-container {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  position: relative !important;
+}
+
+.wc-page-size-wrap .custom-dropdown-trigger,
+.wc-page-size-select .custom-dropdown-trigger {
+  width: 60px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  cursor: pointer !important;
+}
+
+.wc-page-size-wrap .custom-dropdown-trigger span,
+.wc-page-size-select .custom-dropdown-trigger span {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  line-height: 1 !important;
+}
+
+.wc-page-size-wrap .dropdown-arrow-icon,
+.wc-page-size-select .dropdown-arrow-icon {
+  width: 12px !important;
+  height: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+.wc-page-size-wrap .custom-dropdown-menu,
+.wc-page-size-select .custom-dropdown-menu {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  left: auto !important;
+  right: 0 !important;
+  margin-top: 4px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  z-index: 99999 !important;
+  background: #ffffff !important;
+}
+
+.wc-page-size-wrap .custom-dropdown-option,
+.wc-page-size-select .custom-dropdown-option {
+  padding: 6px 6px !important;
+  font-size: 12px !important;
+  text-align: center !important;
+}
+
+/* Filter Icon Button (clean and responsive) */
+.wc-filter-icon-btn {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: none !important;
+}
+
+.wc-filter-icon-btn:hover {
+  background: rgba(89, 119, 248, 0.08) !important;
+}
+
+.wc-filter-icon-btn.active {
+  background: #ffffff !important;
+}
+
+.wc-filter-icon-btn img {
+  width: 25px !important;
+  height: 25px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* ── Crawler Dashboard Collapsible Filter Panel (Task Page Style) ── */
+.wc-filter-row {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  background: #f6f6f6;
+  margin: 15px 1.4rem;
+  animation: wcSlideDown 0.22s ease-out;
+}
+
+@keyframes wcSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wc-filter-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #77728e;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.wc-filter-input {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 35px;
+  padding: 0 12px;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  border-radius: 5px !important;
+  background: #ffffff;
+  font-size: 13px;
+  color: #333333;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+.wc-filter-input:hover {
+  border-color: #5977f8;
+}
+
+.wc-filter-input:focus {
+  border-color: #5977f8 !important;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.12) !important;
+}
+
+.wc-filter-row .custom-dropdown-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.wc-filter-row .custom-dropdown-trigger {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 35px;
+  background: #ffffff;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  border-radius: 5px !important;
+  box-sizing: border-box !important;
+}
+
+.wc-filter-row .custom-dropdown-trigger span {
+  font-size: 13px !important;
+  color: #77728E;
+}
+
+.wc-filter-row .custom-dropdown-menu {
+  width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.wc-filter-row .col-md,
+.wc-filter-row .col-md-4,
+.wc-filter-row .col-lg {
+  max-width: none !important;
+  flex: 1 1 0% !important;
+  width: 100% !important;
+}
+
+@media (max-width: 767px) {
+  .wc-filter-row .col-12 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.wc-filter-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .wc-filter-row {
+    padding: 14px;
+    margin: 12px 10px;
+  }
+  .wc-filter-btn-container {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .wc-filter-btn-container button {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+
+
+

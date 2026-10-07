@@ -1,0 +1,802 @@
+/* AdminAuditManagement.css */
+
+.audit-admin-container {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 95px;
+  min-height: calc(100vh - 104px);
+  padding-left: 17px;
+  padding-right: 17px;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 1400px) {
+  .audit-admin-container {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+.audit-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.audit-admin-header h2 {
+  font-size: 18px;
+  color: #3a466d;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Card Styling - Task Page Panel */
+.audit-admin-card {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  box-shadow: none !important;
+  margin-bottom: 24px;
+}
+
+.audit-admin-card .card-header {
+  background-color: transparent !important;
+  border-bottom: none !important;
+  padding: 10px 20px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.audit-admin-card .card-header h5 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #3A466D;
+}
+
+/* Table Responsive & Table Card Styling */
+.audit-admin-card .table-responsive {
+  background-color: #fbfcff;
+  border-radius: 8px;
+  overflow: hidden;
+  /* border: 1px solid #1F1F1F1F !important; */
+  box-sizing: border-box;
+}
+
+.audit-admin-card .table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0 !important;
+}
+
+.audit-admin-card .table thead {
+  background-color: #f6f6f6 !important;
+}
+
+.audit-admin-card .table th {
+  background-color: #f6f6f6 !important;
+  font-size: 11px;
+  color: #868585;
+  font-weight: 400 !important;
+  padding: 12px 15px;
+  border-bottom: 1px solid #e5e7eb !important;
+  text-align: center;
+  vertical-align: middle;
+  text-transform: none;
+}
+
+.audit-admin-card .table tbody tr {
+  background-color: #ffffff;
+  color: #3A466D;
+  transition: background-color 0.1s;
+}
+
+.audit-admin-card .table tbody tr:hover {
+  background-color: #f9fafb !important;
+}
+
+.audit-admin-card .table td {
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4fe !important;
+  color: #3A466D;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.audit-admin-card .table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.audit-admin-card .table td:first-child {
+  text-align: left;
+}
+
+.audit-admin-card .table td strong {
+  font-weight: 600;
+  color: #3A466D;
+}
+
+/* Badge styling mirroring AdminTaskPage.css */
+.audit-admin-container .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 400;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.audit-admin-container .badge.bg-success {
+  background-color: #dcfce7 !important;
+  color: #16a34a !important;
+}
+
+.audit-admin-container .badge.bg-danger {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.audit-admin-container .badge.bg-warning {
+  background-color: #f3f4f6 !important;
+  color: #6b7280 !important;
+}
+
+.audit-admin-container .badge.bg-primary {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+/* Button styling mirroring AdminTaskPage.css */
+.audit-admin-container .btn {
+  border-radius: 7px;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 32px;
+  font-weight: 500;
+  line-height: 100%;
+  letter-spacing: 0.1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  box-shadow: none;
+}
+
+.audit-admin-container .btn-primary {
+  background: #5977f8 !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.2) !important;
+}
+
+.audit-admin-container .btn-primary:hover {
+  background: #4b66de !important;
+}
+
+.audit-admin-container .btn-success {
+  background: #5977f8 !important;
+  /* Blue primary action button */
+  color: white !important;
+}
+
+.audit-admin-container .btn-success:hover {
+  background: #4b66de !important;
+}
+
+.audit-admin-container .btn-info {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+.audit-admin-container .btn-info:hover {
+  background: #bae6fd !important;
+}
+
+.audit-admin-container .btn-warning,
+.audit-admin-container .btn-danger {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+.audit-admin-container .btn-warning:hover,
+.audit-admin-container .btn-danger:hover {
+  background: #e2e8f0 !important;
+}
+
+.audit-admin-container .btn-outline-secondary {
+  border: 1px solid #1f1f1f1f !important;
+  background: transparent !important;
+  color: #334155 !important;
+}
+
+.audit-admin-container .btn-outline-secondary:hover {
+  background: #f1f5f9 !important;
+}
+
+.audit-admin-container .btn-close {
+  height: auto;
+  width: auto;
+  box-shadow: none !important;
+}
+
+/* Dropdown styling */
+.download-dropdown-container .dropdown-menu {
+  min-width: 200px;
+  padding: 4px 0;
+  border-radius: 6px;
+}
+
+.download-dropdown-container .dropdown-item {
+  padding: 8px 16px;
+  font-size: 12.5px;
+  color: #3A466D;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.download-dropdown-container .dropdown-item:hover {
+  background-color: #f0f6ff;
+  color: #5977f8;
+}
+
+.download-dropdown-container .dropdown-divider {
+  margin: 4px 0;
+  border-top: 1px solid #1f1f1f1f;
+}
+
+/* Responsive Overrides */
+@media (max-width: 992px) {
+  .audit-admin-container {
+    left: 12px;
+    right: 12px;
+    top: 84px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .audit-admin-card .table th,
+  .audit-admin-card .table td {
+    padding: 12px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .audit-admin-container {
+    left: 10px;
+    right: 10px;
+    top: 74px;
+  }
+
+  .audit-admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .download-dropdown-container,
+  .download-dropdown-container button {
+    width: 100%;
+  }
+
+  /* Card header: keep title and filters in a row for 577–768px — NO wrap */
+  .audit-admin-card .card-header {
+    flex-direction: row;
+    align-items: center !important;
+    justify-content: space-between;
+    flex-wrap: nowrap !important;
+    padding: 12px 14px !important;
+    gap: 8px;
+  }
+
+  .audit-admin-card .card-header h5 {
+    font-size: 13px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  /* Filter controls: keep inline and compact, no wrapping */
+  .audit-admin-filter-row {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  /* Reduce page-size dropdown width on tablet */
+  .audit-admin-pagesize-group .custom-dropdown-container {
+    width: 80px !important;
+    min-width: 70px !important;
+  }
+
+  .audit-admin-pagesize-group .custom-dropdown-trigger {
+    width: 80px !important;
+    min-width: 70px !important;
+    padding: 0 10px !important;
+  }
+
+  /* Each filter item: allow flexible sizing but not too small */
+  .audit-admin-filter-row>* {
+    flex: 1 1 140px;
+  }
+
+  /* Make table cells more compact on mobile */
+  .audit-admin-card .table th,
+  .audit-admin-card .table td {
+    padding: 8px 8px;
+    font-size: 11px;
+  }
+
+  /* Table actions: stack buttons vertically */
+  .audit-admin-card .table td .d-flex.gap-2 {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px !important;
+  }
+
+  .audit-admin-card .table td .d-flex.gap-2 .btn {
+    width: 100%;
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 576px) {
+  .audit-admin-container {
+    left: 5px;
+    right: 5px;
+    top: 68px;
+  }
+
+  .audit-admin-card .card-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    padding: 10px 10px !important;
+    gap: 8px;
+  }
+
+  /* Filter items: keep inline at ≤576px, below the title */
+  .audit-admin-filter-row {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .audit-admin-filter-row>* {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: unset;
+  }
+
+  /* Page per record group */
+  .audit-admin-pagesize-group {
+    width: auto !important;
+  }
+
+  /* Keep page-size dropdown compact */
+  .audit-admin-pagesize-group .custom-dropdown-container {
+    width: 80px !important;
+    min-width: 70px !important;
+    flex: 0 0 auto;
+  }
+
+  .audit-admin-pagesize-group .custom-dropdown-trigger {
+    width: 80px !important;
+    min-width: 70px !important;
+    padding: 0 10px !important;
+  }
+
+  /* Other dropdowns inside filter row (like "All Statuses") */
+  .audit-admin-filter-row > .custom-dropdown-container {
+    width: 120px !important;
+  }
+  
+  .audit-admin-filter-row > .custom-dropdown-container .custom-dropdown-trigger {
+    width: 100% !important;
+  }
+
+  .audit-admin-card .table th,
+  .audit-admin-card .table td {
+    padding: 6px 6px;
+    font-size: 10px;
+  }
+
+  /* Hide the details column on very small screens for better layout */
+  .audit-admin-card .table th:nth-child(2),
+  .audit-admin-card .table td:nth-child(2) {
+    display: none;
+  }
+
+  /* Allow type column to take more space */
+  .audit-admin-card .table th:first-child,
+  .audit-admin-card .table td:first-child {
+    text-align: left;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 110px;
+  }
+
+  /* Badge sizing */
+  .audit-admin-container .badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+
+  /* Removed duplicate/conflicting filter row styles */
+}
+
+@media (max-width: 380px) {
+  .audit-admin-container {
+    left: 4px;
+    right: 4px;
+    top: 62px;
+  }
+
+  .audit-admin-card .table th,
+  .audit-admin-card .table td {
+    padding: 5px 4px;
+    font-size: 9.5px;
+  }
+
+  .audit-admin-card .card-header h5 {
+    font-size: 13px;
+  }
+
+  /* Filter row already stacks at 576px — just reduce gap */
+  .audit-admin-filter-row {
+    gap: 5px !important;
+  }
+}
+
+/* =========================================
+   PAGINATION CSS OVERRIDES
+   ========================================= */
+.audit-admin-container .pagination-container {
+  margin-bottom: 0px !important;
+}
+.audit-admin-container .pagination-container button {
+  border: none !important;
+  color: #3B3C58 !important;
+  font-weight: 400 !important;
+  border-radius: 5px !important;
+  margin-bottom: 0px !important;
+  height: 25px !important;
+  padding: 0 10px !important;
+  font-size: 0.8rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 100% !important;
+  letter-spacing: normal !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.audit-admin-container .pagination-container .btn-primary {
+  background: #F6F6F6 !important;
+  color: #3A466D !important;
+  border: none !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.audit-admin-container .pagination-container .btn-outline-primary.active {
+  background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.audit-admin-container .pagination-container button:disabled {
+  opacity: 0.5 !important;
+  color: #9CA3AF !important;
+  cursor: not-allowed !important;
+  background-color: transparent !important;
+  border-color: #dee2e6 !important;
+  box-shadow: none !important;
+}
+
+.audit-admin-container .pagination-container button:hover:not(:disabled):not(.btn-primary) {
+  background-color: #e0e0e0 !important;
+  color: #3B3C58 !important;
+}
+
+@media (max-width: 768px) {
+  .audit-admin-container .pagination-container button {
+    padding: 5px !important;
+    font-size: 0.6rem !important;
+    height: 24px !important;
+    min-width: 24px !important;
+  }
+}
+
+/* Radio tab navigation styling */
+.audit-tab-radio-container {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 20px;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.audit-tab-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: #77728e;
+  user-select: none;
+}
+
+.audit-tab-radio-label.active {
+  font-weight: 600;
+  color: #3a466d;
+}
+
+.audit-tab-radio-input {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #3a466d;
+}
+
+/* Custom table responsive behavior for dropdown overflow and mobile scrolling */
+.audit-admin-card .table-responsive.employee-perm-table-wrapper {
+  overflow: visible !important;
+  border-radius: 8px;
+  background-color: #fbfcff;
+  border: 1px solid #1F1F1F1F !important;
+  box-sizing: border-box;
+}
+
+.audit-admin-card .table-responsive.employee-perm-table-wrapper .table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.audit-admin-card .table-responsive.employee-perm-table-wrapper .table thead tr:first-child th:first-child {
+  border-top-left-radius: 8px !important;
+}
+
+.audit-admin-card .table-responsive.employee-perm-table-wrapper .table thead tr:first-child th:last-child {
+  border-top-right-radius: 8px !important;
+}
+
+.audit-admin-card .table-responsive.employee-perm-table-wrapper .table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px !important;
+}
+
+.audit-admin-card .table-responsive.employee-perm-table-wrapper .table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px !important;
+}
+
+@media (max-width: 991px) {
+  .audit-admin-card .table-responsive.employee-perm-table-wrapper {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .audit-admin-card .table-responsive.employee-perm-table-wrapper .table {
+    min-width: 850px !important;
+  }
+}
+
+/* ── Revision-style filter classes ── */
+.audit-filter-panel {
+  background: #F6F6F6;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+  animation: auditSlideDown 0.2s ease-out;
+}
+
+@keyframes auditSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audit-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 992px) {
+  .audit-filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .audit-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.audit-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.audit-filter-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #77728e;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.audit-filter-input,
+.audit-filter-select {
+  height: 35px;
+  padding: 4px 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2D3748;
+  outline: none;
+  background-color: #fff;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.audit-filter-input:focus,
+.audit-filter-select:focus {
+  border-color: #5977F8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15);
+}
+
+.audit-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+@media (max-width: 576px) {
+  .audit-filter-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .audit-filter-actions .common-modal-btn {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* ── View Detail Modal ─────────────────────────────────────────── */
+.view-detail-modal {
+  max-width: 860px !important;
+}
+
+.view-modal-body {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+.view-modal-body strong {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #77728E !important;
+}
+
+.view-modal-body small {
+  font-weight: 600 !important;
+}
+
+/* Asset Information – label/value grid (two columns) */
+.view-asset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+@media (max-width: 576px) {
+  .view-asset-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.view-asset-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+}
+
+.view-asset-item--danger {
+  background: #fff5f5;
+}
+
+.view-asset-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #242323;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+  margin-bottom: 3px;
+}
+
+.view-asset-value {
+  font-size: 14px;
+  color: #77728E;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+.view-asset-desc small {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* Revision History table inside modal — horizontal scroll */
+.modal-rev-table {
+  border-collapse: collapse;
+}
+
+.modal-rev-table th,
+.modal-rev-table td {
+  padding: 6px 10px;
+  border: 1px solid #e9ecef;
+}
+
+.modal-rev-table thead th {
+  background: #f8f9fa;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.audit-admin-pagesize-group .custom-dropdown-container {
+  width: 80px !important;
+  min-width: 70px !important;
+}
+.audit-admin-pagesize-group .custom-dropdown-trigger {
+  width: 80px !important;
+  min-width: 70px !important;
+  padding: 0 10px !important;
+}
+
+.audit-filter-grid .custom-dropdown-container {
+  width: 100% !important;
+}
+.audit-filter-grid .custom-dropdown-trigger {
+  width: 100% !important;
+}
+.audit-filter-grid .audit-filter-input {
+  width: 100% !important;
+}

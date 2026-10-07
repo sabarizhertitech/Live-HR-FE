@@ -1,0 +1,652 @@
+.audit-mgmt-container {
+  padding: 20px;
+  min-height: 100vh;
+  margin-left: 260px;
+  margin-top: 84px;
+  box-sizing: border-box;
+}
+
+.audit-mgmt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.audit-mgmt-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.audit-card {
+  background: #fff;
+  border-radius: 8px;
+
+  border: 1px solid #e9ecef;
+}
+
+.audit-card .card-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e9ecef;
+  padding: 15px 20px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.audit-card .card-header h5 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 500;
+  color: #495057;
+}
+
+.audit-card .card-body {
+  padding: 20px;
+}
+
+.audit-table {
+  border-collapse: collapse !important;
+}
+
+.audit-table th,
+.audit-table td {
+  border: 1px solid #dee2e6 !important;
+  white-space: nowrap;
+}
+
+.audit-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.audit-table td {
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.audit-table input.form-control {
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+.badge {
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.required-star {
+  color: red;
+}
+
+/* Approval action buttons in revision table */
+.approval-action-btns {
+  display: flex;
+  gap: 4px;
+}
+
+/* Vendor table action buttons */
+.vendor-action-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Rounded modal content */
+.modal-content-rounded {
+  border-radius: 8px;
+}
+
+/* Delete / create modal footer */
+.modal-footer-centered {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 16px 16px;
+  border: 0;
+}
+
+.modal-action-btn {
+  min-width: 100px;
+}
+
+/* Create modal body scroll */
+.create-modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Create modal footer */
+.create-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px 16px;
+  flex-wrap: wrap;
+}
+
+.create-modal-hint {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.create-modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Vendor row card in create modal */
+.vendor-row-card {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #f9f9fb;
+  position: relative;
+}
+
+.vendor-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.vendor-row-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* ──────────────────────────────────────────
+   Responsive: tablets (≤ 768px)
+────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .audit-mgmt-container {
+    margin-left: 0;
+    margin-top: 70px;
+    padding: 12px;
+  }
+
+  .audit-mgmt-header h2 {
+    font-size: 16px;
+  }
+
+  .audit-card .card-header {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .audit-card .card-body {
+    padding: 12px;
+  }
+
+  .audit-table th,
+  .audit-table td {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .vendor-action-btns {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .create-modal-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ──────────────────────────────────────────
+   Responsive: small phones (≤ 576px)
+────────────────────────────────────────── */
+@media (max-width: 576px) {
+  .audit-mgmt-container {
+    padding: 10px;
+    margin-top: 65px;
+  }
+
+  .audit-mgmt-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-label {
+    display: inline;
+  }
+
+  .audit-card .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .audit-card .card-header h5 {
+    font-size: 14px;
+  }
+
+  .audit-table th,
+  .audit-table td {
+    font-size: 12px;
+    padding: 5px 6px;
+  }
+
+  .modal-dialog {
+    margin: 8px;
+  }
+
+  .modal-footer-centered {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-action-btn {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .create-modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .create-modal-actions {
+    flex-direction: column;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .create-modal-actions .btn {
+    width: 100%;
+  }
+
+  .approval-action-btns {
+    flex-direction: column;
+  }
+}
+
+/* ──────────────────────────────────────────
+   Responsive: extra small (≤ 400px / 350px)
+────────────────────────────────────────── */
+@media (max-width: 400px) {
+  .audit-mgmt-container {
+    padding: 8px;
+    margin-top: 60px;
+  }
+
+  .audit-mgmt-header h2 {
+    font-size: 14px;
+  }
+
+  .audit-card .card-body {
+    padding: 8px;
+  }
+
+  .audit-table th,
+  .audit-table td {
+    font-size: 11px;
+    padding: 4px 5px;
+  }
+
+  .modal-dialog {
+    margin: 4px;
+  }
+
+  .modal-content {
+    font-size: 13px;
+  }
+
+  .modal-body {
+    padding: 10px;
+  }
+
+  .modal-header {
+    padding: 10px 12px;
+  }
+
+  .modal-footer {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .vendor-row-card {
+    padding: 8px;
+  }
+
+  .create-modal-body {
+    max-height: 60vh;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  label {
+    font-size: 12px;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+
+
+/* Style all input fields, select tags, and dropdown triggers in the page and modals to have a height of 35px */
+.audit-mgmt-container input.form-control,
+.audit-mgmt-container .form-select,
+.audit-mgmt-container .custom-dropdown-trigger,
+.modal input.form-control,
+.modal .form-select,
+.modal .custom-dropdown-trigger {
+  height: 35px !important;
+}
+
+/* Hide default calendar indicator for date input fields */
+.audit-mgmt-container input[type="date"]::-webkit-calendar-picker-indicator,
+.modal input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Column Filter Popup Done Button and Alignment Overrides */
+.modal-footer.column-filter-footer {
+  justify-content: flex-end !important;
+  display: flex !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid #eee !important;
+}
+
+.modal-footer.column-filter-footer .btn-update {
+  background-color: #5977f8 !important;
+  background: #5977f8 !important;
+  color: #ffffff !important;
+  padding: 8px 30px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  border: none !important;
+}
+
+.modal-footer.column-filter-footer .btn-update:hover {
+  background-color: #3b5bdb !important;
+  background: #3b5bdb !important;
+}
+
+/* ── Revision History Filter styles ── */
+.audit-filter-panel {
+  background: #F6F6F6;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+  animation: auditSlideDown 0.2s ease-out;
+}
+
+@keyframes auditSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audit-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 992px) {
+  .audit-filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .audit-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.audit-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.audit-filter-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #77728e;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.audit-filter-input,
+.audit-filter-select {
+  height: 35px;
+  padding: 4px 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 5px;
+  font-size: 13px;
+  color: #2D3748;
+  outline: none;
+  background-color: #fff;
+  transition: all 0.15s ease;
+}
+
+.audit-filter-input:focus,
+.audit-filter-select:focus {
+  border-color: #5977F8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15);
+}
+
+.audit-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+@media (max-width: 576px) {
+  .audit-filter-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .audit-filter-actions .common-modal-btn {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* ── View Detail Modal ─────────────────────────────────────────── */
+.view-detail-modal {
+  max-width: 860px !important;
+}
+
+.view-modal-body {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+/* Asset Information – label/value grid (two columns) */
+.view-asset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+@media (max-width: 576px) {
+  .view-asset-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.view-asset-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+}
+
+.view-asset-item--danger {
+  background: #fff5f5;
+}
+
+.view-asset-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #242323;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+  margin-bottom: 3px;
+}
+
+.view-asset-value {
+  font-size: 14px;
+  color: #77728E;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+.view-asset-desc small {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* Revision History table inside modal — horizontal scroll */
+.modal-rev-table {
+  border-collapse: collapse;
+}
+
+.modal-rev-table th,
+.modal-rev-table td {
+  padding: 6px 10px;
+  border: 1px solid #e9ecef;
+}
+
+.modal-rev-table thead th {
+  background: #f8f9fa;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.audit-filter-grid .custom-dropdown-container {
+  width: 100% !important;
+}
+.audit-filter-grid .custom-dropdown-trigger {
+  width: 100% !important;
+}
+.audit-filter-grid .audit-filter-input {
+  width: 100% !important;
+}
+
+/* Draggable Table Cleanups */
+.audit-maker-tableCard {
+  background-color: #fbfcff;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.audit-maker-table {
+  display: block;
+  width: 100%;
+}
+
+.audit-maker-tableHeader {
+  display: grid;
+  gap: 12px;
+  padding: 12px 15px;
+  background: #F6F6F6;
+  font-size: 12px;
+  color: #868585;
+  font-weight: 400;
+  border-top: 1px solid #F1F5F9;
+  border-bottom: 1px solid #F1F5F9;
+  align-items: center;
+}
+
+.audit-maker-tableHeader > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.audit-maker-tableEmpty {
+  width: 100%;
+  text-align: center;
+  padding: 40px 20px !important;
+  font-size: 14px;
+  color: #77728e;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f3f4fe;
+}
+
+.audit-maker-tableCard--modal {
+  overflow: auto;
+  max-height: 260px;
+}
+
+.audit-maker-table--vendors {
+  min-width: 1200px;
+}
+
+.audit-maker-table--revision {
+  min-width: 1000px;
+}
+
+.audit-maker-table--modal-revision {
+  min-width: 700px;
+}
+
+.audit-maker-tableHeader--vendor-revision {
+  grid-template-columns: 120px 1fr 120px 80px 80px 120px 120px 150px;
+}
+
+.audit-maker-tableHeader--modal-revision {
+  grid-template-columns: 100px 1fr 100px 65px 65px 110px 110px 90px;
+}
+
+.audit-maker-tableRow {
+  display: grid;
+  gap: 12px;
+  padding: 10px 15px;
+  border-bottom: 1px solid #f3f4fe;
+  background-color: #fff;
+  font-size: 0.75rem;
+  color: #3A466D;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.audit-maker-tableRow--vendor-revision {
+  grid-template-columns: 120px 1fr 120px 80px 80px 120px 120px 150px;
+}
+
+.audit-maker-tableRow--modal-revision {
+  grid-template-columns: 100px 1fr 100px 65px 65px 110px 110px 90px;
+}

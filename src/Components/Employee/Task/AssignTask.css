@@ -1,0 +1,239 @@
+/* ================= BASE SETUP ================= */
+:root {
+  --primary-blue: #5977f8;
+  --soft-blue: #dce4ff;
+  --bg-body: #F6F6F6;
+  --text-main: #2d3748;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --transition: all 0.25s ease;
+}
+
+/* ================= PAGE CONTAINER ================= */
+/* ================= PAGE CONTAINER ================= */
+.employee-assign-task-page {
+  background-color: var(--bg-body);
+  /* min-height removed for modal usage */
+  font-family: 'Gilroy-Regular', 'Inter', sans-serif;
+}
+
+/* Sidebar alignment removed as this is now a modal */
+
+/* ================= CONTAINER & HEADER ================= */
+.employee-assign-task-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.employee-assign-task-header {
+  padding-top: 1.5rem;
+}
+
+.employee-assign-task-title {
+  color: var(--primary-blue);
+  font-family: 'Gilroy-Medium', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+/* ================= MEMBERS PANEL ================= */
+.employee-assign-task-members-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.employee-assign-task-members-card {
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.employee-assign-task-members-card:hover {
+  box-shadow: var(--card-shadow);
+  transform: translateY(-2px);
+}
+
+.employee-assign-task-section-title {
+  color: #4a5568;
+  font-family: 'Gilroy-Medium', sans-serif;
+}
+
+.employee-assign-task-member-item {
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.employee-assign-task-member-item:hover {
+  background-color: #f8fafc;
+  transform: translateX(4px);
+}
+
+.employee-assign-task-member-name {
+  color: var(--text-main);
+  font-size: 1.05rem;
+  font-family: 'Gilroy-Medium', sans-serif;
+}
+
+.employee-assign-task-add-icon {
+  transition: var(--transition);
+}
+
+.employee-assign-task-member-item:hover .employee-assign-task-add-icon {
+  color: var(--primary-blue);
+  transform: rotate(90deg);
+}
+
+/* ================= FORM SECTION ================= */
+.employee-assign-task-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.employee-assign-task-form-card {
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.employee-assign-task-form-card:hover {
+  box-shadow: var(--card-shadow);
+}
+
+/* Form Controls */
+.employee-assign-task-form-label {
+  color: #4a5568;
+  font-size: 0.95rem;
+  font-family: 'Gilroy-Medium', sans-serif;
+}
+
+.employee-assign-task-form-control {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  font-family: 'Gilroy-Regular', sans-serif;
+  font-size: 1rem;
+  transition: var(--transition);
+  background-color: #fff;
+}
+
+.employee-assign-task-form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15);
+  outline: none;
+}
+
+.employee-assign-task-form-control::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* ================= ACTION BUTTONS ================= */
+.employee-assign-task-form-actions {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.employee-assign-task-btn-cancel,
+.employee-assign-task-btn-create {
+  font-weight: 500;
+  border-radius: 8px;
+  font-family: 'Gilroy-Medium', sans-serif;
+  transition: var(--transition);
+}
+
+.employee-assign-task-btn-cancel {
+  color: #4a5568;
+   padding: 6px 12px;
+  min-width: 120px;   /* optional (keeps width consistent) */
+  height: auto;  
+  border-color: var(--border-color);
+}
+.employee-assign-task-btn-cancel:hover {
+  background: none !important;
+  color: #4a5568 !important;
+  border-color: var(--border-color) !important;
+  cursor: default; /* optional */
+}
+
+
+.employee-assign-task-btn-create {
+  background: linear-gradient(135deg, var(--primary-blue), #4a6cf7);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.3);
+}
+
+.employee-assign-task-btn-create:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4a6cf7, #4361e0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(89, 119, 248, 0.4);
+}
+
+.employee-assign-task-btn-create:disabled {
+  opacity: 0.75;
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ================= RESPONSIVE ENHANCEMENTS ================= */
+/* Mobile-first base styles already applied via Bootstrap classes */
+
+/* Medium screens: Optimize form layout */
+@media (min-width: 768px) {
+  .employee-assign-task-form-card {
+    padding: 2rem 2.5rem;
+  }
+
+  .employee-assign-task-section-title {
+    font-size: 1.15rem;
+  }
+}
+
+/* Large screens: Restore desktop spacing */
+@media (min-width: 992px) {
+  .employee-assign-task-header {
+    padding-top: 2.5rem;
+  }
+
+  .employee-assign-task-title {
+    font-size: 1.75rem;
+  }
+
+  .employee-assign-task-members-card,
+  .employee-assign-task-form-card {
+    height: calc(100% - 1.5rem);
+    /* Account for row gap */
+  }
+}
+
+/* Extra large screens: Maximize readability */
+@media (min-width: 1200px) {
+  .employee-assign-task-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .employee-assign-task-form-label {
+    font-size: 1.05rem;
+  }
+
+  .employee-assign-task-form-control {
+    font-size: 1.05rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Print-friendly adjustments */
+@media print {
+  .employee-assign-task-page {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    background: white;
+  }
+
+  .employee-assign-task-btn-cancel,
+  .employee-assign-task-add-icon {
+    display: none;
+  }
+}

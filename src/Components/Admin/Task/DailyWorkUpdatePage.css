@@ -1,0 +1,2044 @@
+.dwu-admin-wrapper {
+  margin-left: 245px;
+  padding-top: 90px;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  background-color: transparent;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+.dwu-admin-root {
+  max-width: 1360px;
+
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px !important;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  overflow: visible;
+}
+
+.dwu-admin__header {
+  margin-bottom: 10px;
+  background-color: transparent;
+}
+
+.dwu-admin__title {
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.dwu-admin__subtitle {
+  font-size: 13px;
+  color: #A29CC1;
+  line-height: 1.5;
+}
+
+/* ================= PANEL & FILTERS ================= */
+.dwu-admin__panel {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  padding: 15px;
+}
+
+.dwu-admin__filterGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.dwu-admin__filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.dwu-admin__filterLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #77728e;
+
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.dwu-admin__filterInput {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #334155;
+  background-color: #ffffff;
+  transition: all 0.2s;
+}
+
+.dwu-admin__filterInput::placeholder {
+  font-size: 11px;
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.dwu-admin__filterActions {
+  display: flex;
+  gap: 10px;
+  height: 38px;
+  margin-left: auto;
+}
+
+/* For native inputs like date fields */
+input.dwu-admin__filterInput {
+  border: 1px solid #1F1F1F1F;
+  border-radius: 5px;
+  padding: 6px 10px;
+  height: 32px;
+  background: #FFFFFF;
+}
+
+input.dwu-admin__filterInput:focus {
+  border-color: #5977f8;
+  outline: none;
+}
+
+.dwu-admin__filterInput .custom-dropdown-trigger {
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.dwu-admin__button {
+  height: 32px;
+  padding: 0 15px;
+  border-radius: 7px;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dwu-admin__button--search {
+  background: #5977f8;
+  color: white;
+  width: 120px;
+}
+
+.dwu-admin__button--search:hover {
+  background: #4b66de;
+}
+
+.dwu-admin__button--reset {
+  background: #f1f5f9;
+  color: #334155;
+  width: 120px;
+}
+
+.dwu-admin__button--reset:hover {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.dwu-admin__button--primary {
+  background: #dbe8ff;
+  color: #5977f8;
+  width: 160px;
+}
+
+.dwu-admin__button--primary:hover {
+  background: #cce0ff;
+}
+
+.dwu-admin__button--export {
+  background: #ffffff;
+  color: #3a466d;
+  border: 1px solid #e2e8f0;
+  gap: 8px;
+  width: 100px;
+}
+
+.dwu-admin__button--export:hover {
+  background: #f8faff;
+  border-color: #5977f8;
+  color: #5977f8;
+}
+
+/* Filter Toggle Icon Button */
+.dwu-filter-icon-btn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.dwu-filter-icon-btn:hover {
+  background: #f1f5f9;
+}
+
+.dwu-filter-icon-btn.active {
+  background: #eef2ff;
+  border: 1px solid #5977f8;
+}
+
+.dwu-filter-icon-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+/* ================= AUTO-WIDTH TABLE IMPLEMENTATION ================= */
+.dwu-admin__tableCard {
+  background: #fbfcff;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid #1F1F1F1F;
+}
+
+.dwu-admin__table {
+  width: auto;
+  /* Hug content naturally */
+  display: table;
+  table-layout: auto;
+  /* Natural content calculation */
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-right: auto;
+  /* Keep table aligned left if screen is wide */
+}
+
+.dwu-admin__tableHeader {
+  display: table-row;
+  background-color: #f6f6f6 !important;
+  font-size: 11px;
+  font-weight: 600;
+  color: #77728e;
+
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.dwu-admin__tableHeader .dwu-admin__tableHeaderCell {
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+
+.dwu-admin__tableRow {
+  display: table-row;
+  font-size: 0.75rem;
+  color: #3A466D;
+  transition: background-color 0.1s;
+  background-color: #ffffff;
+}
+
+.dwu-admin__tableRow:hover {
+  background-color: #f8faff;
+}
+
+/* Base cell styling - Content driven */
+.dwu-admin__tableCell,
+.dwu-admin__tableHeaderCell {
+  display: table-cell;
+  padding: 10px 18px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4fe;
+  width: auto;
+}
+
+/* ===================== ULTRA-RESPONSIVE COLUMN RULES ===================== */
+
+/* 1. S.No - Strict Minimum */
+.dwu-admin__tableHeaderCell:nth-child(1),
+.dwu-admin__tableCell:nth-child(1) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+  padding-left: 20px;
+}
+
+/* 2. Date - Strict Minimum */
+.dwu-admin__tableHeaderCell:nth-child(2),
+.dwu-admin__tableCell:nth-child(2) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* 3. Employee - Strict Minimum */
+.dwu-admin__tableHeaderCell:nth-child(3),
+.dwu-admin__tableCell:nth-child(3) {
+  width: 1%;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #3a466d;
+}
+
+/* 4. Category / Project - Strict Minimum */
+.dwu-admin__tableHeaderCell:nth-child(4),
+.dwu-admin__tableCell:nth-child(4) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* 5. Task Title - Flexible with Max-Limit */
+.dwu-admin__tableHeaderCell:nth-child(5),
+.dwu-admin__tableCell:nth-child(5) {
+  width: 14%;
+  white-space: normal;
+  max-width: 160px;
+  min-width: 100px;
+}
+
+/* 6. Update Phase - Flexible with Max-Limit */
+.dwu-admin__tableHeaderCell:nth-child(6),
+.dwu-admin__tableCell:nth-child(6) {
+  width: 45%;
+  white-space: normal !important;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  max-width: 900px;
+  min-width: 280px;
+}
+
+/* 7. Status - Strict Minimum */
+.dwu-admin__tableHeaderCell:nth-child(7),
+.dwu-admin__tableCell:nth-child(7) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+  padding-right: 20px;
+}
+
+/* ===================== SPECIAL STYLING ===================== */
+
+/* Phase cell (legacy support) */
+.dwu-admin__tableCell .text-primary {
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+.dwu-admin__tableCell .font-semibold.text-primary.d-flex {
+  flex-wrap: wrap !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+}
+
+.dwu-admin__phaseCell {
+  max-width: 450px;
+  white-space: normal !important;
+  word-break: break-word;
+  line-height: 1.4;
+  padding-right: 20px;
+}
+
+/* Task title/details text styling */
+.dwu-admin__taskTitle,
+.dwu-admin__taskDetails,
+.dwu-admin__phaseText {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
+}
+
+.dwu-admin__taskTitle {
+  font-weight: 500;
+  color: #3a466d;
+}
+
+.dwu-admin__taskDetails {
+  font-size: 0.7rem;
+  color: #77728e;
+}
+
+.dwu-admin__phaseText {
+  font-size: 0.72rem;
+  color: #3a466d;
+}
+
+/* Expandable cell class (if manually applied) */
+.dwu-admin__expandCell {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Status badge */
+.dwu-admin__statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 400;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Match colors from AdminTaskPage */
+.dwu-admin__statusBadge--pending {
+  background-color: #f3f4f6;
+  color: #dddddd;
+}
+
+.dwu-admin__statusBadge--inprocess {
+  background-color: #ede9fe;
+  color: #7c3aed;
+}
+
+.dwu-admin__statusBadge--hold {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.dwu-admin__statusBadge--completed {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.dwu-admin__empty {
+  display: table-caption;
+  caption-side: bottom;
+  padding: 40px;
+  text-align: center;
+  color: #77728e;
+  font-size: 12px;
+  width: 100%;
+}
+
+/* Metadata Tags - Clean Text Style */
+.dwu-meta-tag {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  margin: 1px 0;
+}
+
+.dwu-meta-tag--cat {
+  color: #77728e;
+  /* Indigo */
+}
+
+.dwu-meta-tag--proj {
+  color: #77728e;
+  /* Red */
+}
+
+.dwu-meta-none {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 10px;
+}
+
+/* Animations & Utility Classes */
+.animate-spin {
+  animation: dwuSpin 1s linear infinite;
+}
+
+@keyframes dwuSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: dwuFadeIn 0.3s ease-out;
+}
+
+@keyframes dwuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.dwu-emp-id-sub {
+  font-size: 10px;
+  color: #77728e;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.text-primary {
+  color: #2d355f !important;
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}
+
+.dwu-task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dwu-task-content h6 {
+  font-size: 13px;
+  margin: 0;
+  font-weight: 600;
+  color: #334155;
+}
+
+.dwu-phase-text {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  display: block;
+  min-width: 150px;
+}
+
+.dwu-task-details-sub {
+  font-size: 10px;
+  color: #77728e;
+  margin-top: 2px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dwu-divider {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+
+  letter-spacing: 1px;
+}
+
+.dwu-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #f1f5f9;
+  margin-left: 15px;
+}
+
+/* Scrollbar styling matched to AdminTaskPage */
+.dwu-admin__tableCard::-webkit-scrollbar {
+  height: 8px;
+}
+
+.dwu-admin__tableCard::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+.dwu-admin__tableCard::-webkit-scrollbar-thumb {
+  background: #e1e1e7;
+  border-radius: 10px;
+}
+
+.dwu-admin__tableCard::-webkit-scrollbar-thumb:hover {
+  background: #c8c8cb;
+}
+
+/* ================= MODAL ================= */
+.dwu-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.dwu-modal-container {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 620px;
+  padding: 14px 16px;
+  border: 1px solid rgba(31, 31, 31, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.dwu-section {
+  background: #f8faff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #edf2ff;
+  box-shadow: 0 2px 8px rgba(89, 119, 248, 0.04);
+}
+
+.dwu-form-section {
+  padding: 5px;
+}
+
+.dwu-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5977f8;
+
+  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dwu-section-title i {
+  font-size: 14px;
+}
+
+.dwu-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #77728e;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #3a466d;
+}
+
+
+
+.dwu-modal-body label,
+.dwu-meta-label {
+  display: block;
+  font-size: 11px;
+  color: #868585;
+  font-weight: 500;
+  margin-bottom: 6px;
+  line-height: 100%;
+  letter-spacing: 0.5px;
+}
+
+.dwu-modal-body .form-control {
+  font-size: 11px;
+  color: #77728E;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.dwu-modal-body .form-control::placeholder {
+  color: #77728E;
+  font-weight: 400;
+
+}
+
+/* Custom scrollbar for modal body */
+.dwu-modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dwu-modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.dwu-modal-body::-webkit-scrollbar-thumb {
+  background: #e1e1e7;
+  border-radius: 10px;
+}
+
+.dwu-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #d1d1d8;
+}
+
+.dwu-modal-body .form-control:focus {
+  border-color: #5977f8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+  background: #ffffff;
+}
+
+.dwu-modal-body textarea.form-control {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.dwu-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+
+  padding-top: 10px;
+}
+
+.dwu-modal-footer .btn {
+  height: 32px;
+  padding: 0 20px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: #bbbbbb;
+  transition: all 0.2s;
+}
+
+.dwu-modal-footer .btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.dwu-modal-footer .btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.dwu-modal-footer .btn-primary {
+  background: #5977f8;
+  color: white;
+}
+
+.dwu-modal-footer .btn-primary:hover {
+  background: #4b66de;
+}
+
+/* Filter Icon & Popup */
+.dwu-filter-wrapper {
+  position: relative;
+}
+
+.dwu-filter-icon-btn {
+
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+}
+
+.dwu-filter-icon-btn:hover,
+.dwu-filter-icon-btn.active {
+  border-color: #5977f8;
+
+}
+
+.dwu-filter-icon-btn img {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+}
+
+.dwu-filter-icon-btn.active img {
+  opacity: 1;
+}
+
+.dwu-filter-row {
+  background: #ffffff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  margin-top: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(89, 119, 248, 0.08);
+  animation: dwuSlideDown 0.3s ease-out;
+}
+
+.dwu-filter-row .dwu-filter-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+
+
+/* Large screens - narrower inputs, more gap */
+@media (min-width: 992px) {
+  .dwu-filter-row {
+    padding: 28px 35px;
+  }
+
+  .dwu-filter-row .dwu-filter-flex {
+    gap: 30px;
+  }
+
+  .dwu-filter-flex .dwu-filter-col {
+
+    max-width: 200px;
+  }
+}
+
+/* Actions column stays right-aligned */
+.dwu-filter-flex .dwu-filter-actions {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+@keyframes dwuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dwu-filter-section {
+  margin-bottom: 0;
+}
+
+.dwu-filter-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5977f8;
+  margin-bottom: 8px;
+
+  letter-spacing: 0.5px;
+}
+
+.dwu-filter-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dwu-filter-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 90px;
+}
+
+.dwu-filter-btn--cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.dwu-filter-btn--cancel:hover {
+  background: #e2e8f0;
+}
+
+.dwu-filter-btn--search {
+  background: #5977f8;
+  color: white;
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.25);
+  border: 1px solid #5977f8;
+}
+
+.dwu-filter-btn--search:hover {
+  background: #4b66de;
+  transform: translateY(-1px);
+}
+
+/* Custom Dates Styling within Popup */
+.dwu-custom-dates .form-control-sm {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Toggle Switch Style */
+.dwu-toggle-container {
+  background: #ffffff;
+  border: 1px solid #edf2ff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(89, 119, 248, 0.05);
+}
+
+.dwu-toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3a466d;
+  margin: 0;
+}
+
+.dwu-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.dwu-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.dwu-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e2e8f0;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.dwu-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.dwu-switch input:checked+.dwu-slider {
+  background-color: #5977f8;
+}
+
+.dwu-switch input:checked+.dwu-slider:before {
+  transform: translateX(18px);
+}
+
+/* ================= RESPONSIVE BREAKPOINTS ================= */
+
+@media (max-width: 1199.98px) {
+  .dwu-admin-wrapper {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dwu-admin-wrapper {
+    margin-left: 0;
+    padding-top: 80px;
+  }
+
+  .dwu-filter-row {
+    padding: 20px;
+  }
+
+  /* Table adjustments */
+  .dwu-admin__tableCell,
+  .dwu-admin__tableHeaderCell {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  /* Reduce minimum widths */
+  .dwu-admin__tableHeaderCell:nth-child(3),
+  .dwu-admin__tableCell:nth-child(3) {
+    min-width: 120px;
+  }
+
+  /* Description - Column 6 (was column 8) */
+  .dwu-admin__tableHeaderCell:nth-child(6),
+  .dwu-admin__tableCell:nth-child(6) {
+    min-width: 200px;
+    max-width: 450px;
+  }
+
+  /* Status - Column 7 (was column 6/7) */
+  .dwu-admin__tableHeaderCell:nth-child(7),
+  .dwu-admin__tableCell:nth-child(7) {
+    min-width: 70px;
+    max-width: 120px;
+  }
+
+  .dwu-phase-text {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .dwu-admin__header .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+
+  .dwu-admin__header .d-flex.align-items-center.gap-3 {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .dwu-admin__title {
+    font-size: 18px;
+  }
+
+  .dwu-admin__button--primary {
+    width: auto;
+    flex-grow: 1;
+  }
+
+  .dwu-admin__button--export {
+    width: auto;
+    flex-grow: 0;
+  }
+
+  .dwu-filter-row {
+    padding: 15px;
+  }
+
+  .dwu-filter-row .row {
+    column-gap: 15px;
+  }
+
+  /* Table adjustments */
+  .dwu-admin__table {
+    font-size: 10px;
+  }
+
+  .dwu-admin__tableCell,
+  .dwu-admin__tableHeaderCell {
+    padding: 8px 6px;
+  }
+
+  /* Description - Column 6 (was column 8) */
+  .dwu-admin__tableHeaderCell:nth-child(6),
+  .dwu-admin__tableCell:nth-child(6) {
+    min-width: 150px;
+    max-width: 250px;
+  }
+
+  /* Status - Column 7 (was column 6/7) */
+  .dwu-admin__tableHeaderCell:nth-child(7),
+  .dwu-admin__tableCell:nth-child(7) {
+    min-width: 70px;
+    max-width: 100px;
+  }
+
+  .dwu-phase-text {
+    min-width: 140px;
+  }
+
+  .dwu-admin__avatar {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dwu-admin-wrapper {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .dwu-admin__filterInput {
+    width: 100% !important;
+  }
+
+  .dwu-modal-container {
+    width: 95%;
+    border-radius: 12px;
+  }
+
+
+
+  .dwu-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .dwu-toggle-container {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+
+  .dwu-toggle-label {
+    font-size: 12px;
+  }
+
+  .dwu-modal-footer {
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .dwu-modal-footer .btn {
+    padding: 0 12px;
+    font-size: 10px;
+    flex: 1;
+  }
+
+  .dwu-filter-row {
+    padding: 12px;
+  }
+
+  /* Table cells adjustment for mobile */
+  .dwu-admin__tableHeaderCell,
+  .dwu-admin__tableCell {
+    padding: 8px 5px;
+    font-size: 10px;
+  }
+
+  .dwu-admin__phaseCell {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+  }
+
+  .dwu-phase-text {
+    min-width: 100px !important;
+  }
+}
+
+/* ── REFACTORED PILL & GRID SELECTION ── */
+.atMeta__pillList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.atMeta__pill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.atMeta__pill:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.atMeta__pill.active {
+  background: #5977f8;
+  border-color: #5977f8;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.25);
+}
+
+.atMeta__projectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.atMeta__projCard {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.atMeta__projCard:hover {
+  border-color: #5977f8;
+  background: #f8faff;
+}
+
+.atMeta__projCard.active {
+  background: #eef2ff;
+  border-color: #5977f8;
+  color: #5977f8;
+}
+
+.atMeta__projCheck {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.atMeta__projCard.active .atMeta__projCheck {
+  background: #5977f8;
+  border-color: #5977f8;
+  color: #fff;
+}
+
+.atMeta__emptyHint {
+  font-size: 11px;
+  font-style: italic;
+  color: #94a3b8;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.atMeta__tinyAddBtn {
+  background: none;
+  border: none;
+  color: #5977f8;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.atMeta__tinyAddBtn:hover:not(:disabled) {
+  background: rgba(89, 119, 248, 0.1);
+}
+
+.atMeta__tinyAddBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.atMeta__inlineAdd {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.atMeta__addConfirm {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.atMeta__addConfirm:hover {
+  background: #16a34a;
+}
+
+.atMeta__addConfirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes dwuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: dwuSlideDown 0.3s ease-out;
+}
+
+.dwu-note-toggle {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.dwu-note-toggle:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.dwu-note-toggle.active {
+  background: #eef2ff;
+  border-color: #5977f8;
+  color: #5977f8;
+}
+
+.dwu-custom-dropdown .custom-dropdown-trigger {
+  height: 31px !important;
+  font-size: 12px !important;
+  border-radius: 5px !important;
+}
+
+/* ── Standardize all modal form inputs to match CustomDropdown height ── */
+.dwu-form-input {
+  height: 31px !important;
+  font-size: 12px !important;
+  border-radius: 5px !important;
+  padding: 6px 12px !important;
+}
+
+.dwu-modal-header .dwu-note-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Add Entry Button ── */
+.dwu-add-entry-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #5977f8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.dwu-add-entry-btn:hover {
+  background: #4563e0;
+}
+
+/* ── Form Entry Block ── */
+.dwu-form-entry {
+  padding-bottom: 8px;
+}
+
+.dwu-form-entry+.dwu-form-entry {
+  padding-top: 8px;
+}
+
+.dwu-entry-divider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0 10px 0;
+  margin-bottom: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.dwu-entry-divider span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5977f8;
+  letter-spacing: 0.3px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ADMIN TWO-PANEL LAYOUT
+══════════════════════════════════════════════════════════ */
+.dwu-admin-panels {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  height: calc(100vh - 220px);
+  /* Fixed height relative to viewport */
+  min-height: 500px;
+  margin-bottom: 20px;
+}
+
+/* ── Left Panel: Employee List ── */
+.dwu-emp-panel {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); */
+}
+
+.dwu-emp-panel__header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 400;
+  color: #77728E;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #f3f4fe;
+  background: #F6F6F6;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.dwu-emp-panel__headerCell {
+  flex-shrink: 0;
+}
+
+.dwu-emp-panel__list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dwu-emp-panel__row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-bottom: 1px solid #f8f9fc;
+}
+
+.dwu-emp-panel__row:hover {
+  background: #f8faff;
+}
+
+.dwu-emp-panel__row--active {
+  background: #f4f7ff;
+}
+
+.dwu-emp-panel__cell {
+  flex-shrink: 0;
+}
+
+.dwu-emp-sno {
+  font-size: 13px;
+  font-weight: 400;
+  color: #3A466D;
+}
+
+.dwu-emp-date {
+  font-size: 11px;
+  font-weight: 500;
+  color: #77728e;
+  white-space: nowrap;
+}
+
+.dwu-emp-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dwu-emp-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.dwu-emp-avatar--placeholder {
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5977f8;
+}
+
+.dwu-emp-name-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dwu-emp-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3A466D;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dwu-emp-desg {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.dwu-emp-date {
+  font-size: 11px;
+  color: #77728E;
+  font-weight: 400;
+}
+
+/* ── Right Panel: Work Details ── */
+.dwu-detail-panel {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(31, 31, 31, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+}
+
+.dwu-detail-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: #F6F6F6;
+  border-bottom: 1px solid #f3f4fe;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.dwu-detail-panel__title {
+  font-size: 12px;
+  font-weight: 400;
+  color: #77728E;
+
+}
+
+.dwu-detail-panel__date {
+  font-size: 11px;
+  font-weight: 400;
+  color: #77728E;
+}
+
+.dwu-detail-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 19px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #fbfcff;
+  scrollbar-width: thin;
+  scrollbar-color: #e1e1e7 transparent;
+  scroll-behavior: smooth;
+}
+
+.dwu-detail-panel__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dwu-detail-panel__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dwu-detail-panel__body::-webkit-scrollbar-thumb {
+  background: #e1e1e7;
+  border-radius: 10px;
+}
+
+.dwu-detail-panel__body::-webkit-scrollbar-thumb:hover {
+  background: #d1d1d8;
+}
+
+/* ── Work Card ── */
+.dwu-work-card {
+
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  border-radius: 12px;
+  background: #ffffff;
+  flex-shrink: 0;
+  overflow: hidden;
+
+}
+
+
+
+.dwu-work-card__header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  padding: 12px 16px;
+  gap: 12px;
+  background: #F6F6F6;
+
+}
+
+.dwu-work-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dwu-work-card__label {
+  font-size: 11px;
+  font-weight: 400;
+  color: #868585;
+  letter-spacing: 0.3px;
+}
+
+.dwu-work-card__value {
+  font-size: 12px;
+  font-weight: 500;
+  color: #3A466D;
+  word-break: break-word;
+}
+
+.dwu-work-card__section {
+  padding: 0px 16px 16px 16px;
+  border-bottom: 1px solid #f8f9fc;
+  background: #F6F6F6;
+}
+
+.dwu-work-card__section:last-child {
+  border-bottom: none;
+}
+
+.dwu-work-card__section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #3A466D;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dwu-work-card__text {
+  font-size: 12px;
+  color: #868585;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dwu-admin-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dwu-entries-list {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  border-bottom: 1px solid #f3f4fe;
+}
+
+.dwu-entry-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #eef2ff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 10px;
+  animation: dwuSlideDown 0.2s ease-out;
+}
+
+.dwu-entry-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.dwu-entry-card__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dwu-entry-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dwu-entry-card__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dwu-entry-card__status {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: capitalize;
+  flex-shrink: 0;
+}
+
+.dwu-entry-card__status--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.dwu-entry-card__status--inprocess {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.dwu-entry-card__status--hold {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.dwu-entry-card__status--completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.dwu-entry-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.dwu-entry-card__dot {
+  font-weight: 700;
+}
+
+.dwu-entry-card__remove {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.dwu-entry-card__remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.dwu-entry-card__phase {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/* Mobile Responsive Improvements */
+@media (max-width: 767.98px) {
+  .dwu-admin-panels {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+
+  .dwu-emp-panel,
+  .dwu-detail-panel {
+    width: 100% !important;
+    max-height: 500px !important;
+    overflow-y: auto !important;
+  }
+
+  .dwu-detail-panel {
+    margin-top: 20px !important;
+    border-left: none !important;
+    border-top: 1px solid #edf2ff !important;
+  }
+}
+
+/* Mobile Modal Styles */
+.dwu-mobile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.dwu-mobile-modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-height: 90vh;
+  border-radius: 24px 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.dwu-mobile-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #f3f4fe;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dwu-mobile-modal-emp-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dwu-mobile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #5977f8;
+}
+
+.dwu-mobile-modal-header h6 {
+  color: #3A466D;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.dwu-mobile-modal-header small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.dwu-mobile-modal-close {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dwu-mobile-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #fbfcff;
+}
+
+.animate-in {
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ── Filter Row Enhancements ── */
+.dwu-filter-row {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f0f0;
+}
+
+.dwu-filter-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.dwu-filter-col {
+  flex: 1 1 160px;
+  min-width: 160px;
+}
+
+.dwu-filter-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #77728e;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.dwu-date-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 400;
+  color: #77728E;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.dwu-date-input:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.dwu-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(0.4);
+}
+
+.dwu-filter-btn {
+  height: 32px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-filter-btn--cancel {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.dwu-filter-btn--cancel:hover {
+  background-color: #e2e8f0;
+}
+
+.dwu-filter-btn--search {
+  background-color: #5977f8;
+  color: #ffffff;
+}
+
+.dwu-filter-btn--search:hover {
+  background-color: #4b66de;
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.2);
+}
+
+/* Custom Date Input Container & Calander.svg Icon for Filter */
+.dwu-custom-date-picker-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.dwu-custom-date-picker-wrap .dwu-date-input {
+  width: 100%;
+  height: 35px !important;
+  padding: 0 32px 0 10px !important;
+  border: 1px solid rgba(31, 31, 31, 0.12) !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  color: #334155 !important;
+  background-color: #ffffff !important;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.dwu-custom-date-picker-wrap .dwu-date-input::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.dwu-custom-calendar-icon {
+  position: absolute;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.dwu-custom-calendar-icon:hover {
+  opacity: 1;
+}

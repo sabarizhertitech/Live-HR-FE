@@ -1,0 +1,1536 @@
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import Sidebar from "../../HeaderSidebar/Sidebar";
+import { portalInstance } from "../../../Services/instance";
+import CustomDropdown from "../../Common/CustomDropdown";
+import FilterIconImg from "../../../../public/Filter.svg?url";
+import Pagination from "../../Employee/Pagination/Pagination";
+import "../../Employee/Pagination/Pagination.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { Button } from "react-bootstrap";
+import { Trash2, AlertTriangle, Edit2 } from "lucide-react";
+import { FaPlusCircle } from "react-icons/fa";
+import closeIcon from "../../../assets/close.png";
+import "./EmployeeDailyWorkUpdate.css";
+
+import "../../../Globel/Layout.css";
+const PAGE_SIZE = 10;
+
+const DATE_MODE_OPTIONS = [
+  { value: "All", label: "All Time" },
+  { value: "Today", label: "Today" },
+  { value: "Yesterday", label: "Yesterday" },
+  { value: "Specific", label: "Specific Date" },
+  { value: "This Week", label: "This Week" },
+  { value: "This Month", label: "This Month" },
+  { value: "This Year", label: "This Year" },
+  { value: "Custom", label: "Custom Range" },
+];
+
+const EmployeeDailyWorkUpdate = () => {
+  // --- 1. User Session ---
+  const sessionData = useMemo(() => {
+    try {
+      const raw = sessionStorage.getItem("Erti-Portal");
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed.user || parsed;
+    } catch { return {}; }
+  }, []);
+
+  const loggedInUserId = sessionData?._id || sessionData?.id;
+
+  // --- 2. State ---
+  const [updates, setUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [editingUpdate, setEditingUpdate] = useState(null);
+
+  // Filters
+  const [dateMode, setDateMode] = useState("Today");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [category, setCategory] = useState("");
+  const [project, setProject] = useState("");
+
+  // "Applied" filters (only used for API calls)
+  const [appliedFilters, setAppliedFilters] = useState({
+    category: "",
+    project: "",
+    dateMode: "Today",
+    fromDate: "",
+    toDate: ""
+  });
+
+  // Metadata for dropdowns
+  const [categories, setCategories] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [fullCategories, setFullCategories] = useState([]);
+  const [fullProjects, setFullProjects] = useState([]);
+
+  // Create Modal State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [activeStatusDropdown, setActiveStatusDropdown] = useState(null);
+  const [recentSaves, setRecentSaves] = useState([]);
+
+  const isStackEligibleCategory = (cat) => {
+    if (!cat) return false;
+    const normalized = cat.trim().toLowerCase().replace(/[-_]/g, " ");
+    return (
+      normalized === "website" ||
+      normalized === "app" ||
+      normalized === "client projects" ||
+      normalized === "client project" ||
+      normalized === "dashboard" ||
+      normalized === "dashbaord"
+    );
+  };
+
+  const formatWorkType = (wt) => {
+    if (!wt) return "";
+    const upper = wt.trim().toUpperCase();
+    if (upper === "BE") return "BE - Back End";
+    if (upper === "FE") return "FE - Front End";
+    if (upper === "FE & BE" || upper === "FE AND BE" || upper === "BE & FE" || upper === "BE AND FE") {
+      return "FE & BE - Front End and Back End";
+    }
+    return wt;
+  };
+
+  const emptyEntry = () => ({
+    taskId: "",
+    project: "",
+    category: "",
+    workType: "",
+    status: "inprocess",
+    description: "",
+    updateDate: new Date().toISOString().split("T")[0],
+    isNewTask: true,
+    title: ""
+  });
+
+  const [formEntries, setFormEntries] = useState([emptyEntry()]);
+  const [activeOtherField, setActiveOtherField] = useState(null); // { idx, type: 'category'|'project' }
+  const [newOtherVal, setNewOtherVal] = useState("");
+  const [isPointByPoint, setIsPointByPoint] = useState(false);
+
+  const filterRef = useRef(null);
+  const fromDateRef = useRef(null);
+  const toDateRef = useRef(null);
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const getStatusKey = (v) => {
+    const s = (v || "").toString().toLowerCase().replace(/\s+/g, "");
+    if (s === "inprocess" || s === "in-process" || s === "in_process") return "inprocess";
+    if (s === "hold" || s === "onhold" || s === "on-hold" || s === "on_hold") return "hold";
+    return s;
+  };
+
+  const getStatusLabel = (v) => {
+    const key = getStatusKey(v);
+    if (key === "inprocess") return "In Process";
+    if (key === "hold") return "On Hold";
+    return (v || "Pending").toString().charAt(0).toUpperCase() + (v || "Pending").toString().slice(1);
+  };
+
+  // --- 3. Data Fetching ---
+
+  const fetchMeta = useCallback(async () => {
+    try {
+      const res = await portalInstance.get("/creat/task-meta");
+      if (res.data?.success) {
+        setCategories(res.data.data.categories || []);
+        setProjects(res.data.data.projects || []);
+        setFullCategories(res.data.data.fullCategories || []);
+        setFullProjects(res.data.data.fullProjects || []);
+      }
+    } catch (err) {
+      console.error("META FETCH ERROR:", err);
+    }
+  }, []);
+
+  const fetchUpdates = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (loggedInUserId) params.append("employeeId", loggedInUserId);
+
+      // Server-Side Pagination
+      params.append("page", currentPage);
+      params.append("limit", PAGE_SIZE);
+
+      if (appliedFilters.dateMode === "Today") params.append("today", "true");
+      else if (appliedFilters.dateMode === "Yesterday") params.append("yesterday", "true");
+      else if (appliedFilters.dateMode === "Specific" && appliedFilters.fromDate) {
+        params.append("fromDate", appliedFilters.fromDate);
+        params.append("toDate", appliedFilters.fromDate); // Same date for specific day
+      }
+      else if (appliedFilters.dateMode === "This Week") params.append("thisWeek", "true");
+      else if (appliedFilters.dateMode === "This Month") params.append("thisMonth", "true");
+      else if (appliedFilters.dateMode === "This Year") params.append("year", new Date().getFullYear());
+      else if (appliedFilters.dateMode === "Custom" && appliedFilters.fromDate && appliedFilters.toDate) {
+        params.append("fromDate", appliedFilters.fromDate);
+        params.append("toDate", appliedFilters.toDate);
+      }
+      if (appliedFilters.category) params.append("category", appliedFilters.category);
+      if (appliedFilters.project) params.append("project", appliedFilters.project);
+
+      const res = await portalInstance.get(`/creat/daily-update/all?${params.toString()}`);
+      if (res.data?.success) {
+        const fetched = res.data.data || [];
+        // Helper to convert date to YYYY-MM-DD in local time
+        const getLocalDateStr = (d) => {
+          if (!d) return "";
+          const dateObj = new Date(d);
+          if (isNaN(dateObj.getTime())) return "";
+          return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+        };
+        // Sort updates so that the newest updates (by date portion first, then _id descending) are at the start (top)
+        const sorted = [...fetched].sort((a, b) => {
+          const dateStrA = getLocalDateStr(a.updateDate || a.createdAt);
+          const dateStrB = getLocalDateStr(b.updateDate || b.createdAt);
+          if (dateStrA !== dateStrB) return dateStrB.localeCompare(dateStrA);
+          return String(b._id || "").localeCompare(String(a._id || ""));
+        });
+        setUpdates(sorted);
+        setTotalItems(res.data?.total || res.data?.count || sorted.length);
+      }
+    } catch (error) {
+      console.error("FETCH UPDATES ERROR:", error);
+      toast.error("Failed to load work updates");
+    } finally {
+      setLoading(false);
+    }
+  }, [loggedInUserId, appliedFilters, currentPage]);
+
+  // --- 4. Effects ---
+  useEffect(() => {
+    fetchMeta();
+  }, [fetchMeta]);
+
+  useEffect(() => {
+    fetchUpdates();
+  }, [fetchUpdates]);
+
+  // Manual search handlers (matches AdminTaskPage logic)
+  const handleSearch = () => {
+    if (dateMode === "Custom" && (!fromDate || !toDate)) {
+      return toast.warning("Please select both From and To dates");
+    }
+    setAppliedFilters({ category, project, dateMode, fromDate, toDate });
+    setCurrentPage(1);
+    setShowFilterMenu(false);
+  };
+
+  const handleReset = () => {
+    setCategory("");
+    setProject("");
+    setDateMode("Today");
+    setFromDate("");
+    setToDate("");
+    setAppliedFilters({ category: "", project: "", dateMode: "Today", fromDate: "", toDate: "" });
+    setCurrentPage(1);
+    setShowFilterMenu(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target) && !e.target.closest(".dwu-filter-toggle-btn")) {
+        setShowFilterMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // --- 5. Handlers ---
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+
+    // Premium strict form validation for all required fields
+    for (let i = 0; i < formEntries.length; i++) {
+      const entry = formEntries[i];
+      if (!entry.category?.trim()) {
+        toast.warning("Category is required. Please select a Category.");
+        return;
+      }
+      if (!entry.project?.trim()) {
+        toast.warning("Project is required. Please select a Project.");
+        return;
+      }
+      if (isStackEligibleCategory(entry.category) && !entry.workType?.trim()) {
+        toast.warning("Please select a Work Type (BE, FE, or FE & BE)");
+        return;
+      }
+      if (!entry.title?.trim()) {
+        toast.warning("Task Title is required. Please enter a Task Title.");
+        return;
+      }
+      if (!entry.status?.trim()) {
+        toast.warning("Status is required. Please select a Status.");
+        return;
+      }
+      if (!entry.description?.trim()) {
+        toast.warning("Description is required. Please enter a Description.");
+        return;
+      }
+    }
+
+    const validEntries = formEntries.filter(entry => entry.title?.trim());
+    if (validEntries.length === 0) return toast.error("Please fill at least one entry");
+
+    try {
+      setCreateLoading(true);
+
+      const entry = validEntries[0];
+      const isEditing = !!editingUpdate;
+      const isEditingToday = isEditing && (new Date(editingUpdate.updateDate || editingUpdate.createdAt).toISOString().split("T")[0] === todayStr);
+
+      const formattedCategory = entry.category ? entry.category.toUpperCase() : entry.category;
+      const formattedProject = entry.project ? (entry.project.charAt(0).toUpperCase() + entry.project.slice(1).toLowerCase()) : entry.project;
+      const formattedWorkType = isStackEligibleCategory(entry.category) ? (entry.workType || "").trim() : "";
+
+      if (isEditing && isEditingToday) {
+        // In-place update for TODAY's existing record
+        const submitData = {
+          ...entry,
+          taskId: entry.taskId || "standalone",
+          title: entry.title?.trim(),
+          description: entry.description?.trim() || undefined,
+          phaseStatus: entry.status,
+          status: entry.status,
+          employeeId: loggedInUserId,
+          updateDate: entry.updateDate,
+          category: formattedCategory,
+          project: formattedProject,
+          workType: formattedWorkType,
+          taskPhaseId: editingUpdate.referenceId || editingUpdate.taskPhaseId
+        };
+
+        const response = await portalInstance.put(`/creat/daily-update/${editingUpdate._id}`, submitData);
+        if (response.data?.success) {
+          const updatedObj = response.data.data;
+          setUpdates(prev => prev.map(u => {
+            if (u._id === editingUpdate._id) {
+              return {
+                ...u,
+                ...updatedObj,
+                title: submitData.title,
+                description: submitData.description,
+                status: submitData.status,
+                category: submitData.category,
+                project: submitData.project,
+                workType: submitData.workType,
+                task: {
+                  ...u?.task,
+                  taskTitle: submitData.title,
+                  category: submitData.category,
+                  project: submitData.project
+                }
+              };
+            }
+            return u;
+          }));
+          toast.success("Work update updated successfully!");
+        }
+        setShowCreateModal(false);
+        resetCreateForm();
+        fetchUpdates();
+        return;
+      }
+
+      // Either a NEW creation OR editing a PAST record (which creates a NEW record for TODAY)
+      const newEntries = [];
+      for (const entry of validEntries) {
+        const cat = entry.category ? entry.category.toUpperCase() : entry.category;
+        const proj = entry.project ? (entry.project.charAt(0).toUpperCase() + entry.project.slice(1).toLowerCase()) : entry.project;
+        const wt = isStackEligibleCategory(entry.category) ? (entry.workType || "").trim() : "";
+        const submitData = {
+          ...entry,
+          taskId: entry.taskId || "standalone",
+          title: entry.title?.trim(),
+          description: entry.description?.trim() || undefined,
+          phaseStatus: entry.status,
+          status: entry.status,
+          employeeId: loggedInUserId,
+          updateDate: todayStr, // Always save to today's date
+          category: cat,
+          project: proj,
+          workType: wt,
+          taskPhaseId: editingUpdate ? (editingUpdate.referenceId || editingUpdate.taskPhaseId) : undefined
+        };
+        const response = await portalInstance.post("/creat/daily-update", submitData);
+        if (response.data?.success && response.data.data) {
+          const savedEntry = response.data.data;
+          const formattedEntry = {
+            ...savedEntry,
+            userId: {
+              _id: loggedInUserId,
+              name: sessionData?.name || "Me",
+              photo: sessionData?.photo || null
+            },
+            updatedBy: {
+              _id: loggedInUserId,
+              name: sessionData?.name || "Me",
+              photo: sessionData?.photo || null
+            },
+            task: {
+              _id: submitData.taskId,
+              taskTitle: submitData.title,
+              category: submitData.category,
+              project: submitData.project
+            }
+          };
+          newEntries.push(formattedEntry);
+        }
+      }
+      toast.success(editingUpdate ? "Work update recorded for today!" : "Work update recorded successfully!");
+
+      setRecentSaves(prev => [...validEntries, ...prev]);
+      resetCreateForm();
+      setShowCreateModal(false);
+
+      if (newEntries.length > 0) {
+        setUpdates(prev => {
+          const combinedList = [...newEntries, ...prev];
+          return combinedList.sort((a, b) => {
+            const getLocalDateStr = (d) => {
+              if (!d) return "";
+              const dateObj = new Date(d);
+              if (isNaN(dateObj.getTime())) return "";
+              return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+            };
+            const dateStrA = getLocalDateStr(a.updateDate || a.createdAt);
+            const dateStrB = getLocalDateStr(b.updateDate || b.createdAt);
+            if (dateStrA !== dateStrB) return dateStrB.localeCompare(dateStrA);
+            return String(b._id || "").localeCompare(String(a._id || ""));
+          });
+        });
+      }
+
+      // Reset filters and refresh to today
+      setCategory("");
+      setProject("");
+      setDateMode("Today");
+      setFromDate("");
+      setToDate("");
+      setAppliedFilters({
+        category: "",
+        project: "",
+        dateMode: "Today",
+        fromDate: "",
+        toDate: ""
+      });
+      setCurrentPage(1);
+      fetchUpdates();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to save update");
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
+  const handleEditClick = (u) => {
+    const isStandalone = u.task?._id === "standalone" || !u.task?._id;
+    const desc = u.description || "";
+    setEditingUpdate(u);
+    setIsPointByPoint(/^\s*1[\.\)]/m.test(desc));
+    setFormEntries([{
+      taskId: isStandalone ? "" : (u.task?._id || ""),
+      project: u.task?.project || u.project || "",
+      category: u.task?.category || u.category || "",
+      workType: u.workType || "",
+      status: u.status || "pending",
+      description: desc,
+      updateDate: todayStr,
+      title: u.title || u.task?.taskTitle || "",
+      isNewTask: isStandalone
+    }]);
+    setShowCreateModal(true);
+  };
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
+  const handleDeleteUpdate = async (e, id) => {
+    e.stopPropagation();
+    setDeleteTargetId(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    try {
+      const res = await portalInstance.delete(`/creat/daily-update/${deleteTargetId}`);
+      if (res.data.success) {
+        toast.success("Update deleted");
+        setUpdates(prev => prev.filter(u => u._id !== deleteTargetId));
+        fetchUpdates();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete update");
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteTargetId(null);
+    }
+  };
+
+  const formatToNumberedPoints = (text) => {
+    if (!text || !text.trim()) return "1. ";
+    const rawLines = text.split("\n");
+    const cleaned = rawLines
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    if (cleaned.length === 0) return "1. ";
+    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+  };
+
+  const removeNumberedPoints = (text) => {
+    if (!text) return "";
+    return text
+      .split("\n")
+      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const handleTogglePointByPoint = (idx = 0) => {
+    const nextMode = !isPointByPoint;
+    setIsPointByPoint(nextMode);
+
+    const currentDesc = formEntries[idx]?.description || "";
+    if (nextMode) {
+      const formatted = formatToNumberedPoints(currentDesc);
+      updateFormEntry(idx, "description", formatted);
+    } else {
+      const unformatted = removeNumberedPoints(currentDesc);
+      updateFormEntry(idx, "description", unformatted);
+    }
+  };
+
+  const handleDescriptionKeyDown = (e, idx) => {
+    if (!isPointByPoint) return;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const textarea = e.target;
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      const textBeforeCursor = value.substring(0, selectionStart);
+      const textAfterCursor = value.substring(selectionEnd);
+
+      const linesBefore = textBeforeCursor.split("\n");
+      const currentLine = linesBefore[linesBefore.length - 1];
+
+      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+
+      if (match) {
+        const num = parseInt(match[1], 10);
+        const content = match[2];
+
+        // If current line is just "1. " or "2. " without content, clear the number
+        if (!content.trim()) {
+          const newLines = linesBefore.slice(0, -1);
+          const newBefore = newLines.length > 0 ? newLines.join("\n") + "\n" : "";
+          const newText = newBefore + textAfterCursor;
+          updateFormEntry(idx, "description", newText);
+          setTimeout(() => {
+            textarea.selectionStart = textarea.selectionEnd = newBefore.length;
+          }, 0);
+          return;
+        }
+
+        const nextNum = num + 1;
+        const insertion = `\n${nextNum}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        updateFormEntry(idx, "description", newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      } else {
+        const lineCount = linesBefore.length + 1;
+        const insertion = `\n${lineCount}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        updateFormEntry(idx, "description", newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      }
+    }
+  };
+
+  const handleDescriptionPaste = (e, idx) => {
+    if (!isPointByPoint) return;
+
+    const pastedText = e.clipboardData?.getData("text");
+    if (!pastedText || !pastedText.includes("\n")) return;
+
+    e.preventDefault();
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const textBefore = value.substring(0, selectionStart);
+    const textAfter = value.substring(selectionEnd);
+
+    const rawLines = pastedText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (rawLines.length === 0) return;
+
+    const linesBefore = textBefore.split("\n");
+    const currentLine = linesBefore[linesBefore.length - 1];
+    const match = currentLine.match(/^(\d+)\.\s*/);
+    const startNum = match ? parseInt(match[1], 10) : (linesBefore.filter(l => l.trim()).length || 1);
+
+    let formattedPaste = "";
+    if (match && currentLine.trim() === `${match[1]}.`) {
+      formattedPaste = rawLines.map((l, i) => {
+        const clean = l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim();
+        return i === 0 ? clean : `${startNum + i}. ${clean}`;
+      }).join("\n");
+    } else {
+      formattedPaste = rawLines.map((l, i) => {
+        const clean = l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim();
+        return `${startNum + i}. ${clean}`;
+      }).join("\n");
+      if (textBefore && !textBefore.endsWith("\n") && !match) {
+        formattedPaste = "\n" + formattedPaste;
+      }
+    }
+
+    const newText = textBefore + formattedPaste + textAfter;
+    updateFormEntry(idx, "description", newText);
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = (textBefore + formattedPaste).length;
+    }, 0);
+  };
+
+  const updateFormEntry = (idx, field, value) => {
+    setFormEntries(prev => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleCategoryToggle = (idx, cat) => {
+    if (cat === "Add") {
+      setActiveOtherField({ idx, type: "category" });
+      setNewOtherVal("");
+      updateFormEntry(idx, "category", "");
+      updateFormEntry(idx, "project", "");
+      updateFormEntry(idx, "workType", "");
+    } else if (cat === "Back") {
+      setActiveOtherField(null);
+      updateFormEntry(idx, "category", "");
+      updateFormEntry(idx, "project", "");
+      updateFormEntry(idx, "workType", "");
+    } else {
+      setActiveOtherField(null);
+      const catVal = cat ? cat.toUpperCase() : "";
+      updateFormEntry(idx, "category", catVal);
+      updateFormEntry(idx, "project", "");
+      if (!isStackEligibleCategory(catVal)) {
+        updateFormEntry(idx, "workType", "");
+      }
+    }
+  };
+
+  const handleProjectToggle = (idx, proj) => {
+    const currentCat = formEntries[idx]?.category;
+    if (!currentCat || (activeOtherField?.idx === idx && activeOtherField?.type === "category")) {
+      toast.warning("Please save or select a category first");
+      return;
+    }
+    if (proj === "Add") {
+      setActiveOtherField({ idx, type: "project" });
+      setNewOtherVal("");
+      updateFormEntry(idx, "project", "");
+      return;
+    }
+    setActiveOtherField(null);
+    const formattedProj = proj ? (proj.charAt(0).toUpperCase() + proj.slice(1).toLowerCase()) : "";
+    updateFormEntry(idx, "project", formattedProj);
+  };
+
+  const handleAddOther = async (idx, type) => {
+    let val = newOtherVal.trim();
+    if (!val) return;
+
+    if (type === "category") {
+      val = val.toUpperCase();
+      const exists = fullCategories.some(c => c && (c.name || "").toUpperCase() === val);
+      if (exists) {
+        toast.info(`"${val}" is already available.`);
+        updateFormEntry(idx, "category", val);
+        setActiveOtherField(null);
+        setNewOtherVal("");
+        return;
+      }
+    } else {
+      val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+      const exists = fullProjects.some(p => p && (p.name || "").toLowerCase() === val.toLowerCase());
+      if (exists) {
+        toast.info(`"${val}" is already available.`);
+        updateFormEntry(idx, "project", val);
+        setActiveOtherField(null);
+        setNewOtherVal("");
+        return;
+      }
+    }
+
+    try {
+      if (type === "category") {
+        await portalInstance.post("/creat/task-meta/category", { name: val });
+      } else {
+        const catName = formEntries[idx].category;
+        const catObj = fullCategories.find(c => (c.name || "").toUpperCase() === (catName || "").toUpperCase());
+        if (!catObj) return toast.error("Please select a category first");
+        await portalInstance.post("/creat/task-meta/project", { name: val, categoryId: catObj._id });
+      }
+
+      await fetchMeta();
+      updateFormEntry(idx, type, val);
+      setActiveOtherField(null);
+      setNewOtherVal("");
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} added!`);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        toast.info(`"${val}" already exists. Selected automatically.`);
+        await fetchMeta();
+        updateFormEntry(idx, type, val);
+        setActiveOtherField(null);
+        setNewOtherVal("");
+      } else {
+        toast.error(err.response?.data?.message || `Failed to add ${type}`);
+      }
+    }
+  };
+
+
+  const resetCreateForm = () => {
+    setFormEntries([emptyEntry()]);
+    setEditingUpdate(null);
+    setIsPointByPoint(false);
+  };
+
+  const handleExport = () => {
+    if (updates.length === 0) return toast.info("No data to export");
+    try {
+      const headers = ['S.No', 'Date', 'Category', 'Project', 'Task Title', 'Work Description', 'Status'];
+
+      // Dynamic Width Calculation
+      const baseWidth = 7;
+      const colWidths = [40, 100, 120, 140, 200, 400, 100];
+
+      updates.forEach(u => {
+        const title = u.task?.taskTitle || "N/A";
+        const note = u.description || u.phase || u.note || "N/A";
+        if (title.length * baseWidth > colWidths[4]) colWidths[4] = Math.min(title.length * baseWidth, 300);
+        if (note.length * (baseWidth * 0.4) > colWidths[5]) colWidths[5] = Math.min(note.length * (baseWidth * 0.4), 500);
+      });
+
+      const xmlStyles = `
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="Header">
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#5977F8" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="Cell">
+   <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellBold">
+   <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Bold="1" ss:Color="#3A466D"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellTitle">
+   <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Bold="1" ss:Color="#5977F8"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+ </Styles>`;
+
+      const escape = (str) => String(str).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ ${xmlStyles}
+ <Worksheet ss:Name="My Updates">
+  <Table>
+   ${colWidths.map(w => `<Column ss:Width="${w}"/>`).join('')}
+   <Row ss:Height="25">
+    ${headers.map(h => `<Cell ss:StyleID="Header"><Data ss:Type="String">${h}</Data></Cell>`).join('')}
+   </Row>
+   ${updates.map((u, i) => `
+   <Row>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${i + 1}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(formatDate(u.updateDate))}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.task?.category || u.category || "—")}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.task?.project || u.project || "—")}</Data></Cell>
+    <Cell ss:StyleID="CellTitle"><Data ss:Type="String">${escape(u.title || u.task?.taskTitle || "N/A")}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.description || "—")}</Data></Cell>
+    <Cell ss:StyleID="CellBold"><Data ss:Type="String">${escape(u.status || "Pending")}</Data></Cell>
+   </Row>`).join('')}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+      const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `My_Work_Updates_${new Date().toISOString().split('T')[0]}.xls`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("Excel Downloaded!");
+    } catch (error) { toast.error("Export failed"); }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    if (typeof dateStr === "string" && dateStr.includes("T")) {
+      const datePart = dateStr.split("T")[0];
+      const parts = datePart.split("-");
+      if (parts.length === 3) {
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+      }
+    }
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const isTodayUpdate = (dateVal) => {
+    if (!dateVal) return false;
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    const todayDate = today.getDate();
+
+    if (typeof dateVal === "string" && dateVal.includes("T")) {
+      const [year, month, day] = dateVal.split("T")[0].split("-").map(Number);
+      if (year && month && day) {
+        return year === todayYear && (month - 1) === todayMonth && day === todayDate;
+      }
+    } else if (typeof dateVal === "string" && dateVal.includes("-")) {
+      const [year, month, day] = dateVal.split("-").map(Number);
+      if (year && month && day) {
+        return year === todayYear && (month - 1) === todayMonth && day === todayDate;
+      }
+    }
+
+    const targetDate = new Date(dateVal);
+    if (isNaN(targetDate.getTime())) return false;
+    return (
+      targetDate.getFullYear() === todayYear &&
+      targetDate.getMonth() === todayMonth &&
+      targetDate.getDate() === todayDate
+    );
+  };
+
+  const renderDescription = (desc) => {
+    if (!desc || !desc.trim()) return "—";
+
+    let lines = [];
+    if (desc.includes("\n")) {
+      lines = desc.split("\n").map(l => l.trim()).filter(Boolean);
+    } else if (/(?:^|\s)1[\.\)]\s+.*(?:\s)2[\.\)]\s+/.test(desc)) {
+      lines = desc.split(/(?=(?:^|\s)\d+[\.\)]\s+)/).map(l => l.trim()).filter(Boolean);
+    } else {
+      lines = [desc.trim()];
+    }
+
+    if (lines.length > 1) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+          {lines.map((line, i) => (
+            <div key={i} style={{ lineHeight: "1.45", wordBreak: "break-word" }}>
+              {line}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return <div style={{ whiteSpace: "pre-line", wordBreak: "break-word", lineHeight: "1.45", textAlign: "left" }}>{desc}</div>;
+  };
+
+  return (
+    <>
+      <Sidebar />
+      <div className="common-container">
+        <div className="dwu-emp-root">
+          <header className="dwu-emp__header">
+            <div className="d-flex justify-content-between align-items-center flex-wrap mb-1" style={{ gap: "12px" }}>
+              <div>
+                <h4 className="assign-task__members-title mt-0 mb-1">My Daily Updates</h4>
+              </div>
+              <div className="d-flex align-items-center  mt-0 " style={{ gap: "12px" }}>
+                {/* 1. Filter Button with Label */}
+                <div>
+                  <div
+                    className={`dwu-employee-filter-icon ${showFilterMenu ? "active" : ""}`}
+                    onClick={() => setShowFilterMenu(!showFilterMenu)}
+                    title="Toggle Filters"
+                  >
+                    <img src={FilterIconImg} alt="filter" />
+                  </div>
+                </div>
+
+                {/* 2. New Update Button with Label */}
+                <div className="d-flex flex-column align-items-center" style={{ gap: '2px' }}>
+                  <div
+                    className="dwu-header-action-icon "
+                    onClick={() => { resetCreateForm(); setRecentSaves([]); setShowCreateModal(true); }}
+                    title="New Update"
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    <button style={{
+                      color: '#ffff', background: '#5977f8', borderRadius: "6px",
+                      height: "32px",
+                      width: "120px",
+                      fontSize: "11px",
+                      fontWeight: " 500", border: "none"
+
+                    }}>Add</button>
+                  </div>
+                </div>
+
+                {/* 3. Excel Button */}
+                <Button
+                  variant="outline-success"
+                  className="excel-export-btn"
+                  onClick={handleExport}
+                >
+                  Download Excel
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          {showFilterMenu && (
+            <div className="dwu-filter-row animate-slide-down mb-4" ref={filterRef} style={{ padding: '20px', borderRadius: '12px', background: '#f6f6f6', marginTop: '20px' }}>
+              <div className="row g-3 align-items-end">
+                {/* 1. Timeframe */}
+                <div className="col-12 col-md">
+                  <label className="dwu-filter-label">Date Range</label>
+                  <CustomDropdown options={DATE_MODE_OPTIONS} value={dateMode} onChange={setDateMode} />
+                </div>
+
+                {/* 2. Custom/Specific Dates */}
+                {(dateMode === "Custom" || dateMode === "Specific") && (
+                  <>
+                    <div className="col-12 col-md">
+                      <label className="dwu-filter-label">{dateMode === "Specific" ? "Date" : "From"}</label>
+                      <div className="dwu-custom-date-picker-wrap">
+                        <input
+                          ref={fromDateRef}
+                          type="date"
+                          className="dwu-date-input"
+                          max={todayStr}
+                          value={fromDate}
+                          onChange={(e) => setFromDate(e.target.value)}
+                        />
+                        <img
+                          src="/Calander.svg"
+                          alt="calendar"
+                          className="dwu-custom-calendar-icon"
+                          onClick={() => fromDateRef.current?.showPicker ? fromDateRef.current.showPicker() : fromDateRef.current?.focus()}
+                        />
+                      </div>
+                    </div>
+                    {dateMode === "Custom" && (
+                      <div className="col-12 col-md">
+                        <label className="dwu-filter-label">To</label>
+                        <div className="dwu-custom-date-picker-wrap">
+                          <input
+                            ref={toDateRef}
+                            type="date"
+                            className="dwu-date-input"
+                            min={fromDate}
+                            max={todayStr}
+                            value={toDate}
+                            onChange={(e) => setToDate(e.target.value)}
+                          />
+                          <img
+                            src="/Calander.svg"
+                            alt="calendar"
+                            className="dwu-custom-calendar-icon"
+                            onClick={() => toDateRef.current?.showPicker ? toDateRef.current.showPicker() : toDateRef.current?.focus()}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* 3. Category */}
+                <div className="col-12 col-md">
+                  <label className="dwu-filter-label">Category</label>
+                  <CustomDropdown options={[{ value: "", label: "All" }, ...categories.filter(c => c && c.toLowerCase() !== "add").map(c => ({ value: c, label: (c || "").toUpperCase() }))]} value={category} onChange={(v) => { setCategory(v); setProject(""); }} />
+                </div>
+
+                {/* 4. Project */}
+                <div className="col-12 col-md">
+                  <label className="dwu-filter-label">Project</label>
+                  <CustomDropdown options={[{ value: "", label: "All" }, ...projects.filter(p => p && p.toLowerCase() !== "add").map(p => ({ value: p, label: p ? (p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()) : p }))]} value={project} onChange={setProject} />
+                </div>
+
+                {/* 5. Actions */}
+                <div className="col-12 d-flex justify-content-end mt-2">
+                  <div className="d-flex gap-4 mt-2">
+                    <button className="hrms-common-btn-cancel " onClick={handleReset} >Cancel</button>
+                    <button className="hrms-common-btn-primary" onClick={handleSearch} >Search</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <section className="dwu-emp__panel ">
+            <div className="employeeTaskPage__tableCard mt-2">
+              <div className="table-responsives">
+                <div className="employeeTaskPage__table">
+                  <div className="employeeTaskPage__tableHeader">
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--sno">S.No</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--date">Date</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--catproj">Category / Project</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__col--title">Title</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableCell--description">Description</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--status">Status</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--action">Action</div>
+                  </div>
+                  {loading ? (
+                    <div className="employeeTaskPage__tableEmpty">Fetching data...</div>
+                  ) : updates.length === 0 ? (
+                    <div className="employeeTaskPage__tableEmpty">No updates found.</div>
+                  ) : (
+                    updates.map((u, idx) => (
+                      <div
+                        key={u._id}
+                        className="employeeTaskPage__tableRow"
+                      >
+                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--sno">
+                          {(currentPage - 1) * PAGE_SIZE + idx + 1}
+                        </div>
+                        <div className="employeeTaskPage__tableCelldate employeeTaskPage__col--date" style={{ fontSize: "12px" }}>
+                          {formatDate(u.updateDate)}
+                        </div>
+                        <div className="employeeTaskPage__tableCelldate employeeTaskPage__col--catproj" style={{ fontSize: "12px" }}>
+                          <div className="d-flex justify-content-center align-items-center flex-wrap gap-1">
+                            {u.task?.category || u.category ? (
+                              <span>
+                                {(u.task?.category || u.category || "").toUpperCase()}
+                              </span>
+                            ) : (
+                              <span className="empTask__metaNone">-</span>
+                            )}
+                            <span className="mx-1" style={{ color: "#c4c4c4" }}>/</span>
+                            {u.task?.project || u.project ? (
+                              <span>
+                                {(() => {
+                                  const p = u.task?.project || u.project;
+                                  return p ? (p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()) : "-";
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="empTask__metaNone">-</span>
+                            )}
+                            {u.workType && (
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  fontWeight: "600",
+                                  color: "#5977f8",
+                                  background: "#eef2ff",
+                                  border: "1px solid #c7d2fe",
+                                  borderRadius: "4px",
+                                  padding: "0px 5px",
+                                  marginLeft: "2px"
+                                }}
+                                title={formatWorkType(u.workType)}
+                              >
+                                {u.workType}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="employeeTaskPage__tableCell employeeTaskPage__col--title" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
+                          <div className="d-flex align-items-center flex-wrap gap-2">
+                            <strong className="employeeTaskPage__taskTitle">
+                              {u.title || u.task?.taskTitle || "N/A"}
+                            </strong>
+                            {(u.referenceId || u.taskPhaseId || (u.task?._id && u.task._id !== "standalone" && !u.isNewTask)) && (
+                              <span
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  fontSize: "10px",
+                                  fontWeight: "600",
+                                  color: "#5977f8",
+                                  background: "#eef2ff",
+                                  border: "1px solid #c7d2fe",
+                                  borderRadius: "4px",
+                                  padding: "1px 6px",
+                                  letterSpacing: "0.2px",
+                                  whiteSpace: "nowrap",
+                                  lineHeight: "14px"
+                                }}
+                                title="This update originates from a Task Phase"
+                              >
+                                Task Phase
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--wrap employeeTaskPage__tableCell--description">
+                          <div className="dwu-phase-text">{renderDescription(u.description)}</div>
+                        </div>
+                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--status">
+                          <span className={`employeeTaskPage__statusBadge employeeTaskPage__badge--status-${getStatusKey(u.status || u.phaseStatus)}`}>
+                            {getStatusLabel(u.status || u.phaseStatus)}
+                          </span>
+                        </div>
+                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--action">
+                          <div className="d-flex align-items-center justify-content-center gap-2">
+                            {/* Edit icon - always shown */}
+                            <div
+                              className="dwu-row-edit-icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick(u);
+                              }}
+                              title="Edit Update"
+                              style={{ display: "flex", alignItems: "center", cursor: "pointer", color: "#5977f8", padding: "2px" }}
+                            >
+                              <Edit2 size={16} />
+                            </div>
+
+                            {/* Delete icon - only shown for today's updates */}
+                            {isTodayUpdate(u.updateDate || u.createdAt) && (
+                              <div
+                                className="dwu-row-delete-icon"
+                                onClick={(e) => handleDeleteUpdate(e, u._id)}
+                                title="Delete Update"
+                                style={{ display: "flex", alignItems: "center", cursor: "pointer", color: "#ff4d4f", padding: "2px" }}
+                              >
+                                <Trash2 size={16} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <Pagination
+                totalItems={totalItems}
+                pageSize={PAGE_SIZE}
+                currentPage={currentPage}
+                onPageChange={(p) => setCurrentPage(p)}
+                maxPagesInGroup={5}
+              />
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {showCreateModal && (
+        <div className="dwu-modal-overlay">
+          <div className="dwu-modal-container animate-fade-in">
+            <div className="dwu-modal-header d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center gap-3">
+                <div className="d-flex align-items-center gap-2">
+                  <span className="assign-task__members-title">
+                    {editingUpdate ? "Edit Update" : "New Daily Update"}
+                  </span>
+                  <span className="dwu-modal-title-sep">|</span>
+                  <span className="assign-task__members-title">
+                    {formatDate(editingUpdate ? editingUpdate.updateDate : new Date())}
+                  </span>
+                </div>
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <button
+                  className="hrms-common-close-btn"
+                  onClick={() => setShowCreateModal(false)}
+                  type="button"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <form onSubmit={handleCreateSubmit}>
+              <div className="dwu-modal-body">
+                {formEntries.slice(0, 1).map((entry, idx) => {
+                  const isCategoryActive = !!entry.category && !(activeOtherField?.idx === idx && activeOtherField?.type === "category");
+                  const filteredProjects = isCategoryActive
+                    ? fullProjects.filter(p => (p.categoryId?.name || "").toUpperCase() === (entry.category || "").toUpperCase()).map(p => p.name)
+                    : [];
+
+                  return (
+                    <div key={idx} className="dwu-form-entry position-relative">
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <label className="dwu-meta-label">Category</label>
+                          {activeOtherField?.idx === idx && activeOtherField?.type === "category" ? (
+                            <div className="atMeta__inlineAdd animate-fade-in">
+                              <input
+                                type="text"
+                                className="atMeta__addInput"
+                                placeholder="NEW CATEGORY..."
+                                value={newOtherVal}
+                                autoFocus
+                                style={{ textTransform: "uppercase" }}
+                                onChange={(e) => setNewOtherVal(e.target.value.toUpperCase())}
+                                onKeyDown={(e) => { if (e.key === "Enter") handleAddOther(idx, "category"); }}
+                              />
+                              <button type="button" className="atMeta__saveBtn" onClick={() => handleAddOther(idx, "category")}>Save</button>
+                            </div>
+                          ) : (
+                            <CustomDropdown
+                              options={[
+                                ...categories.filter(c => c && c.toLowerCase() !== "add" && c.toLowerCase() !== "back").map((c) => ({
+                                  value: c ? c.toUpperCase() : c,
+                                  label: (c || "").toUpperCase()
+                                })),
+                                ...(entry.category ? [{ value: "Back", label: "Back" }] : []),
+                                { value: "Add", label: "Add" }
+                              ]}
+                              value={entry.category}
+                              placeholder="Select Category"
+                              onChange={(v) => handleCategoryToggle(idx, v)}
+                            />
+                          )}
+                        </div>
+                        <div className="col-md-6">
+                          <label className="dwu-meta-label">Project</label>
+                          {activeOtherField?.idx === idx && activeOtherField?.type === "project" ? (
+                            <div className="atMeta__inlineAdd animate-fade-in">
+                              <input
+                                type="text"
+                                className="atMeta__addInput"
+                                placeholder="New project..."
+                                value={newOtherVal}
+                                autoFocus
+                                onChange={(e) => {
+                                  const v = e.target.value;
+                                  const formatted = v ? (v.charAt(0).toUpperCase() + v.slice(1).toLowerCase()) : "";
+                                  setNewOtherVal(formatted);
+                                }}
+                                onKeyDown={(e) => { if (e.key === "Enter") handleAddOther(idx, "project"); }}
+                                disabled={!isCategoryActive}
+                              />
+                              <button type="button" className="atMeta__saveBtn" onClick={() => handleAddOther(idx, "project")} disabled={!isCategoryActive}>Save</button>
+                            </div>
+                          ) : (
+                            <CustomDropdown
+                              options={[
+                                ...filteredProjects.filter(p => p && p.toLowerCase() !== "add").map(p => ({
+                                  value: p ? (p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()) : p,
+                                  label: p ? (p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()) : p
+                                })),
+                                { value: "Add", label: "Add" }
+                              ]}
+                              value={entry.project}
+                              placeholder={isCategoryActive ? "Select Project" : "Select Category First"}
+                              onChange={(v) => handleProjectToggle(idx, v)}
+                              disabled={!isCategoryActive}
+                            />
+                          )}
+                        </div>
+                        {isStackEligibleCategory(entry.category) && (
+                          <div className="col-12 animate-fade-in">
+                            <label className="dwu-meta-label mb-1">Work Type</label>
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(3, 1fr)",
+                                gap: "8px",
+                                width: "100%",
+                                padding: "1px 0"
+                              }}
+                            >
+                              {[
+                                { value: "BE", title: "BE", desc: "Back End" },
+                                { value: "FE", title: "FE", desc: "Front End" },
+                                { value: "FE & BE", title: "FE & BE", desc: "Front & Back End" }
+                              ].map((opt) => {
+                                const isSelected = entry.workType === opt.value;
+                                return (
+                                  <div
+                                    key={opt.value}
+                                    onClick={() => updateFormEntry(idx, "workType", opt.value)}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "6px",
+                                      padding: "4px 8px",
+                                      borderRadius: "6px",
+                                      border: isSelected ? "1.5px solid #5977f8" : "1px solid #e2e8f0",
+                                      background: isSelected ? "#f0f4ff" : "#ffffff",
+                                      cursor: "pointer",
+                                      transition: "all 0.2s ease",
+                                      userSelect: "none",
+                                      boxShadow: isSelected ? "0 1px 4px rgba(89, 119, 248, 0.1)" : "none"
+                                    }}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name={`workType_${idx}`}
+                                      checked={isSelected}
+                                      onChange={() => updateFormEntry(idx, "workType", opt.value)}
+                                      style={{
+                                        accentColor: "#5977f8",
+                                        cursor: "pointer",
+                                        width: "13px",
+                                        height: "13px",
+                                        margin: 0,
+                                        flexShrink: 0
+                                      }}
+                                    />
+                                    <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+                                      <span
+                                        style={{
+                                          fontSize: "11px",
+                                          fontWeight: isSelected ? "600" : "500",
+                                          color: isSelected ? "#5977f8" : "#2d3748"
+                                        }}
+                                      >
+                                        {opt.title}
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: "9px",
+                                          color: isSelected ? "#5977f8" : "#8c9ba5",
+                                          marginTop: "1px",
+                                          fontWeight: "400"
+                                        }}
+                                      >
+                                        {opt.desc}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        <div className="col-md-8 ">
+                          <label className="dwu-meta-label">Task Title</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={entry.title}
+                            onChange={(e) => updateFormEntry(idx, "title", e.target.value)}
+                            placeholder="Task Name"
+                          />
+                        </div>
+                        <div className="col-md-4 ">
+                          <label className="dwu-meta-label">Status</label>
+                          <CustomDropdown
+                            options={[
+                              { value: "pending", label: "Pending" },
+                              { value: "inprocess", label: "In Process" },
+                              { value: "hold", label: "On Hold" },
+                              { value: "completed", label: "Completed" }
+                            ]}
+                            value={entry.status}
+                            onChange={(v) => updateFormEntry(idx, "status", v)}
+                          />
+                        </div>
+                        <div className="col-12 ">
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            <label className="dwu-meta-label mb-0">Description</label>
+                            <label
+                              className="d-flex align-items-center gap-1"
+                              onClick={() => handleTogglePointByPoint(idx)}
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: "500",
+                                color: isPointByPoint ? "#5977f8" : "#77728e",
+                                cursor: "pointer",
+                                userSelect: "none",
+                                margin: 0
+                              }}
+                              title="Format description as numbered points (1., 2., 3.)"
+                            >
+                              <input
+                                type="radio"
+                                name={`descFormatMode-${idx}`}
+                                checked={isPointByPoint}
+                                readOnly
+                                style={{
+                                  cursor: "pointer",
+                                  accentColor: "#5977f8",
+                                  width: "13px",
+                                  height: "13px",
+                                  margin: 0
+                                }}
+                              />
+                              <span>Point by Point</span>
+                            </label>
+                          </div>
+                          <textarea
+                            className="form-control"
+                            rows="3"
+                            value={entry.description}
+                            onChange={(e) => updateFormEntry(idx, "description", e.target.value)}
+                            onKeyDown={(e) => handleDescriptionKeyDown(e, idx)}
+                            onPaste={(e) => handleDescriptionPaste(e, idx)}
+                            placeholder={isPointByPoint ? "1. Enter first point..." : "Detailed work summary..."}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "end", paddingTop: "15px", gap: "10px" }}>
+                <button type="button" className="hrms-common-btn-cancel " onClick={() => setShowCreateModal(false)}>Cancel</button>
+                <button type="submit" className="hrms-common-btn-primary" disabled={createLoading}>{createLoading ? "Saving..." : "Save Updates"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      <ToastContainer
+        position="top-right"
+      />
+      {showDeleteConfirm && (
+        <div className="dwu-delete-overlay">
+          <div className="dwu-delete-modal animate-fade-in" onClick={e => e.stopPropagation()}>
+
+            <h3 className="dwu-delete-title">Delete Update?</h3>
+            <p className="dwu-delete-message">
+              This work update will be permanently deleted.<br />
+              This action cannot be undone.
+            </p>
+            <div className="dwu-delete-buttons">
+              <button className="hrms-common-btn-cancel " onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+              <button className="hrms-common-btn-delete" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .dwu-delete-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 20000;
+        }
+        .dwu-delete-modal {
+          background: #ffffff;
+          padding: 15px;
+          border-radius: 16px;
+          width: 90%;
+          max-width: 330px;
+          text-align: center;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .dwu-delete-title {
+          font-size: 15px;
+          font-weight: 500;
+          color: #3a466d;
+          margin-bottom: 12px;
+        }
+        .dwu-delete-message {
+          font-size: 14px;
+          color: #4a5568;
+          line-height: 1.6;
+          margin-bottom: 25px;
+        }
+        .dwu-delete-buttons {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+        }
+        .dwu-delete-btn {
+          padding: 8px 20px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: none;
+          min-width: 130px;
+        }
+        .dwu-delete-btn--cancel {
+          background: #f7fafc;
+          color: #4a5568;
+          border: 1px solid #e2e8f0;
+        }
+        .dwu-delete-btn--cancel:hover {
+          background: #edf2f7;
+        }
+        .dwu-delete-btn--confirm {
+          background: #ff4d4f;
+          color: #ffffff;
+        }
+        .dwu-delete-btn--confirm:hover {
+          background: #ff7875;
+          box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+    </>
+  );
+};
+
+export default EmployeeDailyWorkUpdate;

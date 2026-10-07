@@ -1,0 +1,1016 @@
+/* ────────────────────────────────────────────────
+   ERTI EMPLOYEE MANAGEMENT - STYLES
+   Component prefix: erti-
+───────────────────────────────────────────────── */
+
+/* Page & Layout */
+.erti-employee-page {
+  min-height: 100vh;
+}
+
+.erti-employee-content {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 85px;
+  /* min-height: calc(100vh - 104px); */
+  padding-left: 17px;
+  padding-right: 17px;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 1400px) {
+  .erti-employee-content {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .erti-employee-content {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .erti-employee-content {
+    left: 12px;
+    right: 12px;
+    top: 74px;
+  }
+}
+
+@media (max-width: 576px) {
+  .erti-employee-content {
+    left: 10px;
+    right: 10px;
+    top: 68px;
+  }
+}
+
+@media (max-width: 380px) {
+  .erti-employee-content {
+    left: 8px;
+    right: 8px;
+    top: 62px;
+  }
+}
+
+.erti-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.erti-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+/* Search & Filter */
+.erti-search-box {
+  position: relative;
+  /* margin-top: 70px; */
+  width: 250px;
+}
+
+.erti-search-box input {
+  width: 100%;
+  height: 35px;
+  padding: 0 42px 0 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #1f1f1f1f;
+  /* box-shadow: 0px 3px 10px 0px #0000001a; */
+  font-size: 12px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.erti-search-box input:focus {
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.erti-search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  filter: drop-shadow(0px 3px 10px rgba(0, 0, 0, 0.1));
+}
+
+/* Filter Wrapper & Button */
+.erti-filter-wrapper {
+  position: relative;
+  /* margin-top: 70px; */
+}
+
+.erti-filter-btn {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  gap: 6px;
+}
+
+.erti-filter-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+.erti-filter-text {
+  font-size: 13px;
+  font-family: "Gilroy-SemiBold", sans-serif;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.erti-filter-icn {
+  width: 25px;
+}
+
+/* Filter Dropdown */
+.erti-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+  overflow: hidden;
+  min-width: 160px;
+  animation: dropDown 0.2s ease;
+}
+
+.erti-filter-option {
+  width: 100%;
+  padding: 11px 18px;
+  border: none;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.erti-filter-option:hover {
+  background: #f3f4f6;
+}
+
+.erti-filter-option.erti-filter-active {
+  background: #ebf0ff;
+  color: #5977f8;
+  font-weight: 600;
+}
+
+/* Grid & Cards */
+.erti-employee-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.erti-no-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.erti-employee-card {
+  width: 100%;
+  border-radius: 12px;
+  background: #ffffff;
+  position: relative;
+  margin-top: 64px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.erti-employee-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.erti-card-top {
+  padding: 64px 16px 20px;
+  text-align: center;
+  position: relative;
+  border-radius: 12px 12px 0 0;
+}
+
+.erti-card-top.full-time {
+  background: linear-gradient(135deg, #d9ebff 0%, #c5e0ff 100%);
+}
+
+.erti-card-top.intern {
+  background: linear-gradient(135deg, #cbf5e4 0%, #b5efd6 100%);
+}
+
+.erti-card-top.part-time {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+}
+
+.erti-card-top.relieved,
+.erti-card-top.relived {
+  background: linear-gradient(135deg, #ffe1cf 0%, #ffd4bc 100%);
+}
+
+.erti-profile-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  object-position: center top;
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+}
+
+.erti-profile-completion {
+  position: absolute;
+  top: -60px;
+  right: calc(50% - 75px);
+  min-width: 45px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 1px 3px 5px rgba(104, 104, 104, 0.2);
+  z-index: 15;
+}
+
+.erti-profile-completion.high {
+  background: #e6fff0;
+  color: #0aff5c;
+}
+
+.erti-profile-completion.medium {
+  background: #f6f9ff;
+  color: #1d59dc;
+}
+
+.erti-profile-completion.low {
+  background: #fff5ef;
+  color: #ff7e33;
+}
+
+.erti-more-btn {
+  position: absolute;
+  top: 8px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: #000;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.erti-employee-name {
+  font-size: 24px;
+  font-weight: 500;
+  color: #3a466d;
+  word-break: break-word;
+  margin-bottom: -1px;
+}
+
+.erti-employee-role {
+  font-size: 15px;
+  color: #868585;
+  font-weight: 300;
+  line-height: 1.4;
+  margin-bottom: 1px;
+}
+
+.erti-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 400;
+  white-space: nowrap;
+  margin-top: 8px;
+}
+
+.erti-badge.full-time {
+  background: #61b0ff;
+  color: #ffffff;
+}
+
+.erti-badge.intern {
+  background: #5fa68d;
+  color: #ffffff;
+}
+
+.erti-badge.part-time {
+  background: #a78bfa;
+  color: #ffffff;
+}
+
+.erti-badge.relieved,
+.erti-badge.relived {
+  background: #f5764b;
+  color: #ffffff;
+}
+
+.erti-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.erti-salary-btn {
+  background: #f0f4ff;
+  color: #5977f8;
+  border: 1px solid #dce4ff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.erti-salary-btn:hover {
+  background: #5977f8;
+  color: white;
+  border-color: #5977f8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.2);
+}
+
+/* Card Info Section */
+.erti-employee-info {
+  padding: 16px;
+  border: 1px solid rgba(31, 31, 31, 0.08);
+  border-top: none;
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.erti-employee-info p {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 10px 0;
+  gap: 10px;
+}
+
+.erti-employee-info span:first-child {
+  font-size: 12px;
+  color: #77728e;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.erti-employee-info span:last-child {
+  font-size: 11px;
+  font-weight: 500;
+  color: #3a466d;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Email row special styling */
+.erti-email-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.erti-email-row>span:first-child {
+  font-size: 12px;
+  color: #77728e;
+  font-weight: 400 !important;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  min-width: 50px;
+  text-transform: lowercase;
+}
+
+
+
+.erti-email-text {
+  position: relative;
+  display: inline-block;
+  max-width: 15ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  color: #5977f8;
+  font-size: 11px;
+  font-weight: 500;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.erti-email-text:hover {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  color: #3b5bd9;
+  text-decoration: none;
+}
+
+.erti-copy-feedback {
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  animation: popupShow 1.8s ease-out forwards;
+}
+
+@keyframes popupShow {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
+
+/* Edit Button */
+.erti-edit-btn {
+  width: 100%;
+  margin: 16px 0 0;
+  height: 40px;
+  border-radius: 10px;
+  background: #ebf0ff;
+  color: #5977f8;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.erti-edit-btn:hover {
+  background: #5977f8;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.3);
+}
+
+/* Card Menu (⋯) */
+.erti-card-menu {
+  position: absolute;
+  top: 45px;
+  right: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+  min-width: 160px;
+  animation: dropDown 0.2s ease;
+}
+
+@keyframes dropDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.erti-card-menu button {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  color: #374151;
+}
+
+.erti-card-menu button:hover {
+  background: #f3f4f6;
+}
+
+.erti-card-menu button.erti-danger {
+  color: #dc3545;
+}
+
+.erti-card-menu button.erti-danger:hover {
+  background: #fef2f2;
+}
+
+/* Messages */
+.erti-success-message {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  padding: 14px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 14px;
+  border-left: 4px solid #28a745;
+}
+
+.erti-error-text {
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  color: #721c24;
+  padding: 14px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border-left: 4px solid #dc3545;
+}
+
+/* Delete Modal */
+.erti-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.erti-delete-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  text-align: center;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.erti-modal-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+.erti-delete-modal h3 {
+  color: #dc3545;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.erti-delete-modal>p {
+  color: #333;
+  margin-bottom: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.erti-modal-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.erti-modal-info p {
+  margin: 10px 0;
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.erti-modal-info p span:first-child {
+  font-weight: 600;
+  color: #333;
+}
+
+.erti-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: right;
+  flex-wrap: wrap;
+}
+
+.erti-modal-actions button {
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  min-width: 130px;
+}
+
+.erti-cancel-btn {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.erti-cancel-btn:hover {
+  background: #dee2e6;
+}
+
+.erti-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.erti-delete-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.erti-delete-btn:hover {
+  background: linear-gradient(135deg, #c82333, #bd2130);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+.erti-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ────────────────────────────────────────────────
+   MEDIA QUERIES
+───────────────────────────────────────────────── */
+
+@media (min-width: 1400px) {
+  .erti-employee-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .erti-employee-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .erti-employee-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .erti-employee-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .erti-search-box {
+    margin-top: 20px;
+    max-width: 280px;
+  }
+
+  .erti-filter-wrapper {
+    margin-top: 20px;
+  }
+
+  .erti-actions {
+    justify-content: center;
+  }
+}
+
+/* ── Mobile-first responsive adjustments ── */
+@media (max-width: 767px) {
+  .erti-employee-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .erti-employee-card {
+    margin-top: 56px;
+  }
+
+  .erti-profile-img {
+    width: 90px;
+    height: 90px;
+    top: -45px;
+  }
+
+  .erti-profile-completion {
+    top: -30px;
+    right: calc(50% - 68px);
+  }
+
+  .erti-employee-name {
+    font-size: 18px;
+  }
+
+  .erti-employee-role {
+    font-size: 13px;
+  }
+
+  .erti-search-box {
+    margin-top: 16px;
+    max-width: 100%;
+  }
+
+  .erti-filter-wrapper {
+    margin-top: 16px;
+  }
+
+  .erti-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .erti-actions {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 575px) {
+  .erti-employee-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .erti-employee-card {
+    margin-top: 52px;
+  }
+
+  .erti-card-top {
+    padding: 56px 14px 18px;
+  }
+
+  .erti-profile-img {
+    width: 85px;
+    height: 85px;
+    top: -42px;
+    border-radius: 14px;
+  }
+
+  .erti-profile-completion {
+    top: -28px;
+    right: calc(50% - 65px);
+    min-width: 42px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .erti-employee-name {
+    font-size: 17px;
+  }
+
+  .erti-employee-role {
+    font-size: 12px;
+  }
+
+  .erti-employee-info {
+    padding: 14px;
+  }
+
+  .erti-employee-info p,
+  .erti-email-row {
+    flex-direction: column;
+    gap: 4px;
+    margin: 12px 0;
+    align-items: flex-start;
+  }
+
+  .erti-email-text,
+  .erti-employee-info span:last-child {
+    text-align: left;
+  }
+
+  .erti-edit-btn {
+    width: 100%;
+    margin: 14px 0 0;
+    height: 42px;
+    font-size: 13px;
+  }
+
+  .erti-search-box {
+    margin-top: 12px;
+    max-width: 100%;
+  }
+
+  .erti-search-box input {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .erti-filter-wrapper {
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .erti-filter-btn {
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+  }
+
+  .erti-filter-dropdown {
+    right: auto;
+    left: 0;
+    min-width: 100%;
+  }
+
+  .erti-topbar {
+    gap: 8px;
+  }
+
+  .erti-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .erti-delete-modal {
+    padding: 24px 20px;
+    margin: 10px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+  .erti-employee-card {
+    margin-top: 48px;
+  }
+
+  .erti-profile-img {
+    width: 75px;
+    height: 75px;
+    top: -38px;
+  }
+
+  .erti-profile-completion {
+    top: -25px;
+    right: calc(50% - 58px);
+    min-width: 38px;
+    height: 22px;
+    font-size: 9px;
+  }
+}
+
+/* Accessibility & Motion preferences */
+@media (hover: none) and (pointer: coarse) {
+  .erti-employee-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .erti-edit-btn:hover {
+    transform: none;
+  }
+
+  .erti-delete-btn:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .erti-employee-card,
+  .erti-edit-btn,
+  .erti-modal-actions button,
+  .erti-card-menu,
+  .erti-filter-dropdown,
+  .erti-delete-modal,
+  .erti-modal-overlay {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media print {
+  .erti-employee-page {
+    background: white;
+  }
+
+  .erti-employee-content {
+    margin: 0;
+    padding: 0;
+  }
+
+  .erti-search-box,
+  .erti-filter-wrapper,
+  .erti-more-btn,
+  .erti-edit-btn,
+  .erti-card-menu,
+  .erti-modal-overlay {
+    display: none !important;
+  }
+
+  .erti-employee-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .erti-employee-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+  }
+}

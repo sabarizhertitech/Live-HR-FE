@@ -1,0 +1,644 @@
+/* Slip.css */
+
+.salary-slip-page {
+  min-height: 100vh;
+}
+
+/* MAIN AREA */
+.salary-slip-main {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 95px;
+  min-height: calc(100vh - 104px);
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1400px) {
+  .salary-slip-main {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .salary-slip-main {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .salary-slip-main {
+    left: 12px;
+    right: 12px;
+    top: 74px;
+  }
+}
+
+@media (max-width: 576px) {
+  .salary-slip-main {
+    left: 10px;
+    right: 10px;
+    top: 68px;
+  }
+}
+
+@media (max-width: 380px) {
+  .salary-slip-main {
+    left: 8px;
+    right: 8px;
+    top: 62px;
+  }
+}
+
+.salary-slip-wrapper {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.salary-slip-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.salary-slip-title {
+  margin: 0;
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.salary-slip-subtitle {
+  font-size: 13px;
+  color: #A29CC1;
+}
+
+/* CARD */
+.salary-slip-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 22px;
+  border: 1px solid #1F1F1F1F;
+  box-shadow: none;
+}
+
+/* FILTERS */
+.salary-slip-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 18px;
+  align-items: end;
+}
+
+.salary-slip-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.salary-slip-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.salary-slip-field select,
+.salary-slip-field input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.salary-slip-field select:focus,
+.salary-slip-field input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+}
+
+
+
+/* LOADING / EMPTY */
+.salary-slip-empty {
+  text-align: center;
+  padding: 42px 16px;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* TABLE */
+.salary-slip-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.salary-slip-table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.salary-slip-table thead tr {
+  background: #f8f9fa;
+}
+
+.salary-slip-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.salary-slip-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: #111827;
+  border-bottom: 1px solid #eef2f7;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.salary-slip-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.salary-slip-table tbody tr:hover {
+  background: #fafbff;
+}
+
+/* ACTION BUTTONS */
+.salary-slip-action-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.salary-slip-view-btn,
+.salary-slip-download-btn {
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.salary-slip-view-btn {
+  background: #2563eb;
+}
+
+.salary-slip-view-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.salary-slip-download-btn {
+  background: #10b981;
+}
+
+.salary-slip-download-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.salary-slip-view-btn:disabled,
+.salary-slip-download-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* MODAL */
+.salary-slip-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.salary-slip-modal-box {
+  width: min(1150px, 100%);
+  height: 92vh;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+}
+
+.salary-slip-modal-header {
+  height: 64px;
+  min-height: 64px;
+  padding: 0 18px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.salary-slip-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.salary-slip-modal-close {
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.salary-slip-modal-close:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.salary-slip-pdf-frame {
+  width: 100%;
+  height: calc(92vh - 64px);
+  border: none;
+  background: #f8fafc;
+}
+
+/* SCROLLBAR */
+.salary-slip-table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.salary-slip-table-wrap::-webkit-scrollbar-track {
+  background: #eef2f7;
+  border-radius: 10px;
+}
+
+.salary-slip-table-wrap::-webkit-scrollbar-thumb {
+  background: #c9d2de;
+  border-radius: 10px;
+}
+
+.salary-slip-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #aeb8c6;
+}
+
+
+
+/* TABLET */
+@media (max-width: 992px) {
+
+
+  .salary-slip-filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .salary-slip-modal-box {
+    height: 94vh;
+  }
+
+  .salary-slip-pdf-frame {
+    height: calc(94vh - 64px);
+  }
+}
+
+/* MOBILE */
+@media (max-width: 640px) {
+  .salary-slip-title {
+    font-size: 22px;
+  }
+
+  .salary-slip-subtitle {
+    font-size: 13px;
+  }
+
+  .salary-slip-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .salary-slip-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .salary-slip-table {
+    min-width: 760px;
+  }
+
+  .salary-slip-action-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .salary-slip-view-btn,
+  .salary-slip-download-btn {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .salary-slip-modal-overlay {
+    padding: 10px;
+  }
+
+  .salary-slip-modal-box {
+    width: 100%;
+    height: 96vh;
+    border-radius: 12px;
+  }
+
+  .salary-slip-modal-header {
+    padding: 0 14px;
+  }
+
+  .salary-slip-modal-header h3 {
+    font-size: 16px;
+  }
+
+  .salary-slip-pdf-frame {
+    height: calc(96vh - 64px);
+  }
+}
+
+/* Filter Bar Styles (Synced with Payslip) */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+}
+
+.filter-right {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-left {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .filter-item {
+    width: 100%;
+  }
+
+  .filter-item>div {
+    width: 100% !important;
+  }
+
+  .filter-range {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .filter-range>div {
+    flex: 1 1 calc(50% - 25px) !important;
+    min-width: 100px;
+    width: auto !important;
+  }
+
+  .filter-right {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .salary-slip-refresh-btn,
+  .filter-reset-btn {
+    width: 100% !important;
+  }
+}
+
+/* ══════════════════════════════════════════
+   MODERN TABLE UI (Synced with Payslip)
+   ══════════════════════════════════════════ */
+.pay-slip-generator-table-wrapper {
+  margin-bottom: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+  position: relative;
+  z-index: 2;
+}
+
+.payslip-table-main {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+
+.payslip-table-header {
+  background-color: #f6f6f6 !important;
+}
+
+.payslip-table-header-cell {
+  padding: 10px 15px;
+  font-size: 11px;
+  color: #77728E;
+  font-weight: 400;
+  text-transform: none !important;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.payslip-table-row {
+  transition: background-color 0.1s;
+  border-bottom: 1px solid #f3f4fe;
+}
+
+.payslip-table-row:hover {
+  background-color: #f9fafb;
+}
+
+.payslip-table-cell {
+  padding: 10px 15px;
+  font-size: 0.75rem;
+  color: #3A466D;
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.payslip-table-cell--bold {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.payslip-table-cell--muted {
+  color: #64748b;
+}
+
+/* ══════════════════════════════════════════
+   PAYSLIP FILTERS (EMPLOYEE PORTAL)
+══════════════════════════════════════════ */
+.payslip-filters {
+  background: #f8f9fb;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.payslip-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: end;
+  width: 100%;
+}
+
+.payslip-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.payslip-filter-field .custom-dropdown-container {
+  width: 100% !important;
+}
+
+.payslip-filter-field .custom-dropdown-trigger {
+  width: 100% !important;
+}
+
+.payslip-filter-field-dual {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.payslip-filter-field-dual .custom-dropdown-container {
+  flex: 1;
+  width: 100% !important;
+}
+
+.payslip-filter-field-dual .custom-dropdown-trigger {
+  width: 100% !important;
+}
+
+@media (max-width: 900px) {
+  .payslip-filters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.payslip-filter-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+.payslip-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.payslip-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.payslip-header-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #77728e;
+  margin: 0;
+}
+
+.payslip-pagination-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-top: 20px !important;
+}
+
+.payslip-pagination-wrapper .pagination-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+.payslip-zip-download-btn {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-width: max-content !important;
+  flex-shrink: 0 !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+}

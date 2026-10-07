@@ -1,0 +1,917 @@
+/* ===== MAIN CONTAINER ===== */
+.attendance-report-container {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 95px;
+  padding-left: 17px;
+  padding-right: 17px;
+  padding-bottom: 24px;
+  min-height: calc(100vh - 104px);
+  padding-bottom: 24px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 1400px) {
+  .attendance-report-container {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .attendance-report-container {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .attendance-report-container {
+    left: 12px;
+    right: 12px;
+    top: 74px;
+  }
+}
+
+@media (max-width: 576px) {
+  .attendance-report-container {
+    left: 10px;
+    right: 10px;
+    top: 68px;
+  }
+}
+
+@media (max-width: 380px) {
+  .attendance-report-container {
+    left: 8px;
+    right: 8px;
+    top: 62px;
+  }
+}
+
+.attendance-content {
+  max-width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #1F1F1F1F;
+  padding: 15px;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+/* ===== HEADER SECTION ===== */
+.attendance-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 10;
+}
+
+.attendance-main-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #3A466D;
+  margin: 8px 0 0 0;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.attendance-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.controls-top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.controls-icon-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.employee-dropdown {
+  width: 280px;
+}
+
+.department-dropdown {
+  width: 200px;
+}
+
+.employee-dropdown .custom-dropdown-container,
+.department-dropdown .custom-dropdown-container {
+  width: 100% !important;
+}
+
+/* ===== SEARCH BOX ===== */
+.search-box-wrapper {
+  position: relative;
+  width: 220px;
+  min-width: 140px;
+  /* ← lowered min-width so it can shrink more */
+  flex: 1 1 140px;
+  /* ← allows search to grow & shrink */
+}
+
+.search-icon-input {
+  position: absolute;
+  right: 16px;
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.search-input-field {
+  width: 100%;
+  height: 35px;
+  padding: 0 45px 0 16px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-size: 14px;
+  color: #3A466D;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.search-icon-toggle {
+  width: 20px;
+  height: 20px;
+}
+
+.filter-icon {
+  width: 25px;
+  height: 25px;
+}
+
+.filter-wrapper,
+.search-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.search-icon-wrapper:hover {
+  background: #f3f4f6;
+}
+
+.search-input-field::placeholder {
+  color: #9CA3AF;
+}
+
+.search-input-field:focus {
+  outline: none;
+  border-color: #5977F8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+/* ===== DROPDOWN WRAPPER ===== */
+.dropdown-wrapper {
+  position: relative;
+  z-index: 15;
+}
+
+.custom-dropdown-container {
+  position: relative;
+  width: 200px;
+  min-width: 90px;
+}
+
+.month-dropdown,
+.year-dropdown {
+  width: 90px;
+}
+
+.month-dropdown .custom-dropdown-trigger,
+.year-dropdown .custom-dropdown-trigger {
+  height: 35px;
+}
+
+.month-dropdown .custom-dropdown-trigger span,
+.year-dropdown .custom-dropdown-trigger span {
+  color: #3A466D !important;
+  font-weight: 400;
+}
+
+/* User provided active style */
+:root {
+  --admin-primary: #5977f8;
+  --admin-font-med: "Gilroy-Medium", sans-serif;
+}
+
+/* ===== SETTINGS BUTTON ===== */
+.settings-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #6B7280;
+  flex-shrink: 0;
+}
+
+.settings-btn:hover {
+  background: #F9FAFB;
+  border-color: #5977F8;
+  color: #5977F8;
+}
+
+/* ===== THREE DOT DOWNLOAD MENU ===== */
+.three-dot-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.three-dot-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  /* ← slightly larger touch target */
+  height: 36px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.three-dot-btn:hover {
+  background: #f3f4f6;
+}
+
+.download-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 130px;
+  overflow: hidden;
+}
+
+.download-menu-item {
+  padding: 10px 10px;
+  font-size: 12px;
+  color: #3A466D;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.download-menu-item:hover {
+  background: #f9fafb;
+  color: #5977F8;
+}
+
+/* ===== TABLE WRAPPER ===== */
+.attendance-table-wrapper {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== TABLE STYLING ===== */
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+  table-layout: auto;
+}
+
+.attendance-table thead {
+  background: #F3F4F6;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.attendance-table td {
+  padding: 12px 15px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+  white-space: nowrap;
+}
+
+.attendance-table th {
+  background: #F6F6F6 !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: #77728E !important;
+  padding: 12px 15px !important;
+  border-bottom: 1px solid #1F1F1F1F !important;
+}
+
+.th-employee {
+  text-align: left !important;
+  padding-left: 16px !important;
+}
+
+.th-sno {
+  width: 60px;
+  text-align: left !important;
+  padding-left: 16px !important;
+}
+
+.th-employee {
+  width: 280px;
+}
+
+.th-working,
+.th-present,
+.th-leaves,
+.th-permissions {
+  width: 140px;
+  text-align: center !important;
+}
+
+.th-percentage {
+  width: 180px;
+  text-align: center !important;
+}
+
+.th-preview {
+  width: 140px;
+  text-align: center !important;
+  padding-right: 28px !important;
+}
+
+/* ===== TABLE BODY ===== */
+.attendance-table tbody tr {
+  border-bottom: 1px solid #F3F4F6;
+  transition: background 0.15s ease;
+}
+
+.attendance-table tbody tr:hover {
+  background: #F9FAFB;
+}
+
+.attendance-table tbody tr:last-child {
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.attendance-table td {
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.td-employee {
+  text-align: left !important;
+  padding-left: 16px !important;
+}
+
+.td-sno {
+  text-align: left !important;
+  padding-left: 16px !important;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+.td-working,
+.td-present,
+.td-leaves,
+.td-permissions,
+.td-percentage {
+  text-align: center;
+  font-weight: 500;
+}
+
+.td-preview {
+  text-align: center;
+  padding-right: 28px !important;
+}
+
+/* ===== EMPLOYEE INFO ===== */
+.employee-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 220px;
+}
+
+.employee-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid #E5E7EB;
+  transition: border-color 0.2s ease;
+}
+
+.employee-avatar.active-border {
+  border-color: #2fe95a;
+  /* Green */
+}
+
+.employee-avatar.relieved-border {
+  border-color: #fc6e1c;
+  /* Red */
+}
+
+.employee-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.employee-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.employee-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3A466D;
+  line-height: 1.2;
+}
+
+.employee-designation {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== PREVIEW BUTTON ===== */
+.preview-btn {
+  padding: 7px 15px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.preview-btn:hover {
+  background: #F9FAFB;
+  border-color: #5977F8;
+  color: #5977F8;
+}
+
+/* ===== PAGINATION ===== */
+.attendance-report-container .pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0;
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+  flex-wrap: wrap;
+}
+
+.pagination-arrow,
+.pagination-number {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9CA3AF;
+  flex-shrink: 0;
+  min-width: 28px;
+}
+
+.pagination-arrow:hover,
+.pagination-number:hover {
+  background: #f3f4f6;
+  color: #5977F8;
+}
+
+.pagination-number.active {
+  background: #F3F4F6;
+  color: #3A466D;
+  font-weight: 500;
+}
+
+.pagination-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== FILTER PANEL ===== */
+.filter-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  padding: 20px 16px 16px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 250px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 100px);
+  overflow: visible !important;
+  /* ← IMPORTANT: allows dropdown to appear outside */
+}
+
+.filter-panel label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.close-filter-icon {
+  font-size: 20px;
+  color: #9CA3AF;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-filter-icon:hover {
+  color: #EF4444;
+}
+
+/* ============================================= */
+/*          RESPONSIVE BREAKPOINTS               */
+/* ============================================= */
+
+@media (max-width: 1200px) {
+
+  .th-employee {
+    width: 240px;
+  }
+
+  .th-working,
+  .th-present,
+  .th-leaves,
+  .th-permissions {
+    width: 120px;
+  }
+
+  .th-percentage {
+    width: 160px;
+  }
+}
+
+@media (max-width: 992px) {
+
+  .attendance-header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .attendance-controls {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .controls-top-row {
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+    /* tighter gap */
+  }
+
+  .search-box-wrapper {
+    flex: 1 1 45%;
+    /* takes more space but still flexible */
+    min-width: 140px;
+  }
+
+  .custom-dropdown-container {
+    flex: 0 1 auto;
+  }
+
+  .employee-dropdown {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .attendance-content {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .download-dropdown-menu {
+    left: 0 !important;
+    right: auto !important;
+  }
+
+  .attendance-header-section {
+    margin-bottom: 20px;
+  }
+
+  .controls-top-row {
+    flex-wrap: wrap;
+    /* allow wrap but try to stay in row */
+    gap: 8px;
+    /* even tighter */
+    justify-content: flex-start;
+    /* better alignment on small screens */
+  }
+
+  .search-box-wrapper {
+    flex: 1 1 100%;
+    /* search takes full width when needed */
+    min-width: 130px;
+  }
+
+  .settings-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .three-dot-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .search-input-field {
+    height: 38px;
+    font-size: 13.5px;
+    padding: 0 42px 0 14px;
+  }
+
+  .search-icon-input {
+    right: 14px;
+    left: auto;
+    width: 18px;
+    height: 18px;
+  }
+
+  .attendance-table {
+    min-width: 720px;
+  }
+
+  .attendance-table th,
+  .attendance-table td {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 520px) {
+
+  /* ← new breakpoint — critical for icons row */
+  .controls-top-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow: visible !important;
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+
+  .search-box-wrapper {
+    flex: 1 1 38%;
+    min-width: 110px;
+  }
+
+  .settings-btn,
+  .three-dot-btn,
+  .filter-wrapper,
+  .search-icon-wrapper {
+    min-width: 34px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .custom-dropdown-container {
+    min-width: 88px;
+  }
+}
+
+@media (max-width: 420px) {
+  .controls-top-row {
+    flex-wrap: wrap;
+    /* allow wrap only on very small phones */
+  }
+
+  .search-box-wrapper {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .attendance-main-title {
+    font-size: 20px;
+    white-space: normal !important;
+    line-height: 1.3;
+  }
+
+  .attendance-table {
+    min-width: 680px;
+  }
+
+  .employee-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .employee-info {
+    gap: 12px;
+  }
+
+  .td-sno,
+  .th-sno {
+    padding-left: 12px !important;
+    width: 60px;
+  }
+
+  .td-preview,
+  .th-preview {
+    padding-right: 12px !important;
+    width: 120px;
+  }
+
+  .preview-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .attendance-table {
+    min-width: 640px;
+  }
+}
+
+/* Better touch targets */
+@media (hover: none) and (pointer: coarse) {
+
+  .preview-btn,
+  .settings-btn,
+  .three-dot-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .pagination-arrow,
+  .pagination-number {
+    min-height: 28px;
+    min-width: 28px;
+  }
+
+  .search-input-field,
+  .custom-dropdown-trigger {
+    /* min-height: 44px; */
+  }
+}
+
+.department-dropdown {
+  position: relative;
+}
+
+.department-dropdown .custom-dropdown-menu,
+.custom-dropdown-menu {
+  /* adjust class name if your CustomDropdown uses different class */
+  position: absolute !important;
+  top: 100%;
+  left: 0;
+  z-index: 1050 !important;
+  /* higher than filter-panel */
+  width: 100%;
+  min-width: 90px;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* FORCE PERFECT CENTER ALIGNMENT */
+.th-working,
+.th-present,
+.th-leaves,
+.th-permissions,
+.th-percentage,
+.td-working,
+.td-present,
+.td-leaves,
+.td-permissions,
+.td-percentage {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+/* ================= CUSTOM RESPONSIVE ALIGNMENT FOR 992px TO 769px ================= */
+@media (max-width: 992px) and (min-width: 769px) {
+  .controls-top-row {
+    justify-content: flex-end !important;
+    gap: 16px !important;
+  }
+}
+
+/* ================= CUSTOM SIDE-BY-SIDE HEADER ALIGNMENT FOR 992px TO 664px ================= */
+@media (max-width: 992px) and (min-width: 664px) {
+  .attendance-header-section {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    row-gap: 6px !important;
+  }
+
+  .attendance-controls {
+    display: contents !important;
+  }
+
+  .controls-top-row {
+    width: auto !important;
+    justify-content: flex-end !important;
+    gap: 16px !important;
+  }
+
+  .dynamic-controls-area {
+    width: 100% !important;
+    margin-top: 2px !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+  }
+
+  .dynamic-controls-area .search-box-wrapper.bottom-search {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    width: 220px !important;
+    flex: none !important;
+  }
+
+  .dynamic-controls-area .employee-dropdown {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    width: 280px !important;
+    flex: none !important;
+  }
+}

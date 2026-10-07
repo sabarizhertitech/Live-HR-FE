@@ -1,0 +1,56 @@
+/* ===== PAGINATION COMPONENT ===== */
+.pagination-wrapper {
+  /* margin-top: 10px; */
+}
+
+.pagination-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.pagination-container button {
+  border: none !important;
+  color: #3B3C58 !important;
+  font-weight: 400;
+  border-radius: 0.2rem;
+  margin-bottom: 0px !important;
+}
+
+.pagination-container .btn-primary {
+  background: #F6F6F6;
+  color: #3A466D !important;
+  border: none !important;
+  border: 2px solid #0000000D;
+  font-weight: 600;
+}
+
+.pagination-container .btn-outline-primary.active {
+  background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.pagination-container button:disabled {
+  opacity: 0.5;
+  color: #9CA3AF !important;
+  cursor: not-allowed !important;
+  background-color: transparent !important;
+  border-color: #dee2e6 !important;
+}
+
+.pagination-container button:hover:not(:disabled):not(.btn-primary) {
+  background-color: #e0e0e0 !important;
+  color: #3B3C58 !important;
+}
+
+body.theme4 .pagination-container button:hover:not(:disabled):not(.btn-primary) {
+  background-color: #f1f1f1 !important;
+  color: #3B3C58 !important;
+}
+
+@media (max-width: 768px) {
+  .pagination-container button {
+    padding: 5px !important;
+    font-size: 0.6rem !important;
+  }
+}

@@ -1,0 +1,776 @@
+.employee-task-details-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.employee-task-details-container {
+  width: min(760px, 95%);
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #00000017;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0;
+}
+
+.employee-task-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 5px;
+  position: relative;
+  /* IMPORTANT */
+}
+
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.employee-task-details-title {
+  font-size: 16px;
+  color: #3a466d;
+  font-weight: 500;
+}
+
+.admin-task-details-title {
+  font-size: 16px;
+  color: #3a466d;
+  font-weight: 500;
+  background-color: #ffffff;
+  margin-bottom: 0;
+}
+
+.employee-task-details-priority-badge {
+  background: #ffe5e5;
+  color: #ff5c5c;
+  padding: 2px 12px;
+
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: capitalize;
+  margin-bottom: 6px;
+}
+
+.employee-task-details-options-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #3b3c58;
+  padding-bottom: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.options-dropdown {
+  position: absolute;
+  right: 0;
+  top: 28px;
+
+  border: none;
+
+  padding: 5px;
+  z-index: 1000;
+  min-width: 120px;
+}
+
+.dropdown-item {
+  color: #dc2626;
+  background-color: #ffffff;
+  border: 1px solid #1f1f1f1f;
+  border-radius: 5px;
+  font-size: 11px;
+  padding: 6px 12px;
+}
+
+/* ---------- Body (flex layout) ---------- */
+.employee-task-details-body {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 0;
+  padding-top: 10px;
+  gap: 5px;
+  background-color: #f6f6f6;
+  border-radius: 5px;
+}
+
+/* ---------- Left panel (Assigned members) ---------- */
+.employee-task-details-assigned-panel {
+  flex: 0 0 100px;
+  padding: 10px 22px;
+}
+
+.employee-task-details-section-label {
+  color: #868585;
+  font-size: 12px;
+  margin-bottom: 10px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  font-weight: 400;
+}
+
+
+.employee-task-details-members-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.employee-task-details-member-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.employee-task-details-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.employee-task-details-member-info {
+  flex-grow: 1;
+}
+
+.employee-task-details-member-name {
+  font-weight: 500;
+  color: #3a466d;
+  /* font-family: "Gilroy-Medium", sans-serif; */
+  font-size: 15px;
+  margin-bottom: 4px;
+  line-height: 100%;
+  letter-spacing: 0.5px;
+}
+
+.employee-task-details-member-role {
+  font-size: 12px;
+  color: #77728e;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0.4px;
+}
+
+/* ---------- Divider ---------- */
+.employee-task-details-divider {
+  width: 1px;
+  background-color: #e1e1e1;
+  margin: 12px 0;
+}
+
+.employee-task-details-horizontal-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #e8ebf3;
+  margin: 12px 0;
+}
+
+/* ---------- Right panel (Info) ---------- */
+.employee-task-details-info-panel {
+  flex-grow: 1;
+  min-width: 0;
+  padding: 10px 10px;
+}
+
+.employee-task-details-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.employee-task-details-info-stat {
+  flex: 1;
+  min-width: 120px;
+}
+
+.employee-task-details-info-stat label {
+  display: block;
+  font-size: 12px;
+  color: #868585;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.employee-task-details-value {
+  color: #3a466d;
+  font-size: 14px;
+  word-break: break-word;
+  /* font-family: "Gilroy-medium", sans-serif; */
+  font-weight: 400;
+  line-height: 100%;
+}
+
+.admin-task-details-value {
+  color: #3a466d;
+  font-size: 14px;
+  word-break: break-word;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+.employee-task-details-horizontal-line {
+  border: none;
+  border-top: 1px solid #e1e1e1;
+  margin: 15px 0;
+}
+
+.employee-task-details-content {
+  margin-bottom: 20px;
+}
+
+.employee-task-details-task-title {
+  color: #868585;
+  margin-bottom: 10px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.employee-task-details-task-desc {
+  font-size: 12px;
+  color: #3a466d;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 0.1px;
+}
+
+/* ---------- Footer ---------- */
+.employee-task-details-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+
+}
+
+.admin-task-details-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.employee-task-details-btn-cancel {
+  background: #bfbfbf;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  min-width: 120px;
+  /* optional (keeps width consistent) */
+  height: auto;
+  font-size: 11px;
+  cursor: pointer;
+  /* font-family: "Gilroy-Bold", sans-serif; */
+}
+
+.employee-task-details-btn-edit {
+  background: #5977f8;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  height: 30px;
+  width: 120px;
+  font-size: 11px;
+  cursor: pointer;
+  /* font-family: "Gilroy-Bold", sans-serif; */
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+.admin-task-details-btn-cancel {
+  background: #bfbfbf;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  height: 30px;
+  width: 120px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.admin-task-details-btn-edit {
+  background: #5977f8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 30px;
+  width: 120px;
+  font-size: 11px;
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+/* ---------- Update‑popup (backdrop/overlay/container) ---------- */
+/* Backdrop to blur/darken everything behind the update popup */
+.employee-task-details-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  /* Darker backdrop */
+  z-index: 10000;
+  /* Higher than the details modal (9999) */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Flex overlay to maintain centering logic */
+.employee-task-details-popup-overlay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* The actual white box containing the Updatetask component */
+.employee-task-details-popup-container {
+  width: min(780px, 95%);
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #00000017;
+  /* font-family: "Gilroy-Bold", sans-serif; */
+  max-height: 420px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.employee-task-detailsequal-popup-container {
+  width: min(550px, 95%);
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #00000017;
+  /* font-family: "Gilroy-Bold", sans-serif; */
+  max-height: 420px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Responsive adjustments ---------- */
+@media (max-width: 1199px) {
+  .employee-task-details-container {
+    margin-left: 0;
+    padding: 15px;
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1199px) {
+  .employee-task-details-container {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 991px) {
+
+    .employee-task-details-container {
+    padding: 15px;
+  }
+  .employee-task-details-body {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .employee-task-details-assigned-panel {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  .employee-task-details-divider {
+    display: none;
+  }
+
+  .employee-task-details-info-stat {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 767px) {
+  .employee-task-details-container {
+    padding: 15px !important;
+  }
+
+  .employee-task-details-header {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0px 0px 10px !important;
+    width: 100% !important;
+  }
+
+  .header-title-group {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .admin-task-details-title {
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 !important;
+    flex-shrink: 1 !important;
+  }
+
+  .employee-task-details-priority-badge {
+    font-size: 10px !important;
+    padding: 2px 8px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    margin-bottom: 0 !important;
+    /* aligned inline */
+  }
+
+  .header-right-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .employee-task-details-options-btn {
+    font-size: 16px !important;
+    padding: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .hrms-common-close-btn {
+    padding: 4px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .employee-task-details-info-stat {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .employee-task-details-footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .employee-task-details-btn-cancel,
+  .employee-task-details-btn-edit {
+    width: 100%;
+  }
+}
+
+@media (max-width: 575px) {
+  .employee-task-details-container {
+    padding: 10px !important;
+    margin-left: 0;
+    margin-top: 0;
+  }
+
+  .admin-task-details-title {
+    font-size: 14px !important;
+  }
+}
+
+/* ============================================
+   DELETE CONFIRMATION MODAL STYLES
+   ============================================ */
+
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11000;
+  /* CRITICAL: Higher than main modal (9999) */
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.delete-confirm-modal {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 11001;
+  animation: slideUp 0.3s ease-out;
+}
+
+.delete-warning-icon {
+  font-size: 52px;
+  margin-bottom: 20px;
+  display: block;
+  animation: bounce 0.6s ease-out;
+}
+
+.delete-modal-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0px 0 12px 0;
+  letter-spacing: -0.3px;
+}
+
+.delete-modal-message {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.delete-modal-cancel {
+  padding: 5px 12px;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  letter-spacing: 0.3px;
+}
+
+.delete-modal-cancel:hover {
+  background-color: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.delete-modal-cancel:active {
+  transform: scale(0.98);
+}
+
+.delete-modal-confirm {
+  padding: 5px 12px;
+  border: none;
+  background-color: #dc2626;
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  letter-spacing: 0.3px;
+}
+
+.delete-modal-confirm:hover:not(:disabled) {
+  background-color: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.delete-modal-confirm:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.delete-modal-confirm:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   OPTIONS DROPDOWN FIX
+   ============================================ */
+
+.options-dropdown {
+  position: absolute;
+  right: 0;
+  top: 35px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 150px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background-color: #f9fafb;
+}
+
+.dropdown-item.delete-item {
+  color: #dc2626;
+}
+
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 600px) {
+  .delete-confirm-modal {
+    padding: 30px 20px;
+    max-width: 95%;
+  }
+
+  .delete-modal-title {
+    font-size: 20px;
+  }
+
+  .delete-modal-message {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .delete-modal-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .delete-modal-cancel,
+  .delete-modal-confirm {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+/* ============================================
+   FIX: Prevent main modal scrolling when 
+   delete confirmation is open
+   ============================================ */
+
+body.delete-confirm-open {
+  overflow: hidden;
+}
+
+.no-docs-text {
+  font-size: 11px;
+  color: #a0aec0;
+  font-style: normal;
+  margin: 0;
+  padding: 6px 0;
+  font-weight: 500;
+}

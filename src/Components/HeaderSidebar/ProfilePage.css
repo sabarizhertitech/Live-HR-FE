@@ -1,0 +1,1014 @@
+/* ── RESET ─────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+/* ── OVERLAY ───────────────────────────────────────────────── */
+.profile-page-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 20px 16px 20px 0;
+
+  z-index: 1300;
+}
+
+/* ── CONTAINER ─────────────────────────────────────────────── */
+.profile-page-container {
+  width: 360px;
+  max-width: 94vw;
+
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  padding: 20px;
+
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+
+  overflow: visible;
+
+  word-wrap: break-word;
+  word-break: break-word;
+
+  margin: 0;
+
+  flex-shrink: 0;
+}
+
+.profile-page-container::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+.profile-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.profile-page-header h3 {
+  font-size: 17px;
+  font-weight: 500;
+  color: #3A466D;
+  margin: 0;
+}
+
+/* Close (X) Button — Top Right */
+.profile-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  border: none;
+  background: transparent;
+
+  font-size: 20px;
+  line-height: 1;
+
+  cursor: pointer;
+  color: #6b7280;
+
+  padding: 4px;
+  border-radius: 6px;
+
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.profile-close-btn:hover {
+  color: #111827;
+  /* background: #f3f4f6; */
+}
+
+/* Active click */
+.profile-close-btn:active {
+  transform: scale(0.9);
+}
+
+
+
+/* ── TOP SECTION ───────────────────────────────────────────── */
+.profile-page-top {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* ── AVATAR ────────────────────────────────────────────────── */
+.profile-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* ── Completion Ring Wrapper ───────────────────────────────── */
+.profile-completion-ring-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 116px;
+  height: 116px;
+}
+
+.profile-completion-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg);
+  z-index: 1;
+}
+
+.profile-completion-ring-wrapper:hover .profile-page-avatar {
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.profile-page-avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #ffffff;
+  border: 4px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.profile-page-avatar:hover {
+  transform: translate(-50%, -50%) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.profile-camera-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 25px;
+  height: 25px;
+  border-radius: 9px;
+  background: #8b8fc7;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.profile-camera-badge:hover {
+  background: #7072b5;
+  transform: scale(1.08);
+}
+
+.profile-camera-badge svg {
+  display: block;
+}
+
+/* ── Edit Profile Badge (below avatar) ───────────────────── */
+.profile-edit-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 0;
+  color: #ffffff;
+  background: rgba(151, 170, 255, 1);
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 3;
+}
+
+.profile-edit-badge:hover {
+  background: rgba(89, 119, 248, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.3);
+}
+
+.profile-edit-badge svg {
+  display: block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+/* ── NAME / DESIGNATION / CONTACTS ────────────────────────── */
+.profile-name-wrapper h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(58, 70, 109, 1);
+}
+
+.profile-username-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.profile-username-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(151, 170, 255, 0.08);
+  border: 1px solid rgba(151, 170, 255, 0.15);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.profile-username-badge:hover {
+  background: rgba(151, 170, 255, 0.12);
+  border-color: rgba(151, 170, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.username-edit-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(89, 119, 248, 1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.username-edit-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.profile-username-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  padding: 3px 6px;
+  border-radius: 20px;
+  border: 1px solid rgba(89, 119, 248, 0.3);
+  box-shadow: 0 2px 8px rgba(89, 119, 248, 0.1);
+}
+
+.profile-username-input {
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(58, 70, 109, 1);
+  padding: 2px 4px;
+  width: 120px;
+  outline: none;
+}
+
+.profile-username-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.username-save-btn {
+  background: rgba(89, 119, 248, 1);
+  color: #ffffff;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.username-save-btn:hover {
+  background: rgba(79, 70, 229, 1);
+}
+
+.username-cancel-btn {
+  background: rgba(243, 244, 246, 1);
+  color: rgba(107, 114, 128, 1);
+  border: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.username-cancel-btn:hover {
+  background: rgba(229, 231, 235, 1);
+  color: rgba(31, 41, 55, 1);
+}
+
+.profile-designation {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: rgba(162, 156, 193, 1);
+  font-weight: 400;
+}
+
+.profile-contact-row {
+  margin: 4px 0;
+}
+
+.profile-contact-text {
+  font-size: 13px;
+  color: rgba(162, 156, 193, 1);
+  word-break: break-all;
+}
+
+.profile-contact-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 14px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  text-align: center;
+  background: #f9fafb;
+  color: #111827;
+  box-sizing: border-box;
+  display: block;
+}
+
+.profile-contact-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.edit-name-input {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 6px;
+  padding: 8px 14px;
+  font-size: 18px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  text-align: center;
+  background: #f9fafb;
+  color: #111827;
+  box-sizing: border-box;
+  display: block;
+}
+
+.edit-name-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ── OTP BOX ───────────────────────────────────────────────── */
+.profile-otp-box {
+  background: #f8fafc;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px 20px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.otp-box-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.otp-box-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.otp-box-subtitle strong {
+  color: #1e293b;
+}
+
+.otp-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  text-align: center;
+  background: white;
+  color: #111827;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.otp-code-input {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  color: #1e1b4b;
+  text-align: center;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  box-sizing: border-box;
+}
+
+.otp-resend-row {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 16px;
+  min-height: 24px;
+}
+
+.otp-timer {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.otp-resend-btn {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.otp-resend-btn:hover {
+  color: #4f46e5;
+}
+
+.otp-resend-btn:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ── OTP INPUT WRAPPER ─────────────────────────────────────── */
+.otp-input-wrapper {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* ── PASSWORD SECTION ──────────────────────────────────────── */
+.profile-page-password-box {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.password-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.password-box-header svg {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.profile-page-password-box input[type="password"],
+.profile-page-password-box input[type="text"],
+.profile-page-password-box input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: block;
+  text-align: left;
+}
+
+.profile-page-password-box input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ── PASSWORD INPUT WRAPPER (with show/hide button) ────────── */
+.password-input-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.password-input-wrapper input {
+  margin-bottom: 0 !important;
+  padding-right: 56px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 4px;
+  width: auto !important;
+  line-height: 1;
+}
+
+.password-toggle-btn:hover {
+  color: #4f46e5;
+}
+
+.password-hint {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.password-box-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.password-box-actions button {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: auto;
+  background: #6366f1;
+  color: white;
+}
+
+.password-box-actions button:last-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.password-box-actions button:hover {
+  opacity: 0.9;
+}
+
+.password-box-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── PASSWORD STRENGTH ─────────────────────────────────────── */
+.password-strength {
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.strength-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.strength-checks span {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #374151;
+}
+
+.strength-checks span.valid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.strength-checks span.invalid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ── PASSWORD MATCH ────────────────────────────────────────── */
+.password-match {
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.password-match.match {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.password-match.no-match {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ── ERROR TEXT ────────────────────────────────────────────── */
+.profile-error-text {
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border: 1px solid #fecaca;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── FOOTER BUTTONS ────────────────────────────────────────── */
+.profile-page-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.profile-page-outline-btn,
+.profile-page-save-btn,
+.profile-page-cancel-btn,
+.profile-page-logout-btn {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.profile-page-outline-btn {
+  background: rgba(235, 240, 255, 1);
+  color: rgba(89, 119, 248, 1);
+  border: none;
+}
+
+.profile-page-outline-btn:hover {
+  background: rgba(220, 228, 255, 1);
+}
+
+.profile-page-save-btn {
+  background: #6366f1;   /* 🔥 theme blue */
+  color: white;
+}
+
+.profile-page-save-btn:hover {
+  background: #4f46e5;
+}
+
+.profile-page-cancel-btn {
+  background: #e5e7eb;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.profile-page-cancel-btn:hover {
+  background: #d1d5db;
+}
+
+.profile-page-logout-btn {
+  background: rgba(255, 217, 207, 1);
+  color: rgba(238, 92, 34, 1);
+}
+
+.profile-page-logout-btn:hover {
+  background: rgba(255, 200, 185, 1);
+}
+
+.profile-page-save-btn:disabled,
+.profile-page-outline-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── TOAST NOTIFICATION ────────────────────────────────────── */
+.profile-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #10b981;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: toastIn 0.3s ease-out, toastOut 0.4s ease-in 2.6s forwards;
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.profile-toast-error {
+  background: #ef4444;
+}
+
+.profile-toast-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+/* ── EMPLOYEE VIEW SPACING ─────────────────────────────────── */
+.employee-view .profile-page-top {
+  margin-bottom: 40px;
+}
+
+/* ── PROFILE PAGE BODY ─────────────────────────────────────── */
+.profile-page-body {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ── PROFILE PHOTO ACTIONS ─────────────────────────────────── */
+.profile-photo-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.profile-photo-actions button {
+  flex: 1;                 /* 🔥 equal width */
+  height: 40px;            /* 🔥 equal height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0;              /* remove uneven padding */
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CROP MODAL — layered above the profile overlay (z-index 1400)
+   ══════════════════════════════════════════════════════════════ */
+.crop-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.crop-modal-container {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 380px;
+  max-width: 94vw;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  animation: cropModalIn 0.25s ease-out;
+}
+
+@keyframes cropModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Crop Modal Header ─────────────────────────────────────── */
+.crop-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.crop-modal-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.crop-modal-close {
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.crop-modal-close:hover {
+  background: #e2e8f0;
+  transform: scale(1.08);
+}
+
+/* ── Crop Area (react-easy-crop container) ─────────────────── */
+.crop-modal-crop-area {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background: #1a1a2e;
+}
+
+/* ── Zoom Slider ───────────────────────────────────────────── */
+.crop-modal-controls {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.crop-modal-controls label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.crop-modal-controls input[type="range"] {
+  flex: 1;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+/* ── Action Buttons ────────────────────────────────────────── */
+.crop-modal-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 18px;
+}
+
+.crop-modal-apply-btn,
+.crop-modal-cancel-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crop-modal-apply-btn {
+  background: #6366f1;
+  color: white;
+}
+
+.crop-modal-apply-btn:hover {
+  background: #4f46e5;
+}
+
+.crop-modal-cancel-btn {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.crop-modal-cancel-btn:hover {
+  background: #d1d5db;
+}
+
+
+.birthday-confetti {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; 
+  z-index: 5; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Make Lottie fill screen properly */
+.birthday-confetti canvas,
+.birthday-confetti svg {
+  width: 100% !important;
+  height: 100% !important;
+}

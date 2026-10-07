@@ -1,0 +1,1124 @@
+/* ================= ADMIN TASK DETAILS UPDATE POPUP STYLES ================= */
+
+/* ===== POPUP OVERLAY (CENTERING LOGIC) ===== */
+.admin-task-details-update-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  /* horizontal center */
+  align-items: center;
+  /* vertical center */
+
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+}
+
+.admin-task-details-update-page {
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+
+  width: min(1000px, 95%);
+  max-height: 100vh;
+  /* prevents overflow */
+}
+
+
+.admin-task-details-update-page {
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.admin-task-details-update-container {
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main container control */
+.priority-dropdown {
+  width: 130px;
+  /* ✅ control width */
+}
+
+/* Dropdown box (input) */
+.priority-dropdown .custom-dropdown-selected {
+  height: 30px;
+  /* ✅ compact height */
+  padding: 5px 8px;
+  font-size: 11px;
+  border-radius: 5px;
+}
+
+/* Dropdown options */
+.priority-dropdown .custom-dropdown-option {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+/* Disabled state */
+.priority-dropdown .custom-dropdown-selected.field-disabled {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.status-dropdown {
+  width: 130px;
+}
+
+.status-dropdown .custom-dropdown-selected {
+  height: 30px;
+  padding: 5px 8px;
+  font-size: 11px;
+  border-radius: 5px;
+}
+
+.status-dropdown .custom-dropdown-option {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.status-dropdown .custom-dropdown-selected.field-disabled {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+/* ================= HEADER ================= */
+
+
+.admin-task-details-update-title {
+  font-size: 14px;
+  color: #3A466D;
+  /* font-weight: 400; */
+  /* font-family: "Gilroy-SemiBold"; */
+  line-height: 100%;
+  margin: 0;
+}
+
+.header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ================= BODY LAYOUT ================= */
+.admin-task-details-update-body {
+  background-color: #F6F6F6;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ================= UNSAVED CHANGES POPUP ================= */
+.unsaved-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.unsaved-confirm-modal {
+  background: #ffffff;
+  width: 380px;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.unsaved-title {
+  font-size: 18px;
+  /* font-weight: 600; */
+  color: #3A466D;
+  margin-bottom: 12px;
+}
+
+.unsaved-message {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.confirm-btn-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.confirm-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  /* font-weight: 500; */
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.confirm-btn.discard {
+  background: #f44336;
+  color: white;
+}
+
+.confirm-btn.discard:hover {
+  background: #d32f2f;
+}
+
+.confirm-btn.keep {
+  background: #5977f8;
+  color: white;
+}
+
+.confirm-btn.keep:hover {
+  background: #4b66de;
+}
+
+.confirm-btn.update-close {
+  background: #4caf50;
+  color: white;
+}
+
+.confirm-btn.update-close:hover {
+  background: #388e3c;
+}
+
+/* ================= LEFT PANEL (Members) ================= */
+.admin-task-details-update-members-panel {
+  width: 250px;
+  min-width: 250px;
+  border-right: 1px solid #f0f0f0;
+  padding: 15px 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-task-details-update-members-panel h6 {
+  color: #77728E;
+  margin-bottom: 13px;
+  /* font-weight: 400; */
+  font-size: 12px;
+  /* font-family: "Gilroy-Regular"; */
+  line-height: 100%;
+  letter-spacing: 0.1px;
+}
+
+/* ===== SEARCH + FILTER WRAPPER ===== */
+.adminAssignTask__searchFilter {
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 15px;
+}
+
+/* ===== SEARCH BOX ===== */
+.dwu-modal-title-main {
+  display: flex;
+  align-items: center;
+  width: 96%;
+  padding: 5px 9px;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.dwu-modal-title-main input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  /* font-family: "Gilroy-Regular"; */
+  font-size: 12px;
+  color: #77728E;
+}
+
+.dwu-modal-title-main img {
+  height: 15px;
+  width: 15px;
+}
+
+/* ===== FILTER BUTTON ===== */
+.adminAssignTask__filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 3px;
+  transition: 0.2s;
+}
+
+.adminAssignTask__filterBtn img {
+  height: 20px;
+  width: 21px;
+}
+
+.adminAssignTask__filterBtn span {
+  /* font-family: "Gilroy-Medium"; */
+  font-size: 12px;
+  color: #868585;
+}
+
+/* Members List */
+.members-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+
+.members-list::-webkit-scrollbar {
+  width: 2px;
+}
+
+.members-list::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 4px;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 5px;
+  padding-right: 5px;
+  padding-left: 4px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.member:hover {
+  background: #f8f9fa;
+}
+
+.member.selected {
+  background: #ffffff;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  margin: 0;
+  color: #3A466D;
+  /* font-family: 'Gilroy-Medium'; */
+  font-size: 12px;
+  margin-bottom: 3px;
+  line-height: 190%;
+}
+
+.member-role {
+  margin: 0;
+  font-size: 11px;
+  color: #77728E;
+  /* font-family: 'Gilroy-Regular'; */
+  /* font-weight: 400; */
+  line-height: 100%;
+  letter-spacing: 1;
+  align-items: center;
+}
+
+.member-action {
+  color: #000000;
+  height: 15px;
+  width: 16px;
+  transition: color 0.1s;
+}
+
+.member:hover .member-action {
+  color: #000000;
+}
+
+.member.selected .member-action {
+  color: #000000;
+}
+
+/* ================= RIGHT FORM ================= */
+.admin-task-details-update-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 18px 18px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  appearance: none;
+
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: #BBBBBB;
+  margin-bottom: 6px;
+  /* font-family: 'Gilroy-Regular'; */
+  /* font-weight: 400; */
+  line-height: 100%;
+  letter-spacing: 1;
+  align-items: center;
+  /* font-weight: 500; */
+}
+
+.file-item {
+  display: block;
+  width: 100%;
+  cursor: pointer;
+}
+
+.attach-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  border-radius: 8px;
+  /* font-weight: 500; */
+}
+
+.attach-upload:hover {
+  background: #eef2ff;
+}
+
+.attach-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.form-group input,
+.dwu-modal-title-main,
+.form-group select {
+  width: 100%;
+  padding: 7px 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  /* font-family: "Gilroy-Regular"; */
+  /* font-weight: 400; */
+  font-size: 12px;
+  color: #77728E;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.form-group input::placeholder,
+.dwu-modal-title-main::placeholder {
+  color: #77728E;
+  font-size: 12px;
+  opacity: 1;
+  /* font-family: 'Gilroy-Regular'; */
+  /* font-weight: 400; */
+  line-height: 100%;
+  letter-spacing: 1;
+}
+
+.form-group input:focus,
+.dwu-modal-title-main:focus,
+.form-group select:focus {
+  border-color: #868585;
+}
+
+.dwu-modal-title-main {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-row .date-inputsbut {
+  width: 100% !important;
+}
+
+.assign-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.assign-select {
+  width: 150px !important;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.assign-select-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 6px;
+  pointer-events: none;
+}
+
+.file-item {
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  width: 210px;
+  display: inline-flex;
+  align-items: center;
+  /* font-family: 'Gilroy-Regular'; */
+  /* font-weight: 400; */
+  color: #868585;
+  background-color: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 100%;
+  letter-spacing: 0;
+}
+
+.assignTask__fileList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.assignTask__fileItem {
+  width: 210px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid rgba(31, 31, 31, 0.12);
+  border-radius: 6px;
+  background-color: #ffffff;
+  cursor: pointer;
+  /* font-family: 'Gilroy-Regular', sans-serif; */
+  font-size: 12px;
+  /* font-weight: 400; */
+  color: #3A466D;
+}
+
+.assignTask__fileName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+.date-inputsbut {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  background: none;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.date-icon {
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+}
+
+/* Form Actions */
+.admin-task-details-update-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+
+  border-top: 1px solid #f0f0f0;
+}
+
+.admin-task-details-update-btn-cancel {
+  background: #BBBBBB;
+  color: #F8F9FA;
+  border: none;
+  height: 28px;
+  width: 120px;
+  font-size: 12px;
+  border-radius: 4px;
+  /* font-weight: 500; */
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+
+.admin-task-details-update-btn-update {
+  background: #5977f8;
+  color: #fff;
+  border: none;
+  height: 28px;
+  width: 120px;
+  font-size: 12px;
+  border-radius: 4px;
+  /* font-weight: 500; */
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-task-details-update-btn-update:hover {
+  background: #4b66de;
+}
+
+.admin-task-details-update-btn-update:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .admin-task-details-update-body {
+    flex-direction: column;
+  }
+
+  .admin-task-details-update-members-panel {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding-right: 20px;
+
+  }
+}
+
+/* ══════════════════════════════════════════════
+   DOCUMENT SECTION STYLES - REDUCED SIZE
+══════════════════════════════════════════════ */
+
+
+.update-task-section-label {
+  font-size: 12px;
+  color: #868585;
+  margin-bottom: 6px;
+  display: block;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0.1px;
+}
+
+.docs-sub-label {
+  font-size: 12px;
+  color: #868585;
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+.no-docs-message {
+  color: #999;
+  font-size: 12px;
+  font-style: italic;
+  padding: 4px 0;
+}
+
+/* ── File Items - REDUCED SIZE ── */
+.existing-docs-list,
+.new-uploads-list {
+  margin-bottom: 8px;
+}
+
+.update-task-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e1e1e1;
+  border-radius: 5px;
+  padding: 5px 8px;
+  margin-bottom: 4px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  height: 30px;
+  max-width: 180px;
+}
+
+.update-task-file-item:hover {
+  border-color: #5977f8;
+  background: #f8f9ff;
+}
+
+.update-task-file-item.downloading {
+  opacity: 0.7;
+  cursor: wait;
+  background: #f9f9f9;
+}
+
+.update-task-file-item.new-file {
+  border-color: #c8e6c9;
+  background: #f1f8e9;
+}
+
+.update-task-file-item.new-file:hover {
+  border-color: #81c784;
+}
+
+/* ── File Info (clickable area) - REDUCED ── */
+.file-info-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-grow: 1;
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Disabled Dropdown Styles */
+.dropdown-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.custom-dropdown-selected.field-disabled {
+  background-color: #f5f5f5 !important;
+  color: #9e9e9e !important;
+  cursor: not-allowed !important;
+  border-color: #e0e0e0 !important;
+}
+
+.custom-dropdown-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-dropdown-selected {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #77728E;
+}
+
+.custom-dropdown-selected:hover:not(.field-disabled) {
+  border-color: #868585;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  color: #868585;
+}
+
+.custom-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  margin-top: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.custom-dropdown-option {
+  padding: 8px 10px;
+  font-size: 11px;
+  color: #77728E;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.custom-dropdown-option:hover {
+  background: #f8f9fa;
+}
+
+
+.normal-dropdown:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.file-info-section:focus-visible {
+  outline: 2px solid #5977f8;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.file-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.file-icon .update-task-attach-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.file-name-text {
+  font-size: 12px;
+  color: #3a466d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-grow: 1;
+  min-width: 0;
+  line-height: 1;
+}
+
+.file-size-text {
+  font-size: 12px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.download-icon {
+  font-size: 11px;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.file-info-section:hover .download-icon {
+  opacity: 1;
+}
+
+.new-badge {
+  font-size: 7px;
+  background: #4caf50;
+  color: white;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Remove Button - REDUCED ── */
+.remove-doc-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  margin-left: 4px;
+  line-height: 1;
+}
+
+.remove-doc-btn:hover {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+/* ── Upload Button - REDUCED SIZE ── */
+.update-task-add-file-box {
+  border: 1px dashed #bdbdbd;
+  border-radius: 5px;
+  padding: 5px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #868585;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 6px;
+  transition: all 0.2s;
+  height: 28px;
+}
+
+.update-task-add-file-box:hover {
+  border-color: #5977f8;
+  color: #5977f8;
+  background: #f8f9ff;
+}
+
+/* ══════════════════════════════════════════════
+   ROLE BADGE & PERMISSION STYLES
+══════════════════════════════════════════════ */
+.role-badge {
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 10px;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.role-badge.creator {
+  color: #2e7d32;
+  background: #e8f5e9;
+}
+
+.role-badge.assignee {
+  color: #1565c0;
+  background: #e3f2fd;
+}
+
+.view-only-label {
+  font-size: 11px;
+  color: #f44336;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
+.field-lock {
+  font-size: 10px;
+  margin-left: 5px;
+  opacity: 0.7;
+}
+
+.field-disabled {
+  background-color: #f5f5f5 !important;
+  color: #9e9e9e !important;
+  cursor: not-allowed !important;
+  border-color: #e0e0e0 !important;
+}
+
+.panel-disabled {
+  position: relative;
+}
+
+/* ══════════════════════════════════════════════
+   UNSAVED CHANGES MODAL
+══════════════════════════════════════════════ */
+.unsaved-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+}
+
+.unsaved-confirm-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.unsaved-title {
+  color: #d32f2f;
+  margin-bottom: 10px;
+}
+
+.unsaved-message {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.confirm-btn-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.discard {
+  background: #f44336;
+  color: white;
+}
+
+.keep {
+  background: #5977f8;
+  color: white;
+}
+
+/* =============================================
+   REDUCED SIZE DATE INPUTS (Smaller than normal fields)
+   ============================================= */
+
+.date-inputsbut {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.date-inputsbut input {
+  width: 100%;
+  padding: 7px 30px 7px 8px;
+  /* Right padding for icon space */
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 11px;
+  color: #77728E;
+  background: #fff;
+  height: 32px;
+  /* Slightly compact height */
+  box-sizing: border-box;
+}
+
+/* Date Icon Positioning */
+.date-icon {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.date-icon:hover {
+  opacity: 0.85;
+}
+
+/* Hide default browser calendar icon */
+.date-inputsbut input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Disabled State */
+.date-inputsbut input.field-disabled {
+  background-color: #f5f5f5 !important;
+  color: #9e9e9e !important;
+  cursor: not-allowed !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* ===== TOAST ON TOP OF ALL MODALS ===== */
+.Toastify__toast-container {
+  z-index: 99999 !important;
+}
+
+/* ===== DOCUMENT REMOVE — CLOSE ICON ===== */
+.remove-doc-btn {
+  background: none;
+  border: none;
+  color: #bfbfbf;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  margin-left: 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.remove-doc-btn:hover {
+  background: #fdecea;
+  color: #e53935;
+}
+
+/* ================= MOBILE RESPONSIVE OVERRIDES ================= */
+@media screen and (max-width: 575.98px) {
+
+  /* ── Form padding and layout spacing overrides ── */
+  .admin-task-details-update-form {
+    padding: 14px 12px !important;
+  }
+
+
+  .header-top-row {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .header-top-row .d-flex {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    min-width: 0;
+  }
+
+  /* ── Stack columns vertically on mobile ── */
+  .form-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .form-row>* {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  .date-inputsbut {
+    width: 100% !important;
+  }
+
+  .date-inputsbut input {
+    width: 100% !important;
+  }
+
+  /* ── Expand container constraints to fit height on mobile ── */
+  .admin-task-details-popup-container {
+    width: 95% !important;
+    max-width: 95% !important;
+    max-height: 90vh !important;
+    margin: 10px auto !important;
+    overflow-y: auto !important;
+  }
+}

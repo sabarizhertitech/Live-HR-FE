@@ -1,0 +1,457 @@
+/* ================= EDIT REQUEST MODAL ================= */
+.edit-request-modal .modal-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.edit-request-modal .modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 8px 24px;
+}
+
+.edit-request-modal .modal-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 18px;
+  padding-top: 5px;
+  font-weight: 500;
+  color: #3a466d;
+}
+
+.edit-request-modal .modal-description {
+  color: #868585 !important;
+  font-size: 14px;
+  margin-bottom: 15px;
+  font-family: "Gilroy", Gilroy-Regular;
+  font-weight: 100 !important;
+}
+
+.edit-request-modal .modal-body {
+  padding: 16px 24px;
+}
+
+/* Sections Grid Container */
+.sections-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.section-selection-item {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+/* Center the last item if it's alone (assuming 5 or an odd number) */
+.section-selection-item:last-child:nth-child(odd) {
+  grid-column: 1 / span 2;
+  width: 100%;
+}
+
+.section-selection-item.selected {
+  border-color: #4f8ef7;
+  background: #f0f6ff;
+}
+
+.section-label {
+  font-weight: 500;
+  color: #1f2a44;
+  font-size: 15px;
+}
+
+.section-selection-item .form-check-label {
+  cursor: pointer;
+  width: 100%;
+}
+
+.section-sublabel {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.edit-title{
+  font-size: 15px;
+  font-weight: 500;
+}
+.edit-request-modal .request-textarea {
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  padding: 10px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  resize: none;
+  height: 80px;
+}
+
+.edit-request-modal .request-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.edit-request-modal .modal-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 12px 24px;
+  gap: 12px;
+}
+
+.edit-request-modal .send-request-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* ================= STATUS NOTIFICATION MODAL ================= */
+.status-modal .modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.status-modal .modal-body {
+  padding: 40px 30px;
+}
+
+.status-modal .status-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 24px;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.status-modal .status-icon.approved {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.status-modal .status-icon.rejected {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.status-modal .status-icon.pending {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.status-modal h4 {
+  color: #1f2a44;
+  font-weight: 600;
+}
+
+.status-modal .text-muted {
+  font-size: 15px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* ================= PENDING REQUEST BANNER ================= */
+.pending-request-banner {
+  background: #f8fafc;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pending-request-banner .banner-icon {
+  color: #d97706;
+  font-size: 1.3rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pending-request-banner span {
+  color: #92400e;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* ================= DISABLED BUTTON ================= */
+.btn-disabled {
+  background-color: #9ca3af !important;
+  border-color: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+.btn-disabled:hover {
+  background-color: #9ca3af !important;
+  transform: none !important;
+}
+
+
+/* EditRequest.css */
+.pending-request-banner {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.pending-request-banner .banner-icon {
+  font-size: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.edit-request-modal .modal-icon {
+  margin-right: 10px;
+  color: #007bff;
+}
+
+.edit-request-modal .modal-description {
+  color: #6c757d;
+  margin-bottom: 20px;
+}
+
+.edit-request-modal .request-textarea {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 200;
+  transition: border-color 0.3s;
+}
+
+.edit-request-modal .request-textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+}
+
+.send-request-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+  padding: 10px 24px;
+  font-weight: 500;
+}
+
+.send-request-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.send-request-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-modal .status-icon {
+  font-size: 24px;
+  margin: 0 auto;
+}
+
+.status-modal .status-icon.approved {
+  color: #28a745;
+}
+
+.status-modal .status-icon.rejected {
+  color: #dc3545;
+}
+
+.status-modal .status-icon.pending {
+  color: #ffc107;
+}
+
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+}
+
+.btn-disabled:hover {
+  transform: none !important;
+}
+
+
+
+
+.approval-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+
+  /* ❌ absolutely nothing visual */
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  pointer-events: none;
+  animation: slideInRight 0.5s ease-out forwards,
+             fadeOut 0.6s ease-out 4.4s forwards;
+}
+
+
+.approval-toast .toast-content {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: #ffffff;
+  padding: 16px 20px;
+  border-radius: 10px;
+
+  /* ✅ keep shadow minimal or remove */
+  box-shadow: none;   /* ← IMPORTANT */
+
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.approval-toast .toast-text {
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+
+
+.toast-icon {
+  font-size: 1.9rem;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.toast-text strong {
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.toast-text p {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.toast-text small {
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+/* ── Animations ── */
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+
+
+@media (max-width: 576px) {
+  .approval-toast {
+    right: 12px;
+    left: 12px;
+    top: 16px;
+    max-width: none;
+  }
+}
+
+.mb-2{
+  font-size: 15px;
+  font-weight: 300;
+}
+
+@media (max-width: 576px) {
+  .edit-request-modal .modal-footer {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: nowrap !important;
+    padding: 12px 24px !important;
+    margin: 0 !important;
+  }
+
+  .edit-request-modal .modal-footer .common-modal-btn {
+    width: auto !important;
+    min-width: 100px !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+}
+

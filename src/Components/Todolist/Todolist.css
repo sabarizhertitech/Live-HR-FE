@@ -1,0 +1,1011 @@
+.common-todo-list {
+  margin-left: 240px;
+  padding: 100px 30px 40px 30px;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* HEADER */
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.todo-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.todo-user-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d355f;
+}
+
+
+.todo-back {
+  color: #3A466D;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.todo-back:hover {
+  color: #5977f8;
+}
+
+/* RIGHT CONTROLS */
+.todo-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* CUSTOM DATE SELECTOR */
+.custom-date-selector {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.date-input-group label {
+  font-size: 12px;
+  color: #77728e;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.date-input-group input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #1f1f1f1f;
+  font-size: 13px;
+  color: #2d355f;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.date-input-group input:focus {
+  border-color: #8a8af5;
+}
+
+/* FILTER ICON BUTTON */
+.filter-icon-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-icon-btn:hover {
+  border-color: #8a8af5;
+  background-color: #f8f9ff;
+}
+
+.filter-icon-btn img {
+  width: 30px;
+  height: 30px;
+}
+
+.status-filter-wrapper {
+  position: relative;
+}
+
+.status-dropdown {
+  right: 0;
+  left: auto !important;
+  width: 130px !important;
+}
+
+/* LIST */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* CARD */
+.todo-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #1F1F1F1F;
+  position: relative;
+  min-height: 110px;
+}
+
+/* CONTENT */
+.todo-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-content h4 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  color: #2d355f;
+  margin-bottom: 8px;
+}
+
+.todo-content p {
+  font-size: 13px;
+  color: #A29CC1;
+  margin-bottom: 2px;
+  line-height: 1.5;
+  max-width: 90%;
+}
+
+.created {
+  font-size: 10px;
+  color: #94a3b8;
+  display: block;
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+/* STATUS */
+.todo-status {
+  text-align: right;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding-top: 25px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.completed-badge {
+  background: #13E213 !important;
+  color: #ffffff !important;
+}
+
+.pending-badge {
+  background: #EE5C22 !important;
+  color: #ffffff !important;
+}
+
+.completed-on {
+  margin-top: 0;
+  padding-top: 2px;
+}
+
+.completed {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* DELETE ICON */
+.todo-delete-icon {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todo-delete-icon:hover {
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+/* DELETE MODAL */
+.todo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.todo-modal-content {
+  background: white !important;
+  border-radius: 12px;
+  padding: 15px 15px !important;
+  width: 90%;
+  max-width: 550px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: modalScale 0.2s ease-out;
+  position: relative;
+}
+
+.todo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+@keyframes modalScale {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.edit-modal-content .todo-modal-body.common-modal-body {
+  background-color: #F6F6F6 !important;
+  padding: 18px !important;
+  border-radius: 10px;
+}
+
+.todo-modal-body.common-modal-body {
+  padding: 0 !important;
+}
+
+.todo-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 !important;
+  margin-top: 15px;
+}
+
+.todo-modal-btn {
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.todo-modal-btn.btn-cancel {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: none !important;
+}
+
+.todo-modal-btn.btn-cancel:hover {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.todo-modal-btn.btn-delete {
+  background: #ef4444 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.todo-modal-btn.btn-delete:hover {
+  background: #dc2626 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* EDIT MODAL SPECIFIC */
+.edit-modal-content {
+  max-width: 460px;
+}
+
+.todo-form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-form-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #868585 ;
+}
+
+.todo-form-group input {
+  width: 100%;
+  height: 35px;
+  padding: 10px 14px;
+  border-radius: 5px;
+  border: 1px solid #E5E7EB;
+  font-size: 12px;
+  color: #77728E;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.todo-form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 5px;
+  border: 1px solid #E5E7EB;
+  font-size: 12px;
+  color: #77728E;
+  outline: none;
+  transition: all 0.2s ease;
+  min-height: 150px;
+  resize: vertical;
+}
+
+.todo-form-group input:focus,
+.todo-form-group textarea:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.edit-modal-footer {
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+}
+
+/* STATUS SELECTOR IN MODAL */
+.edit-status-container {
+  position: relative;
+}
+
+.edit-status-trigger {
+  height: 36px !important;
+  min-width: 120px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  padding: 0 16px !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  transition: all 0.2s ease;
+  border: none !important;
+}
+
+.status-pending { background: #EE5C22; color: white; }
+.status-completed { background: #13E213; color: white; }
+.status-on-hold { background: #FACC15; color: #854D0E; }
+
+.edit-status-dropdown {
+  bottom: calc(100% + 8px);
+  left: 0;
+  top: auto !important;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.edit-modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.edit-modal-actions .common-modal-btn {
+  flex: 1;
+}
+
+.btn-small-cancel {
+  background: #A6A6A6 !important;
+  color: #ffffff !important;
+}
+
+.btn-small-cancel:hover {
+  background: #919191 !important;
+  color: #ffffff !important;
+}
+
+.btn-update {
+  background: #5977f8;
+  color: white;
+}
+
+.btn-update:hover {
+  background: #4662d9;
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.3);
+}
+
+.on-hold-badge {
+  background: #FACC15 !important;
+  color: #854D0E !important;
+}
+
+.todo-card {
+  cursor: pointer;
+}
+
+/* RESPONSIVENESS */
+
+@media (max-width: 1200px) {
+  .common-todo-list {
+    margin-left: 250px;
+    padding: 100px 20px 40px 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .common-todo-list {
+    margin-left: 0;
+    padding: 100px 20px 40px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .todo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .todo-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .todo-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 15px;
+  }
+
+  .todo-status {
+    text-align: left;
+    width: 100%;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 15px;
+  }
+
+  .custom-date-selector {
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 0;
+  }
+
+  .date-input-group {
+    width: auto;
+  }
+
+  .date-input-group label {
+    width: auto;
+    min-width: auto;
+    margin: 0 0 0 2px;
+  }
+
+  .filter-date-wrapper {
+    width: 155px !important;
+  }
+
+  .date-input-group input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .todo-right {
+    gap: 10px;
+  }
+  
+  .todo-content h4 {
+    font-size: 17px;
+  }
+  
+  .todo-content p {
+    font-size: 13px;
+  }
+
+  .todo-form-group textarea {
+    min-height: 85px !important;
+  }
+}
+
+
+.todo-status-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+@media (max-width: 496px) {
+  .todo-status-group {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    width: auto;
+  }
+}
+
+.todo-plus-btn:hover {
+  background: #4b66de;
+  transform: scale(1.06);
+}
+
+/* LOADING STATE */
+.todo-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 15px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.todo-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(89, 119, 248, 0.1);
+  border-left-color: #5977f8;
+  border-radius: 50%;
+  animation: todo-spin 1s linear infinite;
+}
+
+@keyframes todo-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* OVERRIDES FOR HEADER SELECTORS AND PLUS BUTTON */
+.todo-right .custom-dropdown-container {
+  width: 170px !important;
+}
+
+.todo-right .status-filter-wrapper {
+  width: 140px !important;
+}
+
+.todo-right .status-filter-wrapper .custom-dropdown-trigger {
+  width: 100% !important;
+}
+
+.todo-right .custom-dropdown-trigger {
+  height: 40px !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  border: 1px solid #E5E7EB !important;
+  box-sizing: border-box !important;
+}
+
+.todo-right .custom-dropdown-trigger span {
+  font-size: 14px !important;
+  color: #374151 !important;
+}
+
+.todo-right .dropdown-arrow-icon {
+  width: 20px !important;
+  height: 20px !important;
+  color: #374151 !important;
+}
+
+.todo-right .custom-dropdown-menu {
+  width: 100% !important;
+  border-radius: 10px !important;
+  z-index: 100 !important;
+}
+
+.todo-plus-btn {
+  width: 40px !important;
+  height: 37px !important;
+  border-radius: 8px !important;
+  background: #5977f8 !important;
+  color: white !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 0.2s ease, transform 0.15s ease !important;
+}
+
+/* ================= CUSTOM DATE PICKER FOR MODALS ================= */
+.todo-custom-date-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  background: #ffffff;
+}
+
+.todo-date-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.todo-date-text {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  font-weight: 400;
+  color: #374151;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.todo-calendar-icon {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* Responsive updates for cards below 767px */
+@media (max-width: 767px) {
+  .todo-status {
+    border-top: none !important;
+    padding-top: 0 !important;
+    align-items: flex-start !important;
+    margin-top: 8px !important;
+  }
+
+  .todo-delete-icon {
+    font-size: 15px !important;
+    top: 8px !important;
+    right: 10px !important;
+  }
+}
+
+/* Responsive updates for cards below 350px */
+@media (max-width: 350px) {
+  .todo-delete-icon {
+    font-size: 13px !important;
+    top: 8px !important;
+    right: 10px !important;
+  }
+}
+
+/* Responsive updates for header below 449px */
+@media (max-width: 449px) {
+  .todo-header {
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .todo-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .todo-plus-btn {
+    position: absolute !important;
+    top: -2px !important;
+    right: 0 !important;
+  }
+}
+
+/* Responsive updates for selectors below 380px to keep them in one row */
+@media (max-width: 380px) {
+  .todo-right .custom-dropdown-container {
+    width: 135px !important;
+  }
+
+  .todo-right .status-filter-wrapper {
+    width: 115px !important;
+  }
+
+  .todo-right .custom-dropdown-trigger {
+    padding: 8px 10px !important;
+  }
+
+  .todo-right .custom-dropdown-trigger span {
+    font-size: 12px !important;
+  }
+
+  .todo-right {
+    gap: 8px !important;
+  }
+}
+
+/* Make both selectors equal in width for 496px to 341px screens and eliminate empty space on the right */
+@media (max-width: 496px) {
+  .todo-right .custom-dropdown-container,
+  .todo-right .status-filter-wrapper {
+    flex: 1 !important;
+    width: auto !important;
+  }
+}
+
+/* ==========================================================================
+   DELETE CONFIRMATION MODAL RESPONSIVE STYLES
+   ========================================================================== */
+.todo-delete-modal-content {
+  max-width: 440px !important;
+}
+
+.todo-delete-modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  margin-top: 20px !important;
+  width: 100% !important;
+}
+
+.todo-delete-btn-group {
+  display: flex !important;
+  gap: 12px !important;
+  width: auto !important;
+}
+
+@media (max-width: 480px) {
+  .todo-delete-modal-content {
+    padding: 20px 16px !important;
+    width: 92% !important;
+  }
+  
+  .todo-delete-btn-group {
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  
+  .todo-delete-btn-group .todo-modal-btn {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ── DIRECT EDITABLE DATE FIELD WITH CUSTOM ICON ── */
+.todo-date-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.todo-date-direct-input {
+    width: 100%;
+    height: 35px;                 /* Same as Status */
+    min-height: 35px;
+    padding: 0 42px 0 14px;
+    border: 1px solid #E5E7EB;
+    border-radius: 5px;
+    box-sizing: border-box;
+
+    font-size: 12px;
+    color: #77728E;
+    background: #ffffff;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.todo-date-direct-input:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.todo-date-direct-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.todo-calendar-icon-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* ===== UPDATE TODO MODAL - STATUS DROPDOWN HEIGHT OVERRIDE ===== */
+.edit-modal-content .status-dropdown-container .custom-dropdown-trigger {
+  height: 35px !important;
+  min-height: 35px !important;
+}
+
+/* ===== UPDATE TODO MODAL - DUE DATE INPUT HEIGHT OVERRIDE ===== */
+.edit-modal-content .todo-date-field-wrapper {
+    position: relative;
+    width: 100%;
+    height: 35px;
+}
+
+/* Date display text span inside the wrapper */
+.todo-date-display-text {
+  flex: 1;
+  font-size: 14px;
+  color: #374151;
+  pointer-events: none;
+  user-select: none;
+}
+
+
+/* =======================================================
+   EMPLOYEE DASHBOARD VIEW POPUP STYLE
+   ======================================================= */
+
+.employee-view-popup{
+    width:100%;
+    max-width:530px;
+    padding:0 !important;
+    border-radius:18px;
+    overflow:hidden;
+    background:#fff;
+}
+
+.employee-view-header{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    padding:18px 18px 10px;
+    margin-bottom:0;
+}
+
+.employee-view-body{
+    padding:0 18px 10px !important;
+    background:#fff !important;
+}
+
+.employee-view-footer{
+    padding:0 18px 20px !important;
+}
+
+.employee-view-footer .edit-modal-actions{
+    width:100%;
+    display:flex;
+    justify-content:flex-end;
+    gap:14px;
+}
+
+.employee-view-footer .edit-modal-actions button{
+    width:120px;
+}
+
+.employee-view-body .todo-view-title{
+    font-size:16px;
+    font-weight:500;
+    color:#3A466D;
+    line-height:28px;
+    margin-bottom:10px;
+}
+
+.employee-view-body .todo-view-description{
+    font-size:13px;
+    font-weight:400;
+    color:#A29CC1;
+    margin-bottom:10px;
+    white-space:pre-wrap;
+}
+
+/* ===== Employee Dashboard View Popup ===== */
+
+.employee-view-popup{
+    width:470px !important;
+    max-width:470px !important;
+    padding:18px !important;
+    border-radius:18px !important;
+    background:#fff;
+}
+
+.employee-view-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:10px !important;
+    padding:0 !important;
+}
+
+.employee-view-title-area{
+    flex:1;
+    padding-right:20px;
+}
+
+.employee-view-title{
+    margin:0 !important;
+    font-size:16px !important;
+    font-weight:500 !important;
+    color:#3A466D !important;
+    line-height:28px !important;
+}
+
+.employee-view-body{
+    padding:0 !important;
+    background:#fff !important;
+}
+
+.employee-view-description{
+    font-size:13px !important;
+    color:#A29CC1 !important;
+    line-height:28px !important;
+    margin:0 !important;
+    white-space:pre-wrap;
+}
+
+.employee-view-footer{
+    margin-top:26px !important;
+    padding:0 !important;
+}
+
+.employee-view-footer .edit-modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:14px;
+}
+
+.employee-view-footer .common-modal-btn{
+    width:120px;
+}
+
+/* Custom date filters overrides */
+.filter-date-wrapper {
+  position: relative;
+  width: 155px;
+}
+
+.filter-date-input {
+  height: 35px !important;
+  min-height: 35px !important;
+  border-radius: 5px !important;
+  border: 1px solid rgba(31, 31, 31, 0.12) !important;
+  padding: 0 35px 0 10px !important;
+  font-size: 12px !important;
+  color: #77728E !important;
+  background: #ffffff !important;
+}
+
+.filter-date-wrapper .todo-calendar-icon-btn {
+  right: 10px !important;
+  width: 15px !important;
+  height: 15px !important;
+}

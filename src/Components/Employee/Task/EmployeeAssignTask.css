@@ -1,0 +1,238 @@
+/* AssignTask.css */
+
+
+/* ================= PAGE LAYOUT ================= */
+.create-task-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f7fb;
+  padding: 20px;
+}
+
+.create-task-container {
+  width: 100%;
+  max-width: 1200px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* ================= HEADER ================= */
+.create-task-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #e8ebf3;
+}
+
+.create-task-header h4 {
+  margin: 0;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+/* ================= BODY ================= */
+.create-task-body {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  gap: 30px;
+}
+
+/* ================= MEMBERS PANEL ================= */
+.create-task-members-panel {
+  flex: 1;
+  min-width: 300px;
+}
+
+.create-task-section-title {
+  color: #4a5568;
+  margin-bottom: 15px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.create-task-members-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.create-task-member-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.create-task-member-card:hover {
+  background-color: #edf2f7;
+}
+
+.create-task-member-card.active {
+  background-color: #e6f0ff;
+  border-color: #a5c3ff;
+}
+
+.create-task-member-name {
+  margin: 0;
+  font-size: 14px;
+  color: #2d3748;
+}
+
+/* ================= FORM ================= */
+.create-task-form {
+  flex: 2;
+  min-width: 300px;
+}
+
+.create-task-form-row {
+  margin-bottom: 20px;
+}
+
+.create-task-priority-row,
+.create-task-date-row {
+  max-width: 300px;
+}
+
+.create-task-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.create-task-input,
+.create-task-select,
+.create-task-textarea,
+.create-task-file-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.create-task-input:focus,
+.create-task-select:focus,
+.create-task-textarea:focus {
+  outline: none;
+  border-color: #a5c3ff;
+  box-shadow: 0 0 0 3px rgba(165, 195, 255, 0.2);
+}
+
+.create-task-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* ================= ACTIONS ================= */
+.create-task-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 20px;
+  border-top: 1px solid #e8ebf3;
+}
+
+.create-task-btn-cancel {
+  background: #f1f5f9;
+  color: #4a5568;
+  border: none;
+ padding: 6px 12px;
+  min-width: 120px;   /* optional (keeps width consistent) */
+  height: auto;  
+
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.create-task-btn-cancel:hover {
+  background: none !important;
+  color: #4a5568 !important;
+  border-color: var(--border-color) !important;
+  cursor: default; /* optional */
+}
+.create-task-btn-create {
+  background: #5977f8;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.create-task-btn-create:hover {
+  background: #3a5df0;
+}
+
+/* ================= RESPONSIVE DESIGN ================= */
+@media (min-width: 768px) {
+  .create-task-body {
+    flex-direction: row;
+  }
+  
+  .create-task-form-row {
+    margin-bottom: 25px;
+  }
+}
+
+@media (min-width: 992px) {
+  .create-task-container {
+    padding: 0;
+  }
+  
+  .create-task-header {
+    padding: 25px 40px;
+  }
+  
+  .create-task-body {
+    padding: 30px 40px;
+    gap: 40px;
+  }
+  
+  .create-task-form-row {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 767px) {
+  .create-task-page {
+    padding: 10px;
+  }
+  
+  .create-task-container {
+    padding: 0;
+  }
+  
+  .create-task-header {
+    padding: 15px 20px;
+  }
+  
+  .create-task-body {
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .create-task-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .create-task-btn-cancel,
+  .create-task-btn-create {
+    width: 100%;
+  }
+}

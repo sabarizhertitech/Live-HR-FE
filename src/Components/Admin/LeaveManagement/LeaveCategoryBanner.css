@@ -1,0 +1,201 @@
+.lc-notification-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+  animation: lcBannerFadeIn 0.3s ease-out;
+}
+
+.lc-notification-banner.is-pending {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-color: #fed7aa;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.08);
+}
+
+.lc-notification-banner.is-submitted {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.08);
+}
+
+@keyframes lcBannerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lc-notification-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.lc-notification-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #2563eb;
+}
+
+.lc-notification-banner.is-pending .lc-notification-icon-wrap {
+  background: #ffedd5;
+  border-color: #fdba74;
+  color: #ea580c;
+}
+
+.lc-notification-banner.is-submitted .lc-notification-icon-wrap {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #16a34a;
+}
+
+.lc-notification-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-notification-title {
+  color: #1e40af;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.lc-notification-banner.is-pending .lc-notification-title {
+  color: #9a3412;
+}
+
+.lc-notification-banner.is-submitted .lc-notification-title {
+  color: #166534;
+}
+
+.lc-notification-message {
+  color: #1d4ed8;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.lc-notification-banner.is-pending .lc-notification-message {
+  color: #c2410c;
+}
+
+.lc-notification-banner.is-submitted .lc-notification-message {
+  color: #15803d;
+}
+
+.lc-notification-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.lc-notification-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lc-notification-banner.is-pending .lc-notification-action-btn {
+  background: #ea580c;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+}
+
+.lc-notification-banner.is-pending .lc-notification-action-btn:hover {
+  background: #c2410c;
+  box-shadow: 0 4px 8px rgba(194, 65, 12, 0.3);
+  transform: translateY(-1px);
+}
+
+.lc-notification-banner.is-submitted .lc-notification-action-btn {
+  background: #16a34a;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+}
+
+.lc-notification-banner.is-submitted .lc-notification-action-btn:hover {
+  background: #15803d;
+  box-shadow: 0 4px 8px rgba(21, 128, 61, 0.3);
+  transform: translateY(-1px);
+}
+
+.lc-notification-action-btn:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 8px rgba(29, 78, 216, 0.3);
+  transform: translateY(-1px);
+}
+
+.lc-notification-action-btn:active {
+  transform: translateY(0);
+}
+
+.lc-notification-reminder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #ea580c;
+  border: 1.5px solid #fdba74;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lc-notification-reminder-btn:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #ea580c;
+  transform: translateY(-1px);
+}
+
+.lc-notification-reminder-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .lc-notification-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .lc-notification-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

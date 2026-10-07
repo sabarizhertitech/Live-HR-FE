@@ -1,0 +1,2399 @@
+:root {
+  --security-maker-primary: #5977f8;
+  --security-maker-danger: #ff6d4d;
+  --security-maker-success: #2ecc71;
+  --security-maker-warning: #ffb020;
+  --security-maker-radius-card: 12px;
+}
+
+.security-maker-wrapper {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 84px;
+  min-height: calc(100vh - 104px);
+  padding-bottom: 24px;
+  box-sizing: border-box;
+  background-color: #f8f8f8;
+  transition: margin-left 0.3s ease;
+}
+
+@media (min-width: 1400px) {
+  .security-maker-wrapper {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .security-maker-wrapper {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .security-maker-wrapper {
+    left: 12px;
+    right: 12px;
+    top: 74px;
+  }
+}
+
+@media (max-width: 576px) {
+  .security-maker-wrapper {
+    left: 5px;
+    right: 5px;
+    top: 68px;
+  }
+}
+
+@media (max-width: 380px) {
+  .security-maker-wrapper {
+    left: 8px;
+    right: 8px;
+    top: 62px;
+  }
+}
+
+.security-maker-container {
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+/* ================= POPUP STYLES ================= */
+.security-maker-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 2000;
+}
+
+.security-maker-popup-overlay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.security-maker-popup-container {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 850px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.security-select-approver-btn {
+  background: #f8f9ff;
+  border: 1px solid #e0e7ff;
+  color: #5977f8;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.security-select-approver-btn:hover {
+  background: #f0f4ff;
+  border-color: #c7d2fe;
+}
+
+/* ================= ASSIGN CARD ================= */
+/* Set to 100% width always */
+.security-maker-assignCard {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  width: 100%;
+}
+
+/* ================= ENTERPRISE FORM STYLES ================= */
+.security-maker-form-section {
+  background: #ffffff;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.security-maker-section-title {
+  font-size: 13px;
+  color: #3A466D;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.security-maker-select {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #3A466D;
+  padding: 0 12px;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+.security-maker-select:focus {
+  border-color: #5977F8;
+}
+
+.security-maker-assignCard-body {
+  margin: 15px;
+}
+
+.security-maker-assignCard-title {
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.security-maker-assignCard-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #A29CC1;
+  margin: 0;
+}
+
+.security-maker-assignCard-illustration {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .security-maker-assignCard-illustration {
+    display: block;
+  }
+}
+
+/* ================= PANEL & FILTERS ================= */
+.security-maker-panel {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  padding: 1rem !important;
+
+}
+
+.security-maker-filtersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.security-maker-filterCol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  /* Allow shrinking if needed */
+}
+
+/* Ensure the manual dropdown trigger behaves */
+.security-maker-filterCol .custom-dropdown-container {
+  width: 100px !important;
+}
+
+.security-maker-filterCol .custom-dropdown-trigger {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 35px !important;
+  min-width: 0;
+  gap: 12px;
+  border-radius: 6px !important;
+  overflow: hidden;
+}
+
+.security-maker-filterCol .dropdown-arrow-icon {
+  width: 10px !important;
+  height: 6px !important;
+  flex-shrink: 0;
+}
+
+/* Remove dropdown shadow for security module only */
+.security-maker-wrapper .custom-dropdown-menu,
+.security-maker-assign-task-page .custom-dropdown-menu {
+  box-shadow: none !important;
+  border: 1px solid #e0e7ff !important;
+}
+
+.security-maker-filterInput {
+  font-size: 11px;
+  color: #3A466D;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  height: 32px;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.security-maker-button {
+  border-radius: 7px;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  width: 120px;
+  height: 32px;
+  font-weight: 500;
+}
+
+/* ================= SUMMARY CARDS ================= */
+.security-summary-card {
+  flex: 1;
+  text-align: center;
+  padding: 1rem !important;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.security-summary-card h4 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.security-summary-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.security-summary-card--pending {
+  background: #ffffff;
+  border: 1px solid #e0e4ed
+}
+
+.security-summary-card--pending h4,
+.security-summary-card--pending p {
+  color: #3A466D;
+}
+
+.security-summary-card--approved {
+  background: #ffffff;
+  border: 1px solid #e0e4ed
+}
+
+.security-summary-card--approved h4,
+.security-summary-card--approved p {
+  color: #3A466D;
+}
+
+.security-summary-card--rejected {
+  background: #ffffff;
+  border: 1px solid #e0e4ed
+}
+
+.security-summary-card--rejected h4,
+.security-summary-card--rejected p {
+  color: #3A466D;
+}
+
+.security-create-button {
+  border-radius: 7px;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  width: 120px;
+  height: 32px;
+  font-weight: 500;
+  margin-right: 20px;
+  background: #5977F8;
+  color: #ffffff;
+}
+
+.security-maker-button-primary {
+  background: #dbe8ff;
+  color: #5977F8;
+}
+
+.security-maker-button-search {
+  background: var(--security-maker-primary);
+  color: white;
+}
+
+.security-maker-button-cancel {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* ================= TABS ================= */
+.security-maker-statusTabsWrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.security-maker-statusTabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  min-width: max-content;
+  justify-content: center;
+}
+
+.security-maker-statusTab {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: #77728E;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.security-maker-statusTab-active {
+  background: #5977F8 !important;
+  color: #ffffff !important;
+  padding: 5px 20px;
+}
+
+/* ================= TABLE ================= */
+.security-maker-tableCard {
+  background-color: #fbfcff;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.security-maker-table {
+  display: table;
+  width: 100%;
+}
+
+.security-maker-tableHeader {
+  display: grid;
+  grid-template-columns: 40px 95px 130px 110px 110px 295px 90px 80px 85px 125px;
+  gap: 12px;
+  padding: 8px 15px;
+  background: #F6F6F6;
+  font-size: 12px;
+  color: #77728E;
+  font-weight: 500;
+  border-top: 1px solid #F1F5F9;
+  border-bottom: 1px solid #F1F5F9;
+  align-items: center;
+}
+
+.security-maker-tableEmpty {
+  width: 100%;
+  text-align: center;
+  padding: 40px 20px !important;
+  font-size: 14px;
+  color: #77728e;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f3f4fe;
+}
+
+/* ================= ASSIGN TASK FORM (StateAssign) ================= */
+.security-maker-assign-task-page {
+  background: transparent;
+}
+
+.security-maker-assign-task-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.security-maker-task-header {
+  /* border-bottom: 1px solid #f0f0f0; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px 0 !important;
+}
+
+.img-fluid {
+  height: 150px;
+  width: 150px;
+  margin-right: 10px;
+}
+
+.security-maker-task-body {
+  background-color: #f6f6f6 !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin: 5px 20px 15px 20px !important;
+  flex: 1;
+  overflow: visible !important;
+}
+
+.security-maker-members-panel {
+  width: 300px;
+  min-width: 300px;
+  border-right: 1px solid #f0f0f0;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.security-maker-searchFilter {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.security-maker-assign-task-page.inline-mode {
+  border: none;
+  box-shadow: none;
+  border-radius: 10px;
+}
+
+
+
+.security-maker-assign-task-page.inline-mode .security-maker-task-body {
+  background-color: #f6f6f6 !important;
+  margin: 15px 0 !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+}
+
+.security-maker-inline-form-container {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.security-maker-searchBox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 5px 9px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.security-maker-searchBox input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  color: #77728E;
+}
+
+.security-maker-members-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.security-approver-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 12px !important;
+  width: 100%;
+}
+
+.security-maker-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.security-maker-member:hover {
+  background: #f8f9fa;
+}
+
+.security-maker-member.selected {
+  background: #f8f9fa;
+}
+
+.security-maker-member-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+}
+
+.security-maker-member-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.security-maker-member-name {
+  margin: 0 !important;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3a466d;
+  line-height: 1.1;
+}
+
+.security-maker-member-role {
+  margin: 1px 0 0 0 !important;
+  font-size: 10px;
+  color: #868585;
+  text-transform: capitalize;
+  line-height: 1;
+}
+
+.security-maker-task-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+  /* Reduced from 15px */
+}
+
+.security-maker-customDropdown-field.custom-dropdown-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 40px !important;
+  z-index: 100 !important;
+  position: relative !important;
+}
+
+.security-maker-customDropdown-field .custom-dropdown-trigger {
+  width: 100% !important;
+  height: 40px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  transition: border-color 0.2s !important;
+}
+
+.security-maker-customDropdown-field .custom-dropdown-trigger:hover {
+  border-color: #5977f8 !important;
+}
+
+.security-maker-customDropdown-field .custom-dropdown-trigger span {
+  font-size: 13px !important;
+  color: #334155 !important;
+}
+
+.security-maker-form-group {
+  position: relative;
+}
+
+.security-maker-form-group label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 15px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #BBBBBB;
+}
+
+.security-maker-task-form>.form-row:first-child .security-maker-form-group label {
+  margin-top: 0px;
+}
+
+.security-maker-form-group input,
+.security-maker-form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #334155;
+  transition: border-color 0.2s;
+}
+
+.security-maker-form-group input {
+  height: 40px;
+}
+
+.security-maker-form-group input:focus,
+.security-maker-form-group textarea:focus {
+  border-color: #5977f8;
+  outline: none;
+}
+
+.security-maker-form-group .custom-dropdown-container {
+  font-size: 13px !important;
+}
+
+.security-maker-form-group .custom-dropdown-trigger span {
+  font-size: 13px !important;
+  color: rgb(162, 156, 193) !important;
+}
+
+.security-maker-form-group .custom-dropdown-option {
+  font-size: 13px !important;
+  padding: 10px 12px !important;
+}
+
+
+.security-maker-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.form-row {
+  display: flex;
+  /* gap: 50px; */
+}
+
+.security-file-input-wrapper {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  height: 40px;
+  overflow: hidden;
+}
+
+.security-file-input-wrapper input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.security-file-count {
+  font-size: 13px;
+  color: #A29CC1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.security-file-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #334155;
+}
+
+.security-file-pill .file-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.security-file-pill.expired {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.security-file-pill .expired-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #ef4444;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.security-file-pill .file-view-link {
+  display: flex;
+  align-items: center;
+  color: #5977f8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.security-file-pill .file-view-link:hover {
+  color: #3b5bdb;
+}
+
+@media (max-width: 576px) {
+  /* .security-maker-task-form {
+    padding: 12px !important;
+  } */
+
+  .security-maker-form-group {
+    margin-bottom: 5px !important;
+  }
+
+  .security-maker-form-actions {
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px !important;
+  }
+
+  .security-maker-btn-cancel,
+  .security-maker-btn-create {
+    width: 100% !important;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 1px !important;
+    margin-bottom: 0px !important;
+  }
+
+  .security-maker-form-group.date-field input {
+    width: 100% !important;
+  }
+}
+
+/* Approver Selection */
+.security-approver-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  min-height: 32px;
+}
+
+.security-approver-title {
+  font-size: 14px;
+  font-weight: 400;
+  color: #BBBBBB;
+  margin: 10px 0 0 0;
+  line-height: 1.2;
+}
+
+.security-approver-search-input {
+  width: 160px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e0e7ff;
+  font-size: 12px;
+  outline: none;
+  background: #f8f9fa;
+  min-width: 0;
+}
+
+.security-selected-approver-card {
+  display: flex;
+  align-items: center;
+  background: #eff5fc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  gap: 10px;
+  width: fit-content;
+  min-width: 220px;
+  position: relative;
+}
+
+.security-approver-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.security-approver-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+@media (max-width: 576px) {
+  .security-approver-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .security-approver-search-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .security-approver-search-input {
+    flex: 1 !important;
+    width: auto !important;
+    padding-right: 35px !important;
+  }
+
+  .security-approver-close-btn {
+    position: absolute !important;
+    right: 5px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10;
+  }
+
+  .security-selected-approver-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .security-maker-members-list .security-approver-grid {
+    grid-template-columns: repeat(1, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .security-maker-member {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+  }
+}
+
+
+
+/* ================= INTEGRATED APPROVER SELECT ================= */
+.security-maker-approver-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  margin-bottom: 15px;
+  transition: all 0.2s;
+}
+
+.security-maker-approver-section:hover {
+  border-color: #cbd5e1;
+}
+
+.security-maker-approver-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.security-maker-approver-label {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.security-maker-btn-select-approver {
+  background: #dbe8ff;
+  color: #5977F8;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.security-maker-btn-select-approver:hover {
+  background: #cddfff;
+}
+
+.security-maker-approver-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8faff;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #dbe8ff;
+}
+
+.security-maker-approver-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.security-maker-approver-info {
+  flex: 1;
+}
+
+.security-maker-approver-name {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 600;
+  margin: 0;
+}
+
+.security-maker-approver-role {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.security-maker-approver-search-container {
+  margin-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 10px;
+}
+
+.security-maker-approver-list {
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.security-maker-approver-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.security-maker-approver-item:hover {
+  background: #f1f5f9;
+}
+
+
+/* ================= DETAILS MODAL (SecurityModels) ================= */
+.security-maker-details-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.security-maker-details-container {
+  background: #ffffff;
+  border-radius: 8px;
+  width: min(900px, 95%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 5px;
+  position: relative;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.header-ticket-id {
+  font-size: 16px;
+  color: #5977F8;
+  font-weight: 700;
+}
+
+
+
+/* ================= DETAILS MODAL COMPONENTS ================= */
+.security-maker-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 15px;
+}
+
+
+
+.security-maker-details-options-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+}
+
+.security-maker-details-body {
+  display: flex;
+  margin: 0 8px 8px 8px;
+  padding: 0;
+  gap: 5px;
+  background-color: #f6f6f6;
+  border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+  .security-maker-details-body {
+    flex-direction: column;
+    margin: 0 4px 4px 4px;
+  }
+
+  .header-title-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .security-maker-details-header {
+    padding: 10px 15px;
+  }
+
+  .security-maker-details-assigned-panel {
+    flex: none !important;
+    width: 100% !important;
+    padding: 15px !important;
+  }
+
+  .security-maker-details-divider {
+    width: 100% !important;
+    height: 1px !important;
+    margin: 0 !important;
+  }
+
+  .security-maker-details-info-panel {
+    padding: 15px !important;
+  }
+
+  .security-maker-details-info-row {
+    gap: 15px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .security-maker-details-info-stat {
+    min-width: 45% !important;
+  }
+}
+
+.security-maker-details-assigned-panel {
+  flex: 0 0 250px;
+  padding: 10px 15px;
+}
+
+.security-maker-details-section-label {
+  color: #868585;
+  font-size: 12px;
+  margin-bottom: 10px;
+  font-weight: 400;
+  display: block;
+  line-height: 100%;
+}
+
+.security-maker-details-member-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.security-maker-details-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.security-maker-details-member-info {
+  flex-grow: 1;
+}
+
+.security-maker-details-member-name {
+  font-weight: 500;
+  color: #3a466d;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.security-maker-details-member-role {
+  font-size: 12px;
+  color: #77728e;
+  font-weight: 400;
+}
+
+.security-maker-details-horizontal-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #e8ebf3;
+  margin: 12px 0;
+}
+
+.security-maker-details-divider {
+  width: 1px;
+  background-color: #e1e1e1;
+  align-self: stretch;
+  margin: 12px 0;
+}
+
+.security-maker-details-info-panel {
+  flex-grow: 1;
+  min-width: 0;
+  padding: 10px 15px;
+}
+
+.security-maker-details-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 25px;
+  padding: 10px 5px 0;
+}
+
+.security-maker-details-info-stat {
+  flex: 1;
+  min-width: 120px;
+}
+
+.security-maker-details-info-stat label {
+  display: block;
+  font-size: 12px;
+  color: #868585;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+
+.security-maker-details-value {
+  color: #3a466d;
+  font-size: 14px;
+  word-break: break-word;
+  font-weight: 400;
+}
+
+.security-maker-details-content {
+  margin-bottom: 20px;
+}
+
+.security-maker-details-task-title {
+  color: #3A466D;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.security-maker-details-task-desc {
+  font-size: 12px;
+  color: #3a466d;
+  font-weight: 400;
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.security-maker-details-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 14px;
+}
+
+.security-maker-details-btn-cancel {
+  background: #bfbfbf;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  height: 38px;
+  width: 110px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================= SLIDE-OVER PANEL STYLES ================= */
+.security-maker-slideover-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1050;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.security-maker-slideover-panel {
+  background: #ffffff;
+  width: 100%;
+  max-width: 800px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.security-maker-slideover-header {
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f8fafc;
+}
+
+.security-maker-slideover-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.security-maker-slideover-ticket {
+  font-size: 14px;
+  color: #64748b;
+  font-family: monospace;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.security-maker-slideover-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.security-maker-slideover-close:hover {
+  color: #0f172a;
+}
+
+.security-maker-slideover-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- Enterprise Badges --- */
+.security-maker-badge-emergency {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+.security-maker-badge-env,
+.security-maker-badge-risk,
+.security-maker-badge-priority {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.env-production {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.env-staging {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.env-uat {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.env-dev {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.risk-critical {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.risk-high {
+  background: #b91c1c;
+  color: #fee2e2;
+}
+
+.risk-medium {
+  background: #d97706;
+  color: #fef3c7;
+}
+
+.risk-low {
+  background: #059669;
+  color: #d1fae5;
+}
+
+.security-maker-badge-priority {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.common-modal-btn {
+  margin-right: 20px !important;
+}
+
+.modal-footer {
+  gap: 10px !important;
+  display: flex !important;
+  justify-content: center !important;
+
+}
+
+@media (max-width: 576px) {
+  .modal-footer {
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+}
+
+.security-maker-assign-task-container .modal-footer {
+  justify-content: flex-end !important;
+}
+
+.security-maker-members-list-container {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+.security-maker-dropdown-list-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-top: 8px !important;
+}
+
+.common-modal-btn.security-select-approver-btn {
+  padding: 5px 12px !important;
+  background: #f0f4ff !important;
+  color: #5977f8 !important;
+  border: 1px solid #d0d7ff !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  margin-top: 20px !important;
+  display: inline-block !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.common-modal-btn.security-select-approver-btn:hover {
+  background: #e0e8ff !important;
+  border-color: #b0c0ff !important;
+}
+
+/* ── Filter Panel ────────────────────────────────────────────────── */
+.btn-filter-toggle {
+
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-filter-toggle .filter-icon {
+  width: 25px;
+  height: 25px;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.btn-filter-toggle:hover {
+  background: #ffffff;
+  border-radius: 6px;
+  border-color: #CBD5E0;
+}
+
+.btn-filter-toggle.active {
+  background: #ffffff;
+  border-color: #5977F8;
+  border-radius: 6px;
+}
+
+.security-filter-panel {
+  background: #F6F6F6;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.security-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 992px) {
+  .security-filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .security-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.security-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.security-filter-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #868585;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.security-filter-input,
+.security-filter-select {
+  height: 35px;
+  padding: 4px 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #77728E;
+  outline: none;
+  background-color: #fff;
+  transition: all 0.15s ease;
+}
+
+.security-filter-input:focus,
+.security-filter-select:focus {
+  border-color: #5977F8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15);
+}
+
+.security-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.security-filter-btn-clear {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #CBD5E0;
+  background: #fff;
+  color: #4A5568;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.security-filter-btn-clear:hover {
+  background: #F7FAFC;
+}
+
+.security-filter-btn-apply {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  background: #5977F8;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.security-filter-btn-apply:hover {
+  background: #4361EE;
+}
+
+/* ================= CUSTOM DATE PICKER ================= */
+.security-custom-date-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  border: 1px solid #B0ABC0;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 120px;
+  background: #ffffff;
+}
+
+.security-custom-date-picker.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.security-custom-date-picker .security-date-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.security-date-text {
+  font-size: 11px;
+  color: #334155;
+  user-select: none;
+}
+
+.security-date-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #334155;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+  cursor: text;
+}
+
+.security-date-input::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+.security-date-text {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  font-weight: 400;
+  color: #7A758F;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.security-calendar-icon {
+  width: 12px;
+  height: 12px;
+  pointer-events: auto;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ================= FILTER PANEL CUSTOM DATE PICKERS ================= */
+.security-filter-custom-date-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 35px;
+  padding: 4px 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #fff;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.security-filter-custom-date-picker:focus-within {
+  border-color: #5977F8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15);
+}
+
+.security-filter-custom-date-picker.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: #f7fafc;
+}
+
+/* Make Create Security Request buttons horizontal and equal width on viewports 576px to 481px */
+@media (max-width: 576px) and (min-width: 481px) {
+  .security-maker-assign-task-container .modal-footer {
+    flex-direction: row !important;
+    display: flex !important;
+    gap: 12px !important;
+    width: 100% !important;
+    padding: 10px 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  .security-maker-assign-task-container .modal-footer .common-modal-btn {
+    flex: 1 1 0% !important;
+    width: auto !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* ================= RESPONSIVE CREATE BUTTONS ================= */
+.security-responsive-btn {
+  width: auto !important;
+  min-width: 140px !important;
+  height: 36px !important;
+  font-size: 13px !important;
+}
+
+@media (max-width: 992px) {
+  .security-responsive-btn {
+    min-width: 160px !important;
+    height: 38px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .security-responsive-btn {
+    width: 100% !important;
+    height: 42px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ================= CUSTOM CALENDAR PICKER AND HOVER EFFECTS ================= */
+.security-maker-form-group.title-field {
+  flex: 1;
+}
+
+.security-maker-form-group.date-field {
+  flex: 0 0 180px;
+  position: relative;
+}
+
+@media (max-width: 576px) {
+  .security-maker-form-group.date-field {
+    flex: 1;
+  }
+}
+
+.security-maker-form-group.date-field input[type="date"] {
+  position: relative;
+  padding-right: 40px;
+}
+
+.security-maker-form-group.date-field input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.security-dropdown-member-row {
+  transition: background-color 0.2s;
+}
+
+.security-dropdown-member-row:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.security-dropdown-trigger-input {
+  width: 100%;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 13px;
+  color: #A29CC1;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.security-dropdown-trigger-input:hover {
+  border-color: #5977f8;
+}
+
+.security-dropdown-trigger-input.active {
+  border-color: #5977f8 !important;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15) !important;
+}
+
+/* Override CustomDropdown styles in collapsible Filter Panel to match standard input fields */
+.security-filter-field .custom-dropdown-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 38px !important;
+}
+
+.security-filter-field .custom-dropdown-trigger {
+  width: 100% !important;
+  height: 35px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  font-size: 13px !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  transition: border-color 0.15s ease !important;
+}
+
+.security-filter-field .custom-dropdown-trigger:hover {
+  border-color: #5977F8 !important;
+}
+
+.security-filter-field .custom-dropdown-trigger span {
+  font-size: 13px !important;
+  color: #2D3748 !important;
+}
+
+/* ===================================================
+   StateAssign.jsx — Extracted Inline Styles
+   =================================================== */
+
+/* Task body */
+.security-maker-task-body {
+  overflow: visible;
+}
+
+/* Due Date wrapper */
+.security-maker-due-date-wrapper {
+  position: relative;
+}
+
+/* Calendar icon inside Due Date */
+.security-maker-calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+/* Description form-group spacing */
+.security-maker-form-group--description {
+  margin-bottom: 15px;
+}
+
+/* Description textarea min height */
+.security-maker-form-group--description textarea {
+  min-height: 90px;
+}
+
+/* Description optional asterisk */
+.security-maker-required-asterisk {
+  color: #e53e3e;
+}
+
+/* Approver + CC row */
+.security-maker-approver-row {
+  align-items: flex-start !important;
+  border-top: none !important;
+}
+
+/* Individual Approver / CC form group (flex 1, relative positioned) */
+.security-maker-form-group--flex-relative {
+  flex: 1;
+  position: relative;
+  align-self: flex-start !important;
+}
+
+/* Selected approvers/CC grid — 3 columns */
+.security-maker-selected-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Individual selected approver/CC card overrides */
+.security-selected-approver-card--compact {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  gap: 6px;
+}
+
+/* Avatar inside selected card */
+.security-maker-card-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+/* Text container inside selected card */
+.security-maker-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Name inside selected card */
+.security-maker-card-name {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #3a466d;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Role inside selected card */
+.security-maker-card-role {
+  margin: 1px 0 0 0;
+  font-size: 9px;
+  color: #868585;
+  text-transform: capitalize;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Remove button inside selected card */
+.security-maker-card-remove-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Dropdown list outer container (absolute positioned) */
+.security-maker-dropdown-list-container {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  top: 100%;
+  left: 0;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Dropdown inner scrollable list */
+.security-maker-dropdown-list-inner {
+  max-height: 250px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Search wrapper inside dropdown */
+.security-dropdown-search-wrapper--inner {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Search input inside dropdown */
+.security-dropdown-search-inner-input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+/* Close button inside dropdown search bar */
+.security-dropdown-close-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+/* Member row in the dropdown list */
+.security-dropdown-member-row--styled {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8fafc;
+}
+
+/* Inner flex div for avatar + text in member row */
+.security-dropdown-member-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Avatar in member row */
+.security-dropdown-member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Member name in dropdown row */
+.security-dropdown-member-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a466d;
+  line-height: 1.2;
+}
+
+/* Member role in dropdown row */
+.security-dropdown-member-role {
+  margin: 0;
+  font-size: 11px;
+  color: #868585;
+  text-transform: capitalize;
+  line-height: 1.1;
+}
+
+/* Plus icon in member row */
+.security-dropdown-member-plus {
+  font-size: 18px;
+  color: #94a3b8;
+  font-weight: 300;
+}
+
+/* Trigger Down Arrow icon */
+.security-maker-trigger-arrow {
+  width: 18px;
+
+}
+
+/* Request Type + File Upload row */
+.security-maker-request-file-row {
+  margin-bottom: 15px;
+}
+
+/* flex-1 form groups inside rows */
+.security-maker-form-group--flex {
+  flex: 1;
+}
+
+/* Conditional fields section box */
+.security-maker-conditional-box {
+  background: #f8f9ff;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+/* Conditional fields section heading */
+.security-maker-conditional-heading {
+  font-size: 10px;
+  color: #5977f8;
+  font-weight: 600;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Modal footer overrides */
+.security-maker-modal-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 0 0 0 !important;
+  border-top: none !important;
+  background: transparent !important;
+}
+
+@media (max-width: 576px) {
+  .security-maker-modal-footer {
+    justify-content: center !important;
+    padding-right: 0 !important;
+  }
+
+  .security-maker-modal-footer .common-modal-btn {
+    width: auto !important;
+    flex: 1;
+    margin: 0 !important;
+  }
+}
+
+/* Custom Prompt Modal Overlay */
+.security-maker-custom-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* Custom Prompt Modal Box */
+.security-maker-custom-prompt-modal {
+  background: #fff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom Prompt heading */
+.security-maker-prompt-heading {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Custom Prompt input */
+.security-maker-prompt-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+/* Custom Prompt buttons row */
+.security-maker-prompt-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Custom Prompt Cancel button */
+.security-maker-prompt-btn-cancel {
+  padding: 5px 14px;
+  font-size: 13px;
+  background: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Custom Prompt OK button */
+.security-maker-prompt-btn-ok {
+  padding: 5px 14px;
+  font-size: 13px;
+  background: #665cd7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Responsive: collapse 3-col selected grid to 1-col on mobile */
+@media (max-width: 576px) {
+  .security-maker-selected-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .security-maker-selected-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.security-menu-access-close-x {
+  position: absolute !important;
+  top: 10px !important;
+  right: 15px !important;
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: none !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.security-menu-access-close-x:hover {
+  color: #1e293b !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.security-menu-access-dropdown .custom-dropdown-trigger {
+  height: 35px !important;
+}
+
+@media (max-width: 768px) {
+  .security-maker-dropdown-list-container {
+    min-width: 280px !important;
+    width: auto !important;
+  }
+
+  .security-dropdown-member-name {
+    white-space: nowrap !important;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+  .security-maker-approver-row {
+    flex-direction: row !important;
+    display: flex !important;
+    gap: 20px !important;
+  }
+
+  .security-maker-approver-row .security-maker-form-group--flex-relative {
+    flex: 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .security-maker-task-form .form-row,
+  .form-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 0px !important;
+  }
+
+  .security-maker-form-group {
+    margin-bottom: 10px !important;
+  }
+
+  .security-maker-form-group.title-field,
+  .security-maker-form-group.date-field {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .security-maker-form-group.date-field input {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .security-maker-details-footer {
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+    padding-top: 10px !important;
+  }
+
+  .security-maker-details-footer .common-modal-btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .security-maker-task-header .common-modal-close-x,
+  .security-maker-details-header .common-modal-close-x {
+    position: static !important;
+  }
+}
+
+/* ================= DOWNLOAD EXPORT PANEL ================= */
+.download-dropdown-panel {
+  position: absolute;
+  top: 105%;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  padding: 20px 16px;
+  width: 180px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.download-dropdown-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4A5568;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  border-bottom: 1px solid #EDF2F7;
+  padding-bottom: 6px;
+}
+
+.download-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #2D3748;
+  user-select: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.download-checkbox-label:hover {
+  color: #5977F8;
+}
+
+.download-checkbox {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid #CBD5E0;
+  border-radius: 4px;
+  cursor: pointer;
+  accent-color: #5977F8;
+}
+
+.download-checkbox-text {
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.download-export-btn {
+  background-color: #5977F8;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: center;
+  margin-top: 6px;
+  box-shadow: 0 4px 6px -1px rgba(89, 119, 248, 0.2);
+}
+
+.download-export-btn:hover {
+  background-color: #4361EE;
+  box-shadow: 0 6px 8px -1px rgba(89, 119, 248, 0.3);
+}
+
+.download-export-btn:active {
+  transform: scale(0.98);
+}

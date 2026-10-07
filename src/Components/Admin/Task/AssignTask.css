@@ -1,0 +1,2079 @@
+/* ================= ASSIGN TASK POPUP STYLES ================= */
+.assign-task-page {
+  border-radius: 12px;
+  background: #fff;
+  /* overflow:hidden removed — it clips header dropdowns */
+}
+
+.assign-task-container {
+  padding: 15px 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= HEADER ================= */
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: sticky;
+  top: -15px;
+  background: #ffffff;
+  z-index: 200;
+
+  padding-bottom: 10px;
+  border-bottom: none;
+  overflow: visible;
+  /* allow dropdown to escape */
+}
+
+/* Container for the Category + Project buttons on the right */
+.atMeta__headerBtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.assign-title {
+  font-size: 16px;
+  color: #3a466d;
+  font-weight: 500;
+  line-height: 100%;
+  margin: 0;
+}
+
+.at-close-btn {
+  background: none;
+  border: none;
+  color: #3b3c58;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.at-close-btn:hover {
+  background: #f0f0f0;
+  color: #3b3c58;
+}
+
+.at-close-btn img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+  color: #3b3c58;
+}
+
+.task-body {
+
+  background-color: #F6F6F6;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ================= LEFT PANEL (Members) ================= */
+.members-panel,
+.hrms-common-label {
+  width: 280px;
+  min-width: 280px;
+  border-right: 1px solid #eef0f6;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.members-panel span,
+.hrms-common-label>span {
+  display: block;
+  font-size: 11px;
+  color: #868585;
+  font-weight: 500;
+  margin-bottom: 6px;
+  line-height: 100%;
+  letter-spacing: 0.5px;
+}
+
+/* ===== SEARCH + FILTER WRAPPER ===== */
+.adminAssignTask__searchFilter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+/* ===== SEARCH BOX — full-width with icon inside ===== */
+.adminAssignTask__searchFilter .form-group {
+  flex: 1;
+  position: relative;
+  margin-bottom: 0;
+}
+
+.adminAssignTask__searchFilter .form-group input[type="text"] {
+  width: 100%;
+  padding: 7px 10px 7px 32px;
+
+  border-radius: 5px;
+  background: #fff;
+  font-size: 12px !important;
+  color: #77728E;
+  font-weight: 400;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.adminAssignTask__searchFilter .form-group input[type="text"]:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.adminAssignTask__searchFilter .form-group input[type="text"]::placeholder {
+  color: #b0b8cc;
+  font-size: 12px;
+}
+
+/* Search icon positioned inside the input on the left */
+.adminAssignTask__searchFilter .form-group img {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ===== FILTER BUTTON ===== */
+.adminAssignTask__filterBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1.5px solid #e4e8f0;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.adminAssignTask__filterBtn:hover {
+  border-color: #5977f8;
+  background: #eef2ff;
+}
+
+.adminAssignTask__filterBtn img {
+  height: 16px;
+  width: 16px;
+}
+
+.adminAssignTask__filterBtn span {
+  font-size: 11px;
+  color: #868585;
+}
+
+/* Members List */
+.members-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 3px;
+
+}
+
+.members-list::-webkit-scrollbar {
+  width: 2px;
+}
+
+.members-list::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 4px;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 5px;
+  padding-right: 5px;
+  padding-left: 4px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.member:hover {
+  background: #f8f9fa;
+}
+
+.member.selected {
+  background: #ffffff;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  margin: 0;
+  color: #3A466D;
+  /* font-family: 'Gilroy-Medium'; */
+  font-size: 12px;
+  margin-bottom: 3px;
+  line-height: 190%;
+
+}
+
+.member-role {
+  margin: 0;
+  font-size: 11px;
+  color: #77728E;
+  /* font-family: 'Gilroy-Regular'; */
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 1;
+  align-items: center;
+}
+
+.member-action {
+  color: #000000;
+  height: 15px;
+  width: 16px;
+  transition: color 0.1s;
+}
+
+.member:hover .member-action {
+  color: #000000;
+}
+
+.member.selected .member-action {
+  color: #000000;
+}
+
+/* ================= RIGHT FORM ================= */
+.task-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 18px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+
+}
+
+.form-group label {
+  display: block;
+  font-size: 10px;
+  color: #868585;
+  margin-bottom: 6px;
+  /* font-family: 'Gilroy-Regular'; */
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 1;
+  align-items: center;
+  font-weight: 500;
+}
+
+/* Upload outer box */
+.file-item {
+  display: block;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Upload button style */
+.attach-upload {
+  display: flex;
+  justify-content: center;
+  /* center horizontally */
+  align-items: center;
+  /* center vertically */
+  gap: 8px;
+
+  height: 30px;
+
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Hover effect */
+.attach-upload:hover {
+  background: #eef2ff;
+}
+
+/* Icon size */
+.attach-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.form-group input,
+.dwu-modal-title-main,
+.form-group select {
+  width: 100%;
+  padding: 3px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 11px;
+  color: #77728E;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.form-group input::placeholder,
+.dwu-modal-title-main::placeholder {
+  color: #77728E;
+  /* change any color you want */
+  font-size: 12px;
+  opacity: 1;
+
+  /* font-family: 'Gilroy-Regular'; */
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 1;
+  /* important for full color */
+}
+
+.form-group input:focus,
+.dwu-modal-title-main:focus,
+.form-group select:focus {
+  border-color: #868585;
+}
+
+.dwu-modal-title-main {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  /* Elegant horizontal gap on desktop */
+  align-items: flex-end;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.at-priority-group {
+  flex: 1 !important;
+  width: auto !important;
+}
+
+.atMeta__priorityDrop {
+  width: 100% !important;
+}
+
+/* wrapper */
+.assign-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* real dropdown */
+.assign-select {
+  width: 150px !important;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* placeholder style */
+.assign-select:invalid {
+  color: #9ca3af;
+}
+
+/* icon */
+.assign-select-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 6px;
+  pointer-events: none;
+}
+
+
+.date-input {
+  position: relative;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #adb5bd;
+}
+
+/* ── Attachment Section ── */
+.file-item-trigger {
+  display: block;
+  cursor: pointer;
+}
+
+.attach-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border: 1.5px dashed #e2e8f0;
+  border-radius: 8px;
+  color: #5977f8;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+.attach-upload-row:hover {
+  background: #eef2ff;
+  border-color: #5977f8;
+}
+
+.attach-upload-row img {
+  width: 16px;
+  height: 16px;
+}
+
+.uploaded-files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.uploaded-file-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.uploaded-file-card:hover {
+  border-color: #5977f8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.uploaded-file-card .file-name {
+  flex: 1;
+  font-size: 11px;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-remove-btn {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-remove-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+
+.date-inputsbut {
+  position: relative;
+  width: 150px;
+}
+
+/* hide native icon */
+.custom-date {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 30px;
+  /* space for icon */
+}
+
+/* custom icon */
+.date-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  z-index: 5;
+  /* IMPORTANT */
+}
+
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 20px;
+  /* border-top: 1px solid #f0f0f0; */
+}
+
+.btn-cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 8px 20px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-create {
+  background: #5977f8;
+  color: #fff;
+  border: none;
+  padding: 8px 24px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.2);
+}
+
+.btn-create:hover {
+  background: #4b66de;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(89, 119, 248, 0.3);
+}
+
+
+
+.btn-create:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 600px) {
+  .task-body {
+    flex-direction: column;
+  }
+
+  .members-panel {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding-right: 0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+/* ================================================================
+   PASTE THESE AT THE BOTTOM OF YOUR EXISTING AssignTask.css
+   All existing styles remain unchanged — only new classes added
+   ================================================================ */
+
+/* ── Filter button active state ──────────────────────────────── */
+.atFilter--active {
+  background: #eef2ff !important;
+}
+
+.atFilter--active span {
+  color: #5977f8 !important;
+}
+
+/* ── Filter popup container ───────────────────────────────────── */
+.atFilter__popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 260px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  padding: 14px 12px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Section label inside popup ───────────────────────────────── */
+.atFilter__sectionLabel {
+  margin: 0 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+  color: #77728E;
+}
+
+/* ── Department pill tabs row ─────────────────────────────────── */
+.atFilter__deptRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.atFilter__deptTab {
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #e9ecef;
+  background: #f6f6f6;
+  font-size: 11px;
+  color: #77728E;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.atFilter__deptTab:hover {
+  background: #eef2ff;
+  border-color: #c7d0fd;
+  color: #5977f8;
+}
+
+.atFilter__deptTab.active {
+  background: #5977f8;
+  border-color: #5977f8;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ── Divider inside popup ─────────────────────────────────────── */
+.atFilter__divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 2px 0;
+}
+
+/* ── Employee list inside popup (same card format, scrollable) ── */
+.atFilter__empList {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* reuse the existing thin scrollbar from .members-list */
+}
+
+.atFilter__empList::-webkit-scrollbar {
+  width: 2px;
+}
+
+.atFilter__empList::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 4px;
+}
+
+/* 
+  The employee cards inside the popup use the EXACT SAME
+  .member, .member-avatar, .member-info, .member-name,
+  .member-role, .member-action classes from your existing CSS.
+  No new card styles needed.
+*/
+
+/* ── Hint text when nothing to show ──────────────────────────── */
+.atFilter__hint {
+  font-size: 11px;
+  color: #aaa;
+  margin: 4px 0 0;
+  padding: 4px 2px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   CATEGORY / PROJECT BUTTON-TRIGGERED DROPDOWN POPUP
+══════════════════════════════════════════════════════════ */
+
+/* Row that holds the two trigger buttons side-by-side */
+.atMeta__btnRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+/* Wrapper — relative position so the dropdown can be absolute */
+.atMeta__dropWrapper {
+  position: relative;
+}
+
+/* Specific styling for when used as a form field row */
+.atMeta__formField {
+  width: 100%;
+}
+
+.atMeta__formField .atMeta__triggerBtn {
+  width: 100%;
+  height: 32px;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 5px;
+  border-color: #e2e8f0;
+  padding: 0 10px;
+}
+
+.atMeta__formField .atMeta__dropdown {
+  right: auto;
+  left: 0;
+  width: 100%;
+}
+
+/* Trigger button */
+.atMeta__triggerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f6f6f6;
+  font-size: 11px;
+  font-weight: 500;
+  color: #3a466d;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.atMeta__triggerBtn:hover {
+  border-color: #c7d0fd;
+  background: #eef2ff;
+  color: #5977f8;
+}
+
+/* Active trigger (has selections) */
+.atMeta__triggerBtn--active {
+  border-color: #5977f8;
+  background: #eef2ff;
+  color: #5977f8;
+}
+
+/* ── Inline Add Row (Used in AssignTask) ── */
+.atMeta__tinyAddBtn {
+  background: #f0f4ff;
+  color: #5977f8;
+  border: 1px solid #c7d0fd;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+
+.atMeta__tinyAddBtn:hover {
+  background: #5977f8;
+  color: #fff;
+}
+
+.atMeta__inlineAdd {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.atMeta__inlineAdd .atMeta__addInput {
+  flex: 1;
+  height: 32px !important;
+  font-size: 12px !important;
+  padding: 0 10px !important;
+  border: 1px solid #5977f8 !important;
+}
+
+.atMeta__inlineAdd .atMeta__saveBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #5977f8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.atMeta__inlineAdd .atMeta__saveBtn:hover {
+  background: #4b66de;
+  box-shadow: 0 2px 8px rgba(89, 119, 248, 0.3);
+}
+
+.atMeta__inlineAdd .atMeta__addConfirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.atMeta__customDrop {
+  width: 100%;
+}
+
+.atMeta__shortGroup {
+  width: 150px !important;
+  flex: none !important;
+}
+
+.atMeta__customDrop .custom-dropdown-trigger {
+  background: #fff !important;
+  border-color: #e2e8f0 !important;
+  height: 31px;
+}
+
+.atMeta__customDrop .custom-dropdown-trigger:hover {
+  border-color: #5977f8 !important;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Chevron arrow */
+.atMeta__chevron {
+  font-size: 8px;
+  opacity: 0.6;
+}
+
+/* Floating dropdown panel */
+.atMeta__dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  /* opens leftward \u2014 stays inside modal */
+  left: auto;
+  z-index: 1100;
+  min-width: 210px;
+  width: 220px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  padding: 10px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Section label inside dropdown */
+.atMeta__dropLabel {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+  flex: 1;
+}
+
+/* Header row inside dropdown: label + plus button */
+.atMeta__dropHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+/* The "+" button inside the dropdown header */
+.atMeta__dropPlusBtn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid #c7d0fd;
+  background: #f0f4ff;
+  color: #5977f8;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.atMeta__dropPlusBtn:hover {
+  background: #5977f8;
+  color: #fff;
+  border-color: #5977f8;
+}
+
+/* When input is open, button turns solid */
+.atMeta__dropPlusBtn--active {
+  background: #5977f8;
+  color: #fff;
+  border-color: #5977f8;
+}
+
+
+/* Scrollable checkbox list */
+.atMeta__checkList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.atMeta__checkList::-webkit-scrollbar {
+  width: 3px;
+}
+
+.atMeta__checkList::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+/* Individual checkbox row - Premium Alignment */
+.atMeta__checkItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* Increased space between circle and text */
+  padding: 10px 14px;
+  /* Better padding for row spacing */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.atMeta__checkItem:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+/* Custom 'Tick Box' look - More premium and spacious */
+.atMeta__checkItem input[type="radio"],
+.atMeta__checkItem input[type="checkbox"] {
+  width: 18px;
+  /* Slightly larger for better interaction */
+  height: 18px;
+  cursor: pointer;
+  accent-color: #5977f8;
+  margin: 0;
+  flex-shrink: 0;
+  order: -1;
+  transition: transform 0.15s ease;
+}
+
+.atMeta__checkItem:active input {
+  transform: scale(0.9);
+}
+
+.atMeta__checkItem span {
+  font-size: 13.5px;
+  color: #1e293b;
+  font-weight: 500;
+  flex: 1;
+  text-align: left;
+  letter-spacing: 0.2px;
+}
+
+/* Active selection highlight - Color following */
+.atMeta__checkItem:has(input:checked) {
+  background: #f0f4ff;
+  border-color: #c7d0fd;
+}
+
+.atMeta__checkItem:has(input:checked) span {
+  color: #5977f8;
+  font-weight: 600;
+}
+
+/* Hint text inside dropdown */
+.atMeta__hint {
+  font-size: 11px;
+  color: #64748b;
+  padding: 20px;
+  text-align: center;
+  font-style: normal;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin: 5px;
+}
+
+/* Add-new row at the bottom */
+.atMeta__addRow {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 6px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.atMeta__addInput {
+  flex: 1;
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.atMeta__addInput:focus {
+  border-color: #5977f8;
+  background: #fff;
+}
+
+.atMeta__addConfirm {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: #5977f8;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, background 0.2s;
+}
+
+.atMeta__addConfirm:active {
+  transform: scale(0.95);
+}
+
+.atMeta__addConfirm:hover {
+  background: #4a66e8;
+}
+
+.atMeta__addConfirm:hover {
+  background: #4b66de;
+}
+
+
+
+/* Individual tag */
+.atMeta__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.atMeta__tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.1s;
+}
+
+.atMeta__tag button:hover {
+  opacity: 1;
+}
+
+/* Category tag — blue */
+.atMeta__tag--cat {
+  background: #eef2ff;
+  color: #5977f8;
+  border: 1px solid #c7d0fd;
+}
+
+/* Project tag — indigo/purple */
+.atMeta__tag--proj {
+  background: #f5f0ff;
+  color: #7c3aed;
+  border: 1px solid #d4b8fd;
+}
+
+
+/* Header row: label left, "+ Add" button right */
+.atMeta__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+/* The small link-style add button */
+.atMeta__addBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 10px;
+  color: #5977f8;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.atMeta__addBtn:hover {
+  color: #3a55d6;
+  text-decoration: underline;
+}
+
+/* Inline input row that appears when "+ Add" is clicked */
+.atMeta__inputRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.atMeta__input {
+  flex: 1;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #c7d0fd;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #3a466d;
+  outline: none;
+  background: #fff;
+}
+
+.atMeta__input:focus {
+  border-color: #5977f8;
+}
+
+.atMeta__confirmBtn {
+  height: 28px;
+  padding: 0 10px;
+  background: #5977f8;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.atMeta__confirmBtn:hover {
+  background: #4b66de;
+}
+
+.atMeta__cancelBtn {
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1f1;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.atMeta__cancelBtn:hover {
+  background: #e0e0e0;
+}
+
+/* Pill row */
+.atMeta__pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Individual pill */
+.atMeta__pill {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #eef2ff;
+  background: #f8fafc;
+  font-size: 11px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atMeta__pill:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+  transform: translateY(-1px);
+}
+
+/* Active (selected) pill */
+.atMeta__pill--active {
+  background: #ebf0ff !important;
+  border-color: #5977f8 !important;
+  color: #5977f8 !important;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(89, 119, 248, 0.1);
+}
+
+.atMeta__pill--active:hover {
+  background: #dfe7ff !important;
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════════════════════
+   PHASE SECTION  (atPhase__)
+══════════════════════════════════════════════════════════ */
+
+/* Header row: "Phases" label left, "+ Add Phase" button right */
+.atPhase__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+
+.atPhase__addBtn {
+  height: 26px;
+  padding: 0 10px;
+  border: 1.5px dashed #c7d0fd;
+  border-radius: 6px;
+  background: #f0f4ff;
+  color: #5977f8;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.atPhase__addBtn:hover {
+  background: #5977f8;
+  border-color: #5977f8;
+  color: #fff;
+}
+
+/* List of phase rows */
+.atPhase__list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Single phase card container */
+.atPhase__item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+
+
+/* Row containing Title, Status Dropdown, and Remove Button */
+.atPhase__topRow {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+/* Phase Title input field */
+.atPhase__topRow .atPhase__titleInput {
+  flex: none;
+  width: 270px;
+}
+
+.atPhase__titleInput {
+  flex: 1;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #3a466d;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.atPhase__titleInput:hover {
+  border-color: #cbd5e1;
+}
+
+.atPhase__titleInput:focus {
+  border-color: #5977f8;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+/* Description textarea field */
+.atPhase__descInput {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #3a466d;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.atPhase__descInput:hover {
+  border-color: #cbd5e1;
+}
+
+.atPhase__descInput:focus {
+  border-color: #5977f8;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+/* Remove button containing closeIcon */
+.atPhase__removeBtn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 6px;
+  background: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.atPhase__removeBtn:hover {
+  background: #dc2626;
+}
+
+.atPhase__removeIcon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.atPhase__removeBtn:hover .atPhase__removeIcon {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+/* Status Selector inside Phase Row */
+.atPhase__statusWrapper {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.atPhase__statusDrop .custom-dropdown-trigger {
+  height: 38px !important;
+  width: 120px !important;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.atPhase__statusDrop .custom-dropdown-trigger:hover {
+  border-color: #cbd5e1 !important;
+}
+
+.atPhase__statusDrop .custom-dropdown-trigger:focus-within {
+  border-color: #5977f8 !important;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1) !important;
+}
+
+.atPhase__statusDrop .custom-dropdown-trigger span {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #3a466d !important;
+}
+
+.atPhase__statusDrop .custom-dropdown-menu {
+  width: 100% !important;
+  border-radius: 8px !important;
+}
+
+.atPhase__statusDrop .custom-dropdown-option {
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+}
+
+.atPhase__statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.atPhase__select {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  color: #3a466d;
+  outline: none;
+  cursor: pointer;
+  padding-right: 4px;
+}
+
+.atPhase__select option {
+  background: #fff;
+}
+
+/* ── Category/Project Add Row with Select ──────────────────── */
+.atMeta__addSelect:focus {
+  border-color: #5977f8;
+  background: #fff;
+}
+
+/* ================= FINAL RESPONSIVE OVERRIDES ================= */
+@media screen and (max-width: 600px) {
+  .assign-task-container {
+    padding: 20px !important;
+    height: 90vh !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .task-header {
+    position: sticky !important;
+    top: -20px !important;
+    background: #ffffff !important;
+    z-index: 200 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    /* padding: 20px 20px 16px 20px !important; */
+    border-bottom: none !important;
+    /* margin: -20px -20px 16px -20px !important; */
+    width: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .task-body {
+    flex: 1 !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background-color: #F6F6F6 !important;
+    padding: 16px 20px 20px 20px !important;
+    margin: 0 -20px -20px -20px !important;
+  }
+
+  /* CRITICAL FIX: Ensure both Assign Members left panel and task body wrapper use 100% width on mobile */
+  .members-panel,
+  .hrms-common-label {
+    width: 100% !important;
+    min-width: unset !important;
+    border-right: none !important;
+
+    max-height: 280px !important;
+    padding: 10px 0 10px 0 !important;
+    background-color: transparent !important;
+    flex: none !important;
+  }
+
+  .task-form {
+    width: 100% !important;
+    padding: 0 !important;
+    flex: none !important;
+    overflow: visible !important;
+  }
+
+  /* Form spacing and flow stacking */
+  .form-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 20px !important;
+    /* Perfect 20px gap in-between stacked inputs on mobile */
+    width: 100% !important;
+    margin-bottom: 20px !important;
+    /* Visual symmetry before Documents section */
+  }
+
+  .form-row .form-group {
+    width: 100% !important;
+    flex: 1 1 auto !important;
+    margin-bottom: 0 !important;
+    /* Clear duplicate margin so gap controls spacing */
+  }
+
+  .at-priority-group {
+    width: 100% !important;
+    flex-shrink: 1 !important;
+  }
+
+  .atMeta__priorityDrop {
+    width: 100% !important;
+  }
+
+  .form-row .form-group .atMeta__customDrop,
+  .form-row .form-group .custom-dropdown-trigger {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .form-row .form-group input[type="date"] {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .form-group {
+    margin-bottom: 20px !important;
+  }
+
+  /* Tap friendly and visual styling following design aesthetics */
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 13px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    height: 40px;
+    box-sizing: border-box !important;
+    background-color: #ffffff !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-group textarea {
+    height: auto !important;
+    min-height: 90px !important;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: #5977f8 !important;
+    box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.15) !important;
+    outline: none !important;
+  }
+
+  .atMeta__customDrop .custom-dropdown-trigger {
+    height: 40px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    background-color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 14px !important;
+  }
+
+  .hrms-common-upload-box {
+    height: 40px !important;
+    border-radius: 8px !important;
+    border: 1.5px dashed #c7d0fd !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    background: #f8fafc !important;
+    color: #5977f8 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .hrms-common-upload-box:hover {
+    background: #eef2ff !important;
+    border-color: #5977f8 !important;
+  }
+
+  .hrms-common-close-btn {
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    border-radius: 50% !important;
+    transition: all 0.2s !important;
+  }
+
+  .hrms-common-close-btn:hover {
+    background: #f1f5f9 !important;
+  }
+
+  .hrms-common-close-btn img {
+    width: 18px !important;
+    height: 18px !important;
+    opacity: 0.6 !important;
+  }
+
+  .form-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+
+
+  }
+
+  .hrms-common-btn-primary,
+  .hrms-common-btn-cancel {
+    height: 40px !important;
+    padding: 0 24px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .hrms-common-btn-primary {
+    background: #5977f8 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(89, 119, 248, 0.18) !important;
+  }
+
+  .hrms-common-btn-primary:hover {
+    background: #4b66de !important;
+    box-shadow: 0 6px 14px rgba(89, 119, 248, 0.25) !important;
+  }
+
+  .hrms-common-btn-cancel {
+    background: #bfbfbf !important;
+    color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  .hrms-common-btn-cancel:hover {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+  }
+
+  /* Override search box bottom margin, fix text-icon overlap, and align filter icon cleanly */
+  .adminAssignTask__searchFilter {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .adminAssignTask__searchFilter .form-group {
+    margin-bottom: 0 !important;
+  }
+
+  .adminAssignTask__searchFilter .form-group input[type="text"] {
+    padding-left: 32px !important;
+  }
+
+
+  /* ── Phases responsive styling ── */
+  .atPhase__topRow {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+
+
+  .atPhase__statusWrapper {
+    width: 100% !important;
+    order: 2 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .atPhase__customDrop .custom-dropdown-trigger {
+    width: 100% !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+  }
+
+  .atPhase__removeBtn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 8px !important;
+    order: 1 !important;
+  }
+
+  .atPhase__descInput {
+    min-height: 80px !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Small Mobile (< 576px) */
+@media screen and (max-width: 575.98px) {
+  .assign-task-container {
+    padding: 20px 20px !important;
+  }
+
+  .assign-title {
+    font-size: 15px !important;
+  }
+
+  .atPhase__item {
+    padding: 10px !important;
+    background: #fcfcfc !important;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .hrms-common-btn-primary,
+  .hrms-common-btn-cancel {
+    width: 100% !important;
+    height: 42px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* ── Quick Suggestions Row ── */
+.atMeta__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.atMeta__suggestPill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.atMeta__suggestPill:hover {
+  background: #eef2ff;
+  border-color: #5977f8;
+  color: #5977f8;
+  transform: translateY(-1px);
+}
+
+.atMeta__suggestPill.in-db {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #16a34a;
+}
+
+.atMeta__suggestPill.in-db:hover {
+  background: #dcfce7;
+  border-color: #5977f8;
+  color: #5977f8;
+}
+
+.atMeta__suggestPill.active {
+  background: #5977f8 !important;
+  border-color: #5977f8 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.25);
+  transform: translateY(-1px);
+}
+
+
+
+.atMeta__tag {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.atMeta__tagLabel {
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+  margin-right: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.atMeta__tag--cat {
+  background: #5977f8;
+}
+
+.atMeta__tag--proj {
+  background: #6366f1;
+}
+
+.atMeta__tag button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.atMeta__tag button:hover {
+  opacity: 1;
+}
+
+/* ── Fixed Header & Scrollable Body on Desktop (min-width: 769px) ── */
+@media screen and (min-width: 601px) {
+  .assign-task-page {
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .assign-task-container {
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .task-header {
+    flex-shrink: 0;
+    position: sticky;
+    top: -15px;
+    z-index: 200;
+  }
+
+  .task-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .members-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .members-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .task-form {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+/* ==========================================================
+   SEPARATE STYLE FOR EMPLOYEE ASSIGN PHASE STATUS DROPDOWN
+   ========================================================== */
+.atPhase__statusDropAssign .custom-dropdown-trigger {
+  height: 38px !important;
+  width: 120px !important;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.atPhase__statusDropAssign .custom-dropdown-trigger:hover {
+  border-color: #cbd5e1 !important;
+}
+
+.atPhase__statusDropAssign .custom-dropdown-trigger:focus-within {
+  border-color: #5977f8 !important;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1) !important;
+}
+
+.atPhase__statusDropAssign .custom-dropdown-trigger span {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #3a466d !important;
+}
+
+.atPhase__statusDropAssign .custom-dropdown-menu {
+  width: 100% !important;
+  border-radius: 8px !important;
+}
+
+.atPhase__statusDropAssign .custom-dropdown-option {
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+}
+
+/* ── HELPER UTILITY CLASSES TO REMOVE INLINE STYLES ── */
+.cursor-default {
+  cursor: default !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.atFilter__wrapper {
+  position: relative;
+}
+
+.assign-date-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.hrms-hidden-input {
+  display: none !important;
+}
+
+.assign-task-page .Toastify__toast-container {
+  z-index: 20000 !important;
+}
+
+/* Ensure custom date and file trigger inherit correct size */
+.custom-date {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.file-item-trigger {
+  width: fit-content;
+}
+
+.member-action {
+  cursor: pointer;
+}
+
+/* ── EMPLOYEE ASSIGN TASK SPECIFIC STYLE OVERRIDES ── */
+.employee-assign-task-page .assign-date-wrapper {
+  position: relative;
+  width: 120px;
+}
+
+@media screen and (max-width: 600px) {
+  .employee-assign-task-page .assign-date-wrapper {
+    width: 100% !important;
+  }
+}
+
+.employee-assign-task-page .atPhase__header label {
+  margin: 0 !important;
+}
+
+.atPhase__closeWrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.atPhase__item .hrms-common-close-btn {
+  margin: 0 !important;
+}
+
+.employee-assign-task-page .file-item {
+  display: block;
+  width: fit-content;
+}

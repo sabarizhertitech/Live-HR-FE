@@ -1,0 +1,1826 @@
+/* AttendancePage.css */
+
+.emp-attendance-page-wrapper {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 95px;
+  min-height: calc(100vh - 104px);
+  padding-bottom: 24px;
+}
+
+@media (min-width: 1400px) {
+  .emp-attendance-page-wrapper {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .emp-attendance-page-wrapper {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    padding-bottom: 15px;
+  }
+
+  .emp-attendance-page-wrapper .emp-attendance-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .emp-attendance-page-wrapper .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0px !important;
+  }
+
+  .emp-attendance-page-wrapper .row>[class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-bottom: 10px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  .emp-attendance-page-wrapper .row>[class*="col-"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .emp-attendance-page-wrapper {
+    left: 12px;
+    right: 12px;
+    top: 74px;
+    padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .emp-attendance-page-wrapper {
+    left: 10px;
+    right: 10px;
+    top: 68px;
+    padding-bottom: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .emp-attendance-page-wrapper {
+    left: 8px;
+    right: 8px;
+    top: 62px;
+    padding-bottom: 8px;
+  }
+}
+
+
+
+.emp-attendance-container {
+  margin: 0 auto;
+}
+
+/* ────────────────────────────────────────────────
+   Top Cards
+───────────────────────────────────────────────── */
+.emp-attendance-top-cards-row {
+  row-gap: 10px !important;
+  /* padding-top: 10px; */
+}
+
+.emp-attendance-blue {
+  color: #0088FF;
+}
+
+.emp-attendance-green {
+  color: #34C759;
+}
+
+.emp-attendance-orange {
+  color: #EE5C22;
+}
+
+.emp-attendance-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  height: 100%;
+  min-height: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.emp-attendance-card .card-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emp-attendance-card-header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.emp-attendance-time-display {
+  margin-top: auto;
+  align-items: start;
+  text-align: left;
+}
+
+.emp-attendance-check-in-btn,
+.emp-attendance-logout-btn {
+  margin-top: auto;
+  align-self: left;
+}
+
+.emp-attendance-icon-box {
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emp-attendance-icon-box img {
+  width: 50px;
+  height: 50px;
+}
+
+.emp-attendance-permission-text {
+  font-size: 11px;
+  color: #a0aec0;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: -50px;
+  transition: color 0.15s ease;
+}
+
+.emp-attendance-permission-text:hover:not(.disabled) {
+  color: #5977f8;
+}
+
+.emp-attendance-time-display {
+  font-size: 26px;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  padding-top: 10px;
+}
+
+.emp-attendance-check-in-btn,
+.emp-attendance-logout-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  height: 40px;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emp-attendance-check-in-btn:hover:not(:disabled),
+.emp-attendance-logout-btn:hover:not(:disabled) {
+  background: #16a34a;
+  transform: scale(1.02);
+}
+
+.emp-attendance-check-in-btn:disabled,
+.emp-attendance-logout-btn:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.emp-attendance-working-hours-card .card-body {
+  align-items: flex-start;
+}
+
+.emp-attendance-working-hours-icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.emp-attendance-working-hours-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: #334155;
+}
+
+/* ────────────────────────────────────────────────
+   Info Banner
+───────────────────────────────────────────────── */
+.emp-attendance-info-banner-row {
+  margin-bottom: 20px;
+}
+
+.emp-attendance-info-banner {
+  background: #f2f2f2;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #718096;
+  text-align: center;
+  font-weight: 400;
+}
+
+/* ────────────────────────────────────────────────
+   Main Content Layout
+───────────────────────────────────────────────── */
+.emp-attendance-main-content-row {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ===============================
+   MONTHLY OVERVIEW CONTAINER
+================================ */
+.emp-attendance-figma-overview {
+  border-radius: 10px;
+  border: 1px solid #e6e8ee;
+  background: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.emp-attendance-overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.emp-attendance-overview-title {
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+}
+
+/* ===============================
+   TOP 3 STATS (VERTICAL CARDS)
+================================ */
+.emp-attendance-overview-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 15px;
+}
+
+.emp-attendance-overview-stat {
+  background: #fafafa;
+  border: 1px solid #e6e8ee;
+  border-radius: 10px;
+  padding: 7px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.emp-attendance-stat-icon img {
+  width: 26px;
+  height: 26px;
+}
+
+.emp-attendance-label {
+  font-size: 13px;
+  color: #7a7fa6;
+  font-weight: 300;
+  padding-top: 10px;
+}
+
+.emp-attendance-value {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  padding-top: 10px;
+}
+
+/* ===============================
+   PERMISSIONS + ATTENDANCE
+================================ */
+.emp-attendance-wide-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.emp-attendance-stat.emp-attendance-wide {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  padding-left: 7px;
+  padding-right: 7px;
+  padding-bottom: 7px;
+  background: #fafafa;
+  border: 1px solid #e6e8ee;
+  border-radius: 10px;
+}
+
+.emp-attendance-stat-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding-left: 5px;
+}
+
+.emp-attendance-stat-left img {
+  width: 30px;
+  height: 30px;
+}
+
+.emp-attendance-stat-label {
+  font-size: 13px;
+  color: #7a7fa6;
+  font-weight: 400;
+}
+
+.emp-attendance-stat-value {
+  font-size: 30px;
+  font-weight: 600;
+  padding-right: 5px;
+  padding-bottom: 8px;
+  line-height: 1;
+}
+
+.emp-attendance-stat-value.emp-attendance-grey {
+  color: #3a466d;
+}
+
+.emp-attendance-stat-value.emp-attendance-purple {
+  color: #3a466d;
+}
+
+/* ===============================
+   CALENDAR + LEGEND
+================================ */
+.emp-attendance-overview-calendar-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  flex: 1;
+  align-items: flex-start;
+
+}
+
+.emp-attendance-figma-calendar {
+  flex: 1;
+  background: linear-gradient(180deg, #DEEBFF 0%, #FFFFFF 100%);
+  box-shadow: 0px 10px 25px 0px #0000001A;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 0.01px solid #7ebaff1f;
+}
+
+/* ── Date header (11 / Thursday | 2026 / January) ── */
+.emp-attendance-figma-cal-date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px 15px 15px;
+  position: relative;
+}
+
+.emp-attendance-figma-cal-date-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: #f0f1f4;
+}
+
+.emp-attendance-cal-date-left,
+.emp-attendance-cal-date-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-attendance-cal-date-right {
+  align-items: flex-end;
+}
+
+.emp-attendance-cal-day-num,
+.emp-attendance-cal-year {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3A466D;
+  line-height: 1;
+}
+
+.emp-attendance-cal-day-name,
+.emp-attendance-cal-month {
+  font-size: 12px;
+  font-weight: 300;
+  color: #3A466D;
+  margin-top: 3px;
+}
+
+/* ── Day name row ── */
+.emp-attendance-figma-calendar-header {
+  background: transparent;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 5px 10px 4px;
+  color: #A29CC1;
+  font-size: 9px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ── Calendar grid ── */
+.emp-attendance-figma-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 1px 10px 14px;
+  gap: 1px;
+  background-color: transparent;
+}
+
+.emp-attendance-calendar-cell {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a2140;
+  position: relative;
+  padding: 6px 2px 1px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emp-attendance-calendar-cell.emp-attendance-muted {
+  color: #d1d5db;
+  font-weight: 400;
+}
+
+/* Status dots below numbers */
+.emp-attendance-calendar-cell::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 12px;
+  top: 25px;
+  left: 30%;
+  transform: translateX(-50%);
+}
+
+.emp-attendance-dot-present::after {
+  background: #34C759;
+
+}
+
+.emp-attendance-dot-absent::after {
+  background: #EE5C22;
+}
+
+.emp-attendance-dot-approved::after {
+  background: #158FDF;
+}
+
+
+/* Today highlight – compact light blue rounded square */
+.emp-attendance-active-day {
+  background: #a658ff;
+  color: #ffffff;
+  border-radius: 5px;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Weekend (SUN/SAT column) – orange-red */
+.emp-attendance-calendar-cell.emp-attendance-weekend-blue {
+  color: #f97316;
+  font-weight: 500;
+  background: transparent;
+}
+
+/* Government holiday – compact soft pink rounded square */
+.emp-attendance-calendar-cell.emp-attendance-holiday-circle {
+  background-color: transparent;
+}
+
+.emp-attendance-holiday-circle.emp-cal-inner {
+  background-color: #FFE9E1;
+  border-radius: 5px;
+  color: #FE7A4E;
+  font-weight: 500;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+/* ===============================
+   LEGEND
+================================ */
+.emp-attendance-figma-legend {
+  width: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  padding-top: 75px;
+}
+
+.emp-attendance-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.emp-attendance-legend-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-attendance-legend-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a2140;
+  line-height: 1.2;
+}
+
+.emp-attendance-legend-pill {
+  width: 52px;
+  height: 22px;
+  border-radius: 30px;
+  display: inline-block;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.emp-attendance-legend-subtext {
+  font-size: 9px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.emp-attendance-legend-subtext-apprevel {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.emp-attendance-legend-pill.emp-attendance-present {
+  background: #34C759;
+  height: 15px;
+  width: 30px;
+
+  box-shadow:
+    0px 3px 7px 0px #00000026,
+    0px 13px 13px 0px #00000021,
+    0px 29px 18px 0px #00000014,
+    0px 52px 21px 0px #00000005,
+    0px 81px 23px 0px #00000000;
+}
+
+.emp-attendance-legend-pill.emp-attendance-absent {
+  background: #EE5C22;
+  height: 15px;
+  width: 30px;
+
+  box-shadow:
+    0px 3px 7px 0px #00000026,
+    0px 13px 13px 0px #00000021,
+    0px 29px 18px 0px #00000014,
+    0px 52px 21px 0px #00000005,
+    0px 81px 23px 0px #00000000;
+}
+
+.emp-attendance-legend-pill.emp-attendance-approved {
+  background: #158FDF;
+  height: 15px;
+  width: 30px;
+
+  box-shadow:
+    0px 3px 7px 0px #00000026,
+    0px 13px 13px 0px #00000021,
+    0px 29px 18px 0px #00000014,
+    0px 52px 21px 0px #00000005,
+    0px 81px 23px 0px #00000000;
+}
+
+.emp-attendance-legend-pill.emp-attendance-holiday {
+  background: #FFE9E1;
+  height: 15px;
+  width: 30px;
+
+  box-shadow:
+    0px 3px 7px 0px #00000026,
+    0px 13px 13px 0px #00000021,
+    0px 29px 18px 0px #00000014,
+    0px 52px 21px 0px #00000005,
+    0px 81px 23px 0px #00000000;
+}
+
+/* =========================================
+   ATTENDANCE DETAILS – TABLE
+========================================= */
+.emp-attendance-details-card {
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e6e8ee;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-attendance-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.emp-attendance-details-title {
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 500;
+  margin: 0;
+}
+
+.attendance-dropdown-wrapper {
+  width: 90px !important;
+  min-width: 90px !important;
+}
+
+.emp-attendance-month-dropdown {
+  width: 90px !important;
+  min-width: 90px !important;
+  font-size: 13px !important;
+}
+
+.custom-dropdown-trigger {
+  height: 35px !important;
+}
+
+.emp-attendance-figma-table-container {
+  border-radius: 10px;
+  border: 1px solid #eef0f4;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.emp-attendance-table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  width: 100%;
+  flex: 1;
+  max-height: 590px;
+  position: relative;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.emp-attendance-table-wrapper::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}
+
+/* Table Loader Overlay */
+.emp-attendance-table-loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  gap: 10px;
+}
+
+.emp-attendance-loader-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3a466d;
+  border-radius: 50%;
+  animation: emp-spin 1s linear infinite;
+}
+
+@keyframes emp-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.emp-attendance-table-loader-overlay span {
+  font-size: 14px;
+  color: #3a466d;
+  font-weight: 500;
+}
+
+.emp-attendance-figma-table {
+  margin: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  min-width: 600px;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.emp-attendance-figma-table th:nth-child(1),
+.emp-attendance-figma-table td:nth-child(1) {
+  width: 14%;
+  text-align: center;
+}
+
+.emp-attendance-figma-table th:nth-child(2),
+.emp-attendance-figma-table td:nth-child(2),
+.emp-attendance-figma-table th:nth-child(3),
+.emp-attendance-figma-table td:nth-child(3) {
+  width: 15%;
+}
+
+.emp-attendance-figma-table th:nth-child(4),
+.emp-attendance-figma-table td:nth-child(4) {
+  width: 16%;
+}
+
+.emp-attendance-figma-table th:nth-child(5),
+.emp-attendance-figma-table td:nth-child(5) {
+  width: 16%;
+}
+
+.emp-attendance-figma-table th:nth-child(6),
+.emp-attendance-figma-table td:nth-child(6) {
+  width: 24%;
+  text-align: center;
+  padding-left: 15px;
+}
+
+.emp-attendance-figma-table thead {
+  background: #F6F6F6;
+}
+
+.emp-attendance-figma-table thead th {
+  padding: 8px 15px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #77728E !important;
+  border-top: 1px solid #F1F5F9 !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  text-align: center;
+}
+
+.emp-attendance-figma-table tbody tr {
+  background: #ffffff;
+}
+
+.emp-attendance-figma-table tbody tr {
+  border-bottom: 1px solid #f1f2f4;
+}
+
+.emp-attendance-figma-table tbody td {
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 300;
+  color: #2d355f;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.emp-attendance-date-cell {
+  position: relative !important;
+  text-align: center;
+}
+
+.emp-attendance-date-cell span {
+  font-size: 11px;
+  text-align: center;
+}
+
+.emp-attendance-date-cell small {
+  font-size: 11px;
+  color: #7a7fa6;
+}
+
+.emp-attendance-figma-status-pill {
+  min-width: 10px;
+  padding: 8.4px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 300;
+  display: inline-block;
+  text-align: center;
+}
+
+.emp-attendance-figma-status-pill.emp-attendance-leave {
+  background: #ffe1d6;
+  color: #ff5a1f;
+}
+
+.emp-attendance-figma-status-pill.emp-attendance-absent {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.emp-attendance-figma-status-pill.emp-attendance-approved {
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 7px;
+}
+
+.emp-attendance-figma-status-pill.emp-attendance-present {
+  background: #dcffd6;
+  color: #17c400;
+}
+
+.emp-attendance-figma-remarks {
+  color: #4a4f72;
+}
+
+/* ✅ Auto Checkout Badge */
+.auto-checkout-badge {
+  background: #fff3cd;
+  color: #856404;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.emp-attendance-nowrap {
+  white-space: nowrap;
+}
+
+/* Pagination */
+.emp-attendance-figma-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  background: #fff;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  margin-top: auto;
+}
+
+.emp-attendance-figma-pagination .emp-attendance-page,
+.emp-attendance-figma-pagination .emp-attendance-arrow {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #a29cc1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.emp-attendance-figma-pagination .emp-attendance-page.emp-attendance-active {
+  background: #f1f2f4;
+  color: #1a2140;
+  font-weight: 600;
+}
+
+.emp-attendance-figma-pagination .emp-attendance-page:hover:not(.emp-attendance-active),
+.emp-attendance-figma-pagination .emp-attendance-arrow:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #1a2140;
+}
+
+.emp-attendance-figma-pagination .emp-attendance-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   PERMISSION POPUP
+================================ */
+.emp-attendance-permission-popup.modal {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.emp-attendance-permission-popup .modal-dialog {
+  max-width: 660px;
+  width: 100%;
+}
+
+.emp-attendance-permission-popup .modal-content {
+  border-radius: 10px;
+  border: none;
+  padding: 0;
+}
+
+.emp-attendance-permission-popup .modal-body {
+  padding: 32px 36px 36px;
+  background: #ffffff;
+}
+
+.emp-attendance-permission-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #2d355f;
+}
+
+.emp-attendance-permission-card {
+  background: transparent;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.emp-attendance-permission-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 1rem;
+}
+
+.emp-attendance-permission-field {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.emp-attendance-permission-field.emp-attendance-full {
+  margin-bottom: 20px;
+}
+
+.emp-attendance-permission-field label {
+  display: block;
+  margin-bottom: 5px;
+  color: #4a5568;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.emp-attendance-input-wrapper {
+  position: relative;
+}
+
+.emp-attendance-input-wrapper .custom-dropdown-container {
+  width: 100% !important;
+}
+
+.emp-attendance-input-wrapper input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #2d355f;
+  background: #ffffff;
+}
+
+.emp-attendance-input-wrapper input:focus {
+  outline: none;
+  border-color: #5977F8;
+}
+
+.emp-attendance-input-wrapper input::placeholder {
+  color: #2d355f;
+  opacity: 0.8;
+}
+
+.emp-attendance-input-wrapper input::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+  z-index: 10;
+}
+
+.emp-attendance-input-wrapper svg {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  color: #2d355f;
+  pointer-events: none;
+}
+
+.emp-attendance-permission-popup .modal-content {
+  border-radius: 10px;
+  border: none;
+  overflow: visible;
+}
+
+.emp-attendance-permission-field textarea {
+  width: 100%;
+  height: 160px;
+  padding: 18px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  resize: none;
+  background: #ffffff;
+}
+
+.emp-attendance-permission-field textarea:focus {
+  outline: none;
+  border-color: #5977F8;
+}
+
+.emp-attendance-permission-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.emp-attendance-permission-actions button {
+  background: #3dcc5f;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 40px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.emp-attendance-permission-actions button:hover {
+  background: #2cb348;
+}
+
+.emp-attendance-details-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ────────────────────────────────────────────────
+   Responsive
+───────────────────────────────────────────────── */
+@media (max-width: 992px) {
+  .emp-attendance-page-wrapper {
+    margin-left: 0;
+
+    padding: 15px;
+  }
+
+  .emp-attendance-time-display {
+    font-size: 24px;
+  }
+
+  .emp-attendance-value {
+    font-size: 24px;
+  }
+
+  .attendance-dropdown-wrapper,
+  .emp-attendance-month-dropdown {
+    width: 90px !important;
+    min-width: 90px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .emp-attendance-overview-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .emp-attendance-wide-row {
+    grid-template-columns: 1fr;
+  }
+
+  .emp-attendance-overview-calendar-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Calendar takes full width on mobile */
+  .emp-attendance-figma-calendar {
+    width: 100%;
+  }
+
+  /* Date header compact for mobile */
+  .emp-attendance-figma-cal-date-header {
+    padding: 12px 14px 8px;
+  }
+
+  .emp-attendance-cal-day-num,
+  .emp-attendance-cal-year {
+    font-size: 18px;
+  }
+
+  .emp-attendance-cal-day-name,
+  .emp-attendance-cal-month {
+    font-size: 11px;
+  }
+
+  /* Day name row */
+  .emp-attendance-figma-calendar-header {
+    font-size: 10px;
+    padding: 8px 10px 4px;
+  }
+
+  /* Grid cells larger tap targets */
+  .emp-attendance-calendar-cell {
+    font-size: 11px;
+    padding: 8px 2px 2px;
+    min-height: 34px;
+  }
+
+  /* Active day box */
+  .emp-attendance-active-day {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  /* Holiday box */
+  .emp-attendance-holiday-circle.emp-cal-inner {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  /* Legend horizontal wrapping */
+  .emp-attendance-figma-legend {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 20px;
+    padding: 14px;
+  }
+
+  .emp-attendance-legend-item {
+    gap: 8px;
+  }
+
+  .emp-attendance-legend-pill {
+    width: 36px;
+    height: 16px;
+  }
+
+  .emp-attendance-legend-label {
+    font-size: 12px;
+  }
+
+  .emp-attendance-legend-subtext {
+    font-size: 9px;
+  }
+
+  .emp-attendance-figma-table thead th,
+  .emp-attendance-figma-table tbody td {
+    font-size: 12px;
+    padding: 12px 10px;
+  }
+
+  .emp-attendance-figma-status-pill {
+    min-width: auto;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .emp-attendance-permission-popup .modal-dialog {
+    max-width: 95%;
+    margin: 1rem auto !important;
+  }
+
+  .emp-attendance-permission-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .emp-attendance-permission-actions button {
+    flex: 1;
+    min-width: 0 !important;
+    /* Allow shrinking below 120px if needed */
+  }
+
+  .attendance-dropdown-wrapper,
+  .emp-attendance-month-dropdown {
+    width: 85px !important;
+    min-width: 85px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .emp-attendance-page-wrapper {
+
+    padding: 5px;
+  }
+
+  .emp-attendance-permission-popup .modal-body {
+    padding: 24px 16px !important;
+  }
+
+  .emp-attendance-time-display {
+    font-size: 20px;
+  }
+
+  .emp-attendance-check-in-btn,
+  .emp-attendance-logout-btn {
+    width: 100%;
+  }
+
+  .emp-attendance-card-header-section {
+    flex-wrap: wrap;
+  }
+
+  .attendance-dropdown-wrapper,
+  .emp-attendance-month-dropdown {
+    width: 100% !important;
+    min-width: 80px !important;
+  }
+
+  .emp-attendance-details-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .emp-attendance-details-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .emp-attendance-details-header-actions>.attendance-dropdown-wrapper {
+    flex: 1 1 calc(33.33% - 8px);
+  }
+
+  .emp-attendance-overview-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .emp-attendance-stat-icon img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .emp-attendance-label {
+    font-size: 11px;
+    padding-top: 6px;
+  }
+
+  .emp-attendance-value {
+    font-size: 20px;
+    padding-top: 6px;
+  }
+
+  /* ── Calendar grid ── */
+  .emp-attendance-figma-calendar-grid {
+    gap: 2px;
+    padding: 6px 8px 10px;
+  }
+
+  .emp-attendance-calendar-cell {
+    font-size: 10px;
+    padding: 6px 1px 2px;
+    min-height: 30px;
+  }
+
+  .emp-attendance-figma-calendar-header {
+    font-size: 9px;
+    padding: 6px 8px 3px;
+  }
+
+  .emp-attendance-figma-cal-date-header {
+    padding: 10px 12px 6px;
+  }
+
+  .emp-attendance-cal-day-num,
+  .emp-attendance-cal-year {
+    font-size: 16px;
+  }
+
+  /* Active + holiday compact squares */
+  .emp-attendance-active-day {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+    border-radius: 5px;
+  }
+
+  .emp-attendance-holiday-circle.emp-cal-inner {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+    border-radius: 5px;
+  }
+
+  /* Legend 2-column grid on very small screens */
+  .emp-attendance-figma-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    width: 100%;
+    padding: 2px 30px 2px;
+  }
+
+  .emp-attendance-legend-item {
+    gap: 7px;
+  }
+
+  .emp-attendance-legend-pill {
+    width: 30px;
+    height: 14px;
+  }
+
+  .emp-attendance-legend-label {
+    font-size: 11px;
+  }
+
+  .emp-attendance-legend-subtext {
+    font-size: 8px;
+  }
+
+}
+
+/* end @media (max-width: 576px) */
+
+/* ────────────────────────────────────────────────
+   Toast
+───────────────────────────────────────────────── */
+.emp-toast-notification {
+  position: fixed;
+  top: 24px;
+  right: -500px;
+  z-index: 9999;
+  transition: right 0.4s ease-out;
+  pointer-events: none;
+}
+
+.emp-toast-notification.visible {
+  right: 24px;
+  pointer-events: auto;
+}
+
+.emp-toast-notification .toast-message {
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  border-left: 5px solid #22c55e;
+}
+
+.emp-toast-notification.error .toast-message {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.emp-toast-notification.success .toast-message {
+  border-left-color: #22c55e;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.wfh-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   LATE ENTRY MODAL (Mirrored from EmployeeDashboard)
+   ========================================================================== */
+
+.checkin-modal .modal-dialog {
+  max-width: 360px !important;
+}
+
+.checkin-modal .modal-content {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.checkin-modal-header {
+  padding: 28px 28px 10px !important;
+  background: #ffffff;
+}
+
+.checkin-modal-body {
+  padding: 24px 28px 10px !important;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.checkin-modal-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background: #f0f9ff;
+}
+
+.check-in {
+  width: 70%;
+  border-radius: 50%;
+}
+
+.late-reason-inline-box {
+  margin-top: 15px;
+  width: 100%;
+  padding: 0 5px;
+}
+
+.late-entry-warning-text {
+  font-size: 14px;
+  color: #e67e22;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+  background: #fff8f1;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.late-reason-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 400 !important;
+  margin-bottom: 8px;
+  color: #BBBBBB !important;
+  text-align: left;
+}
+
+.late-reason-textarea {
+  width: 100%;
+  min-height: 100px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 15px;
+  resize: none;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  color: #2d355f;
+}
+
+.late-reason-textarea:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.late-reason-textarea::placeholder {
+  color: #a0aec0;
+  font-weight: 300 !important;
+}
+
+.checkin-modal-footer {
+  padding: 8px 2px 10px !important;
+  background: #ffffff;
+  display: flex;
+  justify-content: center !important;
+  gap: 12px;
+  border-top: none !important;
+}
+
+@media (max-width: 576px) {
+  .checkin-modal-footer {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+}
+
+/* ==========================================================================
+   CHECK-OUT MODAL (Mirrored from EmployeeDashboard)
+   ========================================================================== */
+
+.checkout-modal .modal-dialog {
+  max-width: 360px !important;
+}
+
+.checkout-modal .modal-content {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.checkout-modal-body {
+  padding: 10px 10px 30px 10px !important;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.checkout-modal .checkout-modal-close {
+  position: absolute !important;
+  right: 15px !important;
+  top: 15px !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 20px !important;
+  color: #8a94a6 !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  z-index: 10 !important;
+}
+
+.checkout-modal .checkout-modal-title {
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+
+.checkout-modal-text {
+  font-size: 16px !important;
+  color: #ff6629ff !important;
+}
+
+.checkout-modal-footer {
+  padding: 0px !important;
+  gap: 12px !important;
+}
+
+/* Prevent check-in/check-out button and working hours text wrapping on viewports 1085px to 993px */
+@media (max-width: 1085px) and (min-width: 993px) {
+
+  .emp-attendance-check-in-btn,
+  .emp-attendance-logout-btn {
+    width: auto !important;
+    min-width: 120px !important;
+    padding: 0 16px !important;
+    white-space: nowrap !important;
+  }
+
+  .emp-attendance-time-display {
+    width: auto !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Make check-in/check-out buttons full width on viewports 765px to 577px to remove right space */
+@media (max-width: 765px) and (min-width: 577px) {
+
+  .emp-attendance-check-in-btn,
+  .emp-attendance-logout-btn {
+    width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   PERMISSION MODAL
+   ========================================================================== */
+
+.emp-attendance-permission-popup .modal-dialog {
+  max-width: 480px !important;
+}
+
+.emp-attendance-permission-popup .modal-content {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  background-color: #ffffff !important;
+}
+
+.emp-attendance-permission-popup .modal-header {
+  background-color: #ffffff !important;
+  justify-content: flex-start !important;
+  padding-top: 16px !important;
+  padding-bottom: 0 !important;
+}
+
+.emp-attendance-permission-popup .modal-body {
+  background-color: #ffffff !important;
+}
+
+.emp-attendance-permission-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3A466D;
+  text-align: left;
+  margin-top: 0 !important;
+  margin-bottom: 5px;
+}
+
+.emp-attendance-permission-subtitle {
+  font-size: 11px;
+  color: #EE5C22;
+  text-align: left;
+  margin-bottom: 20px;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.emp-attendance-permission-card {
+  background-color: #f6f6f6 !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+}
+
+.emp-attendance-permission-popup .custom-dropdown-trigger {
+  height: 35px !important;
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+.emp-attendance-permission-popup .emp-attendance-input-wrapper input {
+  height: 35px !important;
+}
+
+.emp-attendance-permission-popup .time-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3A466D;
+  pointer-events: none;
+  font-size: 13px !important;
+  width: 13px !important;
+  height: 13px !important;
+}
+
+.emp-attendance-figma-table thead {
+  background: #F6F6F6;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TABLE ROW STYLING (ORANGE DATE FOR IP REASON RECORD, NO ROW BG) ── */
+.emp-attendance-figma-table tbody tr.has-ip-reason {
+  position: relative;
+  z-index: 2;
+}
+
+.emp-attendance-figma-table tbody tr.has-ip-reason:hover {
+  position: relative !important;
+  z-index: 9999999 !important;
+}
+
+.emp-attendance-figma-table tbody tr.has-ip-reason td {
+  overflow: visible !important;
+}
+
+.emp-ip-date-gradient-badge {
+  background: linear-gradient(135deg, #FF8C00 0%, #FF5500 100%);
+  color: #ffffff !important;
+  padding: 4px 10px !important;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.3);
+  box-sizing: border-box;
+}
+
+.emp-ip-date-gradient-badge span,
+.emp-ip-date-gradient-badge small {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1;
+}
+
+/* ── HOVER REASON TOOLTIP (FLOATING ON DATE COLUMN SIDE) ── */
+.emp-attendance-date-cell {
+  position: relative;
+}
+
+.emp-attendance-row-hover-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 10px;
+  transform: none;
+  background: #1e293b;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  z-index: 9999999 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  text-align: left;
+  line-height: 1.6;
+}
+
+.emp-attendance-row-hover-tooltip strong {
+  font-weight: 500;
+}
+
+.emp-attendance-row-hover-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 25px;
+  transform: none;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
+}
+
+.emp-ip-tooltip-header {
+  font-weight: 600;
+  font-size: 10px;
+  color: #ffffff !important;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* For first row, pop tooltip downwards on Date column side */
+.emp-attendance-figma-table tbody tr:first-child .emp-attendance-row-hover-tooltip {
+  bottom: auto;
+  top: calc(100% + 8px);
+  left: 10px;
+  transform: none;
+}
+
+.emp-attendance-figma-table tbody tr:first-child .emp-attendance-row-hover-tooltip::after {
+  top: auto;
+  bottom: 100%;
+  left: 25px;
+  transform: none;
+  border-color: transparent transparent #1e293b transparent;
+}
+
+.emp-attendance-figma-table tbody tr.has-ip-reason:hover .emp-attendance-row-hover-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-2px);
+}
+
+.emp-attendance-figma-table tbody tr:first-child.has-ip-reason:hover .emp-attendance-row-hover-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(2px);
+}

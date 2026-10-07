@@ -1,0 +1,369 @@
+/* Overlay */
+.employee-leave-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Container */
+.employee-leave-container {
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #00000017;
+  /* font-family: "Gilroy-Regular"; */
+  width: 850px;
+  max-width: 86%;
+  max-height: 440px;
+  padding: 16px 18px;
+  overflow-y: auto;
+}
+
+/* Header */
+.employee-leave-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+}
+
+.employee-leave-title {
+  font-size: 17px;
+  color: #3A466D;
+  /* font-family: "Gilroy-Medium"; */
+  /* font-weight: 400; */
+  margin: 0;
+}
+
+.employee-leave-options-btn {
+  background: none;
+  border: none;
+  color: #3b3c58;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Status Badge */
+.employee-leave-status-badge {
+  padding: 4px 13px;
+  border-radius: 6px;
+  font-size: 12px;
+  /* font-family: "Gilroy-Medium"; */
+  /* font-weight: 400; */
+  text-transform: capitalize;
+  background-color: #ffe5e5;
+  color: #ff5c5c;
+}
+
+/* Default */
+.employee-leave-status-default {
+  background: #e8ebf3;
+  color: #3a466d;
+}
+
+/* Pending */
+.employee-leave-status-pending {
+  background: #D0ECFF;
+  color: #158FDF;
+}
+
+/* Approved */
+.employee-leave-status-approved {
+  background: #e3ffe9;
+  color: #31b057;
+}
+
+/* Rejected */
+.employee-leave-status-rejected {
+  background: #ffe5e5;
+  color: #ff5c5c;
+}
+
+/* Request Cancel */
+.employee-leave-status-requestcancel {
+  background: #ee5c22;
+  color: #ffffff;
+}
+
+/* Body */
+.employee-leave-body {
+  background-color: #f6f6f6;
+  border-radius: 6px;
+
+}
+
+/* Inner card (white like the design) */
+.employee-leave-card {
+  background-color: #F6F6F6;
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+/* Profile row: left profile + right badge */
+.employee-leave-profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.employee-leave-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.employee-leave-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.employee-leave-profile-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-leave-emp-name {
+  font-size: 16px;
+  /* font-family: "Gilroy-Medium"; */
+  color: #3a466d;
+  margin-bottom: 2px;
+}
+
+.employee-leave-emp-role {
+  font-size: 13px;
+  color: #77728e;
+  /* font-family: "Gilroy-Regular"; */
+  /* font-weight: 400; */
+}
+
+/* Details list */
+.employee-leave-info-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 12px;
+}
+
+.employee-leave-info-row {
+  display: flex;
+  gap: 24px;
+}
+
+.employee-leave-info-row--reason {
+  grid-column: 1 / -1;
+}
+
+/* Labels and values */
+.employee-leave-label {
+  min-width: 90px;
+  color: #868585;
+  font-size: 10px;
+  /* font-family: "Gilroy-Regular"; */
+  /* font-weight: 400; */
+  line-height: 100%;
+  padding-bottom: 5px;
+  letter-spacing: 0.2px;
+}
+
+
+.employee-leave-value {
+  color: #3a466d;
+  font-size: 13px;
+  /* font-family: "Gilroy-Medium"; */
+  /* font-weight: 400; */
+    letter-spacing: 0.2px;
+      padding-bottom: 5px;
+   line-height: 100%;
+}
+.employee-leave-values {
+  color: #3a466d;
+  font-size: 12px;
+  /* font-family: "Gilroy-Regular"; */
+  /* font-weight: 500; */
+   line-height: 100%;
+   text-align: justify;
+}
+
+/* Reason text */
+.employee-leave-reason-text {
+  line-height: 1.4;
+}
+
+/* Rejected remark block */
+.employee-leave-remark-row {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+
+.employee-leave-remark-box {
+
+
+
+
+  font-size: 11px;
+
+  line-height: 1.4;
+
+}
+
+/* Footer buttons */
+.employee-leave-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet: 768px */
+@media (max-width: 768px) {
+  .employee-leave-container {
+    width: 95%;
+    max-width: 95%;
+    max-height: 85vh;
+    padding: 14px 16px;
+  }
+
+  .employee-leave-footer {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .employee-leave-btn {
+    flex: 1 1 auto;
+    min-width: 100px;
+  }
+
+  .employee-leave-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-leave-info-row {
+    gap: 14px;
+  }
+}
+
+/* Mobile: 576px */
+@media (max-width: 576px) {
+  .employee-leave-container {
+    width: 96%;
+    max-width: 96%;
+    max-height: 88vh;
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+
+  .employee-leave-title {
+    font-size: 15px;
+  }
+
+  .employee-leave-profile-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .employee-leave-profile {
+    gap: 10px;
+  }
+
+  .employee-leave-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .employee-leave-emp-name {
+    font-size: 14px;
+  }
+
+  .employee-leave-emp-role {
+    font-size: 12px;
+  }
+
+  .employee-leave-info-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .employee-leave-label {
+    min-width: unset;
+    font-size: 10px;
+    padding-bottom: 2px;
+  }
+
+  .employee-leave-value {
+    font-size: 12px;
+  }
+
+  .employee-leave-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .employee-leave-btn {
+    width: 100%;
+    min-width: unset;
+    font-size: 12px;
+    height: 34px;
+  }
+}
+
+/* Very small: 420px */
+@media (max-width: 420px) {
+  .employee-leave-container {
+    width: 98%;
+    max-width: 98%;
+    padding: 10px 12px;
+  }
+
+  .employee-leave-title {
+    font-size: 14px;
+  }
+
+  .employee-leave-card {
+    padding: 10px 12px;
+  }
+
+  .employee-leave-emp-name {
+    font-size: 13px;
+  }
+}
+.cancel-validation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000; /* above .employee-leave-overlay content */
+}
+
+.cancel-validation-modal  {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  max-width: 400px;
+  font-size: 12px;
+  width: 100%;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+.cancel-validation-modals{
+  font-size: 14px;
+  size:bold;
+}
+.cancel-validation-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

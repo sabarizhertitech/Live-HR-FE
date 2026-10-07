@@ -1,0 +1,1753 @@
+:root {
+  --leave-primary: #5977f8;
+  --leave-text-main: #3A466D;
+  --leave-text-light: #77728E;
+  --leave-border: #1F1F1F1F;
+  --leave-font-reg: "Gilroy-Regular", sans-serif;
+  --leave-font-med: "Gilroy-Medium", sans-serif;
+  --theme-gradient: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+  --theme-hover: #e0e0e0;
+}
+
+.employeeLeaveRequest-wrapper {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 95px;
+  min-height: calc(100vh - 104px);
+  padding-bottom: 24px;
+  background-color: #f8f8f8;
+}
+
+@media (min-width: 1400px) {
+  .employeeLeaveRequest-wrapper {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+.employeeLeaveRequest-inlineForm {
+  border-top: 1px solid var(--leave-border);
+  padding-top: 16px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.employeeLeaveRequest-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.employeeLeaveRequest-panel {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid var(--leave-border);
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.employeeLeaveRequest-sectionTitle {
+  font-size: 17px;
+  color: var(--leave-text-main);
+  margin-bottom: 20px;
+}
+
+.employeeLeaveRequest-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #868585;
+  margin-bottom: 8px;
+}
+
+.employeeLeaveRequest-input,
+.employeeLeaveRequest-dropdownTrigger,
+.employeeLeaveRequest-textarea {
+  width: 80%;
+  padding: 7px;
+  font-size: 11px;
+  color: var(--leave-text-main);
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.employeeLeaveRequest-inputs {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 11px;
+  color: var(--leave-text-main);
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* ===== PLACEHOLDERS FOR INPUTS & TEXTAREAS ===== */
+.employeeLeaveRequest-input::placeholder,
+.employeeLeaveRequest-inputs::placeholder,
+.employeeLeaveRequest-textarea::placeholder,
+.employeeLeaveRequest__customDropdown .custom-dropdown-trigger span {
+  color: #77728E !important;
+  font-weight: 400;
+  font-size: 12px !important;
+}
+
+.employeeLeaveRequest-textarea {
+  height: auto;
+  min-height: 100px;
+  resize: none;
+}
+
+.employeeLeaveRequest-dateInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.employeeLeaveRequest-dropdown {
+  position: relative;
+}
+
+.employeeLeaveRequest-dropdownTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.employeeLeaveRequest-dateIcon {
+  position: absolute;
+  right: 23%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  pointer-events: auto;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.employeeLeaveRequest-input {
+  width: 80%;
+  padding: 7px;
+  padding-right: 35px !important;
+  font-size: 11px;
+  color: var(--leave-text-main);
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.hide-default-icon::-webkit-calendar-picker-indicator {
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  position: absolute;
+  right: 20%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  z-index: 3;
+}
+
+.employeeLeaveRequest-dropdownTrigger img {
+  width: 12px;
+  transition: 0.3s;
+}
+
+.employeeLeaveRequest-dropdownTrigger img.rotate {
+  transform: rotate(180deg);
+}
+
+.employeeLeaveRequest-dropdownMenu {
+  position: absolute;
+  top: 42px;
+  width: 80%;
+  background: #ffff;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  z-index: 100;
+  color: #3A466D;
+}
+
+.employeeLeaveRequest-dropdownItem {
+  padding: 10px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.employeeLeaveRequest-dropdownItem:hover {
+  background: #f8f9ff;
+  color: var(--leave-primary);
+}
+
+.employeeLeaveRequest-tableCard {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.employeeLeaveRequest-headerCell {
+  font-size: 12px;
+  color: var(--leave-text-light);
+  display: flex;
+  justify-content: center;
+}
+
+.employeeLeaveRequest-tableCell--start {
+  font-size: 12px;
+  color: var(--leave-text-light);
+}
+
+.employeeLeaveRequest-tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.employeeLeaveRequest-table {
+  width: 100%;
+  min-width: 900px;
+}
+
+.employeeLeaveRequest-tableHeader {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1.5fr 1fr 2fr 1fr;
+  background-color: #f6f6f6;
+  padding: 12px 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.employeeLeaveRequest-tableHeader--permission {
+  grid-template-columns: 0.5fr 1fr 1fr 1.5fr 1fr 1fr 2fr 1fr;
+}
+
+.employeeLeaveRequest-tableRow {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1.5fr 1fr 2fr 1fr;
+  padding: 14px 15px;
+  border-bottom: 1px solid #f3f4fe;
+  align-items: center;
+  transition: background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.employeeLeaveRequest-tableRow--permission {
+  grid-template-columns: 0.5fr 1fr 1fr 1.5fr 1fr 1fr 2fr 1fr;
+}
+
+
+.employeeLeaveRequest-tableCell {
+  font-size: 12px;
+  color: var(--leave-text-main);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.employeeLeaveRequest-dropdownTrigger span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+input[type="time"].employeeLeaveRequest-input {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.employeeLeaveRequest-tableCell--reason {
+  color: #A29CC1;
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
+.employeeLeaveRequest-tableCell--start {
+  font-size: 12px;
+  color: var(--leave-text-main);
+  display: flex;
+  justify-content: start;
+  align-items: start;
+}
+
+.employeeLeaveRequest-input {
+  padding-right: 40px !important;
+}
+
+.employeeLeaveRequest-headerCell--center,
+.employeeLeaveRequest-tableCell--center {
+  display: flex;
+  justify-content: center;
+}
+
+.employeeLeaveRequest-badge {
+  display: inline-flex;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  min-width: 85px;
+  justify-content: center;
+  background: #FFD9CF;
+  color: #EE5C22;
+}
+
+.employeeLeaveRequest-badge--pending {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.employeeLeaveRequest-badge--approved {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.employeeLeaveRequest-badge--rejected {
+  background: #FFD9CF;
+  color: #EE5C22;
+}
+
+.employeeLeaveRequest-submitBtn {
+  background: var(--leave-primary);
+  color: #fff;
+  border: none;
+  padding: 5px 18px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+}
+
+.employeeLeaveRequest-submitBtn:hover {
+  opacity: 0.9;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+
+
+/* Modern Close Button */
+.btn-close {
+  width: 20px;
+  height: 20px;
+  border: none !important;
+
+}
+
+/* Hover */
+.btn-close:hover {
+  color: #111827;
+  border: none !important;
+  /* background: #f3f4f6; */
+}
+
+/* Active click */
+.btn-close:active {
+  transform: scale(0.9);
+  border: none !important;
+}
+
+.btn-close:focus-visible,
+.btn-close:active,
+.btn-close:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+
+
+.employeeLeaveRequest-filterSelect {
+  position: relative;
+  z-index: 110;
+}
+
+.employeeLeaveRequest-filterSelectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #dce1e7;
+  background-color: #fff;
+  font-size: 12px;
+  color: #495057;
+  cursor: pointer;
+  user-select: none;
+}
+
+.employeeLeaveRequest-filterDropdownArrow {
+  width: 12px;
+  transition: 0.3s;
+}
+
+.employeeLeaveRequest-filterDropdownArrow.rotate {
+  transform: rotate(180deg);
+}
+
+.employeeLeaveRequest-filterSelectMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  z-index: 110;
+  animation: adminSelectSlideDown 0.2s ease-out;
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+@keyframes employeeLeaveRequestFilterSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.employeeLeaveRequest-filterSelectItem {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--leave-text-main);
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.employeeLeaveRequest-filterSelectItem:last-child {
+  border-bottom: none;
+}
+
+.employeeLeaveRequest-filterSelectItem:hover {
+  background: #f8f9ff;
+  color: var(--leave-primary);
+}
+
+.employeeLeaveRequest-filterSelectItem.active {
+  background: #e8f0fe;
+  color: var(--leave-primary);
+}
+
+.employeeLeaveRequest-filterSelectMenu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.employeeLeaveRequest-filterSelectMenu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.employeeLeaveRequest-filterSelectMenu::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.employeeLeaveRequest-filterSelectMenu::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+.employeeLeaveRequest-paginationWrapper {
+  margin-top: 10px;
+}
+
+.employeeLeaveRequest-paginationContainer {
+  margin-top: 10px;
+}
+
+.employeeLeaveRequest-paginationContainer button {
+  border: none !important;
+  color: #3B3C58 !important;
+  font-weight: 400;
+  border-radius: 0.2rem;
+  margin-bottom: 0px !important;
+}
+
+.employeeLeaveRequest-paginationContainer .btn-primary {
+  background: #F6F6F6;
+  color: #3A466D !important;
+  border: none !important;
+  border: 2px solid #0000000D;
+  font-weight: 600;
+}
+
+.employeeLeaveRequest-paginationContainer .btn-outline-primary.active {
+  background: var(--theme-gradient) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.employeeLeaveRequest-paginationContainer button:disabled {
+  opacity: 0.5;
+  color: #9CA3AF !important;
+  cursor: not-allowed !important;
+  background-color: transparent !important;
+  border-color: #dee2e6 !important;
+}
+
+.employeeLeaveRequest-paginationContainer button:hover:not(:disabled):not(.btn-primary) {
+  background-color: var(--theme-hover) !important;
+  color: #3B3C58 !important;
+}
+
+body.theme4 .employeeLeaveRequest-paginationContainer button:hover:not(:disabled):not(.btn-primary) {
+  background-color: #f1f1f1 !important;
+  color: #3B3C58 !important;
+}
+
+.employeeLeaveRequest-unsavedModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Slightly darker overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.employeeLeaveRequest-unsavedModalContent {
+  background-color: white;
+  color: #3A466D;
+  border-radius: 12px;
+  padding: 28px 32px 24px 32px;
+  max-width: 420px;
+  width: 90%;
+  border: 1px solid #e5e7eb;
+  position: relative;
+  /* Important for absolute close button */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.employeeLeaveRequest-unsavedModalTitle {
+  margin-bottom: 13px;
+  font-size: 16px;
+}
+
+.employeeLeaveRequest-unsavedModalText {
+  margin-bottom: 24px;
+  color: #77728E;
+  font-size: 13px;
+}
+
+.employeeLeaveRequest-unsavedModalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.employeeLeaveRequest-unsavedModalBtn {
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.employeeLeaveRequest-unsavedModalBtn--cancel {
+  border: none;
+  background-color: #BBBBBB;
+  color: #ffff;
+}
+
+.employeeLeaveRequest-unsavedModalBtn--discard {
+  border: none;
+  background-color: #EE5C22;
+  color: white;
+}
+
+.employeeLeaveRequest-unsavedModalBtn--save {
+  border: none;
+  background-color: #5977F8;
+  color: white;
+}
+
+/* ===== FORM LAYOUT TUNING ===== */
+.employeeLeaveRequest-formRow--schedule {
+  --bs-gutter-x: 10px;
+  --bs-gutter-y: 10px;
+  align-items: flex-end;
+}
+
+.employeeLeaveRequest-formRow--reason {
+  --bs-gutter-x: 10px;
+  --bs-gutter-y: 10px;
+  align-items: flex-end;
+}
+
+.employeeLeaveRequest-formCol {
+  min-width: 0;
+}
+
+.employeeLeaveRequest-formCol--duration {
+  flex: 0 0 220px;
+  max-width: 220px;
+}
+
+.employeeLeaveRequest-formCol--singleDate {
+  flex: 0 0 170px;
+  max-width: 170px;
+}
+
+.employeeLeaveRequest-formCol--rangeDate,
+.employeeLeaveRequest-formCol--totalDays {
+  flex: 0 0 160px;
+  max-width: 160px;
+}
+
+.employeeLeaveRequest-timeCol {
+  flex: 0 0 150px;
+  max-width: 150px;
+}
+
+.employeeLeaveRequest-formCol--reason {
+  flex: 0 0 220px;
+  max-width: 220px;
+}
+
+.employeeLeaveRequest-formCol--otherReason {
+  flex: 1 1 300px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.employeeLeaveRequest__customDropdown--duration,
+.employeeLeaveRequest__customDropdown--reason {
+  width: 100%;
+  max-width: 100%;
+}
+
+
+
+/* ===== STANDARDIZED INPUTS & DROPDOWN TRIGGERS ===== */
+.employeeLeaveRequest-input,
+.employeeLeaveRequest-inputs,
+.employeeLeaveRequest__customDropdown .custom-dropdown-trigger {
+  height: 28px !important;
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+}
+
+.employeeLeaveRequest-input {
+  padding: 4px 35px 4px 10px !important;
+}
+
+.employeeLeaveRequest-inputs {
+  padding: 4px 10px !important;
+}
+
+
+.time-input-wrapper .employeeLeaveRequest-inputs {
+  padding: 4px 35px 4px 10px !important;
+}
+
+/* Hover & Focus States for Inputs & Dropdown Triggers */
+.employeeLeaveRequest-input:focus,
+.employeeLeaveRequest-inputs:focus,
+.employeeLeaveRequest-textarea:focus {
+  outline: none !important;
+  border-color: #8A8AF5 !important;
+  box-shadow: 0 0 0 3px rgba(138, 138, 245, 0.15) !important;
+}
+
+
+.employeeLeaveRequest-textarea {
+  border: 1px solid rgba(31, 31, 31, 0.12) !important;
+  border-radius: 5px !important;
+  font-size: 12px !important;
+  color: var(--leave-text-main) !important;
+}
+
+.employeeLeaveRequest-formRow--schedule .employeeLeaveRequest__customDropdown--duration,
+.employeeLeaveRequest-formRow--schedule .employeeLeaveRequest-dateInputWrapper,
+.employeeLeaveRequest-formRow--schedule .employeeLeaveRequest-input,
+.employeeLeaveRequest-formRow--schedule .employeeLeaveRequest-inputs {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.employeeLeaveRequest-formRow--schedule .employeeLeaveRequest-dateIcon {
+  right: 12px;
+}
+
+.employeeLeaveRequest-formRow--schedule .employeeLeaveRequest-formCol {
+  flex-grow: 1;
+  max-width: 100% !important;
+}
+
+.employeeLeaveRequest-formRow--reason .employeeLeaveRequest__customDropdown--reason,
+.employeeLeaveRequest-formRow--reason .employeeLeaveRequest-inputs {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.employeeLeaveRequest-descriptionWrap {
+  width: 100%;
+  max-width: 100%;
+}
+
+.employeeLeaveRequest-descriptionWrap .employeeLeaveRequest-textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 110px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ===== MY LEAVE REQUESTS TOP BAR ===== */
+.employeeLeaveRequest-tableTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+}
+
+.employeeLeaveRequest-tableTopBarRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
+}
+
+.employeeLeaveRequest__filterDropdown {
+  min-width: 110px;
+  max-width: 130px;
+}
+
+.employeeLeaveRequest__filterDropdown--month {
+  min-width: 130px;
+  max-width: 155px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 991px) {
+  .employeeLeaveRequest-wrapper {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    padding-bottom: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .employeeLeaveRequest-wrapper {
+    top: 74px;
+  }
+
+  .employeeLeaveRequest-panel {
+    padding: 12px;
+  }
+
+  .employeeLeaveRequest-sectionTitle {
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .employeeLeaveRequest-formRow--schedule,
+  .employeeLeaveRequest-formRow--reason {
+    --bs-gutter-x: 10px;
+    --bs-gutter-y: 8px;
+  }
+
+  .employeeLeaveRequest-formCol--duration,
+  .employeeLeaveRequest-formCol--singleDate,
+  .employeeLeaveRequest-formCol--rangeDate,
+  .employeeLeaveRequest-formCol--totalDays,
+  .employeeLeaveRequest-timeCol,
+  .employeeLeaveRequest-formCol--reason,
+  .employeeLeaveRequest-formCol--otherReason {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .employeeLeaveRequest-submitBtn {
+    width: 100%;
+  }
+
+  .employeeLeaveRequest-input {
+    width: 100% !important;
+    padding-right: 35px !important;
+  }
+
+  .employeeLeaveRequest-inputs {
+    width: 100% !important;
+  }
+
+  .employeeLeaveRequest-dateIcon {
+    right: 12px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .employeeLeaveRequest-dateInputWrapper {
+    width: 100%;
+  }
+
+  /* Reason dropdown and description â€” full width on mobile */
+  .employeeLeaveRequest-formRow--reason .employeeLeaveRequest__customDropdown--reason,
+  .employeeLeaveRequest-formRow--reason .employeeLeaveRequest-inputs {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .employeeLeaveRequest-descriptionWrap {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .employeeLeaveRequest-tableTopBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .employeeLeaveRequest-tableTopBarRight {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .employeeLeaveRequest__filterDropdown,
+  .employeeLeaveRequest__filterDropdown--month {
+    min-width: 100px;
+    max-width: 130px;
+  }
+
+  .employeeLeaveRequest-table {
+    min-width: 750px;
+  }
+
+  .employeeLeaveRequest-tableHeader,
+  .employeeLeaveRequest-tableRow {
+    grid-template-columns: 0.4fr 1fr 1fr 1.3fr 1fr 1.8fr 1fr;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .employeeLeaveRequest-tableHeader--permission,
+  .employeeLeaveRequest-tableRow--permission {
+    grid-template-columns: 0.4fr 1fr 1fr 1.3fr 1fr 1fr 1.8fr 1fr;
+  }
+
+  .employeeLeaveRequest-paginationContainer button {
+    padding: 5px !important;
+    font-size: 0.6rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .employeeLeaveRequest-dateIcon {
+    right: 10px;
+    width: 11px;
+    height: 11px;
+  }
+
+  .employeeLeaveRequest-input {
+    padding-right: 30px !important;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .employeeLeaveRequest-wrapper {
+    top: 62px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .employeeLeaveRequest-dateIcon {
+    right: 8px;
+    width: 10px;
+    height: 10px;
+  }
+
+  .employeeLeaveRequest-input {
+    padding-right: 28px !important;
+    font-size: 10px;
+  }
+
+  .employeeLeaveRequest-table {
+    min-width: 650px;
+  }
+
+  .employeeLeaveRequest-tableHeader,
+  .employeeLeaveRequest-tableRow {
+    grid-template-columns: 0.3fr 0.8fr 0.8fr 1.2fr 0.8fr 1.5fr 0.8fr;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .employeeLeaveRequest-tableHeader--permission,
+  .employeeLeaveRequest-tableRow--permission {
+    grid-template-columns: 0.3fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1.5fr 0.8fr;
+  }
+
+  .employeeLeaveRequest-sectionTitle {
+    font-size: 14px;
+  }
+
+  .employeeLeaveRequest-tableTopBarRight {
+    gap: 6px;
+  }
+
+  .employeeLeaveRequest__filterDropdown,
+  .employeeLeaveRequest__filterDropdown--month {
+    min-width: 90px;
+    max-width: 120px;
+  }
+
+  /* Allow tabs to wrap on very small screens so Permission goes underneath */
+  .employeeLeaveRequest-tabContainer {
+    padding-bottom: 4px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .employeeLeaveRequest-tabs {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .employeeLeaveRequest-wrapper {
+    top: 58px;
+    left: 8px;
+    right: 8px;
+  }
+
+  .employeeLeaveRequest-panel {
+    padding: 8px;
+  }
+
+  .employeeLeaveRequest-sectionTitle {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .employeeLeaveRequest-label {
+    font-size: 11px;
+  }
+
+  .employeeLeaveRequest-tab {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+}
+
+.time-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.time-input-wrapper .employeeLeaveRequest-inputs {
+  width: 100%;
+  padding: 4px 35px 4px 10px !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+}
+
+.custom-time::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.time-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #77728E;
+  pointer-events: none;
+  z-index: 2;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.unsaved-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.unsaved-modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px 32px 24px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+/* Separate Close Button for Unsaved Modal */
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  width: 23px;
+  height: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close-btn:hover {
+  color: #111827;
+  /* background: #f3f4f6; */
+}
+
+.modal-close-btn:active {
+  transform: scale(0.9);
+}
+
+/* Remove focus outline */
+.modal-close-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Modal Title & Text */
+.unsaved-modal-title {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: #3A466D;
+  font-weight: 600;
+}
+
+.unsaved-modal-text {
+  margin-bottom: 28px;
+  color: #77728E;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.unsaved-modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.unsaved-modal-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.unsaved-modal-btn--discard {
+  background-color: #ef4444;
+  color: white;
+}
+
+.unsaved-modal-btn--discard:hover {
+  background-color: #dc2626;
+}
+
+.unsaved-modal-btn--save {
+  background-color: #5977f8;
+  color: white;
+}
+
+.unsaved-modal-btn--save:hover {
+  background-color: #4f6cd1;
+}
+
+/* ===== TAB NAVIGATION ===== */
+.employeeLeaveRequest-tabContainer {
+
+  padding-bottom: 9px;
+
+}
+
+.employeeLeaveRequest-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Tab Button */
+.employeeLeaveRequest-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 10px 10px 10px 2px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2d355f;
+  font-weight: 400;
+  background: none;
+}
+
+
+
+/* Base Circle */
+.employeeLeaveRequest-tabCircle {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #ACACAC38;
+  border: 1.5px solid #BBBBBB38;
+  transition: all 0.3s ease;
+}
+
+/* Active Outer Circle */
+.employeeLeaveRequest-tab--active .employeeLeaveRequest-tabCircle {
+  background: #5977F8;
+  /* main blue */
+  box-shadow: 0px 0px 8px 0px #6495FF80;
+  border: none;
+}
+
+/* ðŸ”µ Inner White Dot */
+.employeeLeaveRequest-tab--active .employeeLeaveRequest-tabCircle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+/* Responsive tabs */
+@media (max-width: 768px) {
+  .employeeLeaveRequest-tabs {
+    gap: 12px;
+  }
+
+  .employeeLeaveRequest-tab {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .employeeLeaveRequest-tabCircle {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .employeeLeaveRequest-tableHeader,
+  .employeeLeaveRequest-tableRow {
+    grid-template-columns: 0.4fr 0.9fr 0.9fr 1.1fr 0.9fr 1.4fr 0.8fr;
+  }
+
+  .employeeLeaveRequest-tableHeader--permission,
+  .employeeLeaveRequest-tableRow--permission {
+    grid-template-columns: 0.4fr 0.9fr 0.9fr 1.1fr 0.9fr 0.9fr 1.4fr 0.8fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .employeeLeaveRequest-tabs {
+    gap: 8px;
+  }
+
+  .employeeLeaveRequest-tab {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .employeeLeaveRequest-tabCircle {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+}
+
+.month-dropdown,
+.year-dropdown {
+  width: 80px;
+  /* âœ… your requirement */
+  min-width: 90px;
+  max-width: 90px;
+}
+
+.month-dropdown .custom-dropdown-trigger,
+.year-dropdown .custom-dropdown-trigger {
+  width: 100%;
+  height: 30px;
+}
+
+.month-dropdown .custom-dropdown-trigger span,
+.year-dropdown .custom-dropdown-trigger span {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* =====================================
+   LEAVE BALANCE SUMMARY CARDS
+===================================== */
+
+
+.employeeLeaveRequest-balanceCard {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid #ececec;
+
+}
+
+.employeeLeaveRequest-balanceTitle {
+  font-size: 14px;
+  color: #3A466D;
+  font-weight: 400;
+  margin-bottom: 14px;
+}
+
+.employeeLeaveRequest-balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #77728E;
+}
+
+.employeeLeaveRequest-balanceRow strong {
+  color: #3A466D;
+}
+
+.employeeLeaveRequest-balanceRemaining {
+  color: #16A34A;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .employeeLeaveRequest-balanceGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =====================================
+   GRAND TOTAL SUMMARY SECTION
+===================================== */
+
+.employeeLeaveRequest-grandTotalSummary {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 60px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 25px;
+  margin-bottom: 25px;
+  border: 1px solid #ececec;
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); */
+  position: relative;
+}
+
+.grandTotal-toggleBtn {
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f3f4f6;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #3A466D;
+  transition: all 0.2s ease;
+}
+
+.grandTotal-toggleBtn:hover {
+  background: #e5e7eb;
+  color: var(--leave-primary);
+}
+
+.grandTotal-toggleBtn svg {
+  font-size: 18px;
+}
+
+.grandTotal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grandTotal-label {
+  font-size: 13px;
+  color: #77728E;
+  font-weight: 500;
+}
+
+.grandTotal-value {
+  font-size: 24px;
+  color: #3A466D;
+  font-weight: 700;
+}
+
+.grandTotal-value.highlighted {
+  color: #16A34A;
+}
+
+/* Responsive adjustment for grand total */
+@media (max-width: 600px) {
+  .employeeLeaveRequest-grandTotalSummary {
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+  }
+
+  .grandTotal-value {
+    font-size: 20px;
+  }
+}
+
+/* ==========================================================================
+   LEAVE BALANCE SECTION - DASHBOARD STYLING
+   ========================================================================== */
+
+.employeeLeaveRequest-balancesSection {
+  background-color: #fafbfe;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px dashed rgba(89, 119, 248, 0.25);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.employeeLeaveRequest-balancesHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(31, 31, 31, 0.05);
+}
+
+.employeeLeaveRequest-balancesTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3A466D;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.employeeLeaveRequest-toggleBalancesBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: var(--leave-primary);
+  border: 1px solid rgba(89, 119, 248, 0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(89, 119, 248, 0.06);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.employeeLeaveRequest-toggleBalancesBtn:hover {
+  background: var(--leave-primary);
+  color: #ffffff;
+  border-color: var(--leave-primary);
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.2);
+  transform: translateY(-1px);
+}
+
+.employeeLeaveRequest-toggleBalancesBtn .toggle-icon {
+  font-size: 14px;
+  transition: transform 0.25s ease;
+}
+
+/* Overall Cards Layout */
+.employeeLeaveRequest-overallCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.employeeLeaveRequest-overallCard {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid rgba(31, 31, 31, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.015);
+}
+
+.employeeLeaveRequest-overallCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.035);
+  border-color: rgba(89, 119, 248, 0.15);
+}
+
+.overall-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.overall-card-inner .card-label {
+  font-size: 11px;
+  color: #77728E;
+  font-weight: 500;
+
+  letter-spacing: 0.5px;
+}
+
+.overall-card-inner .card-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3A466D;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.card-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+
+}
+
+.card-badge.bg-blue {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.card-badge.bg-orange {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.card-badge.bg-green {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Detailed Category Cards Grid */
+.employeeLeaveRequest-detailedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed rgba(31, 31, 31, 0.08);
+}
+
+.employeeLeaveRequest-detailedCard {
+  background: #ffffff;
+  border: 1px solid rgba(31, 31, 31, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+}
+
+.employeeLeaveRequest-detailedCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+  border-color: rgba(89, 119, 248, 0.15);
+}
+
+.detailed-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(31, 31, 31, 0.04);
+  padding-bottom: 8px;
+}
+
+.detailed-card-badge {
+  background: #f1f3f9;
+  color: #3A466D;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.detailed-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3A466D;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.detailed-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailed-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.detailed-stat-label {
+  color: #77728E;
+}
+
+.detailed-stat-val {
+  font-weight: 600;
+  color: #3A466D;
+}
+
+.detailed-stat-val.used-color {
+  color: #ef4444;
+}
+
+.detailed-stat-val.remaining-color {
+  color: #10b981;
+}
+
+.border-top-stat {
+  border-top: 1px solid rgba(31, 31, 31, 0.04);
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
+/* Dynamic Progress Bar */
+.detailed-card-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar-track {
+  height: 6px;
+  background-color: #f1f3f9;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #5977f8 0%, #3b82f6 100%);
+  transition: width 0.4s ease-out;
+}
+
+.progress-text-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #77728E;
+  font-weight: 500;
+}
+
+/* Animation for smooth dropdown reveal */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Balances Grid */
+@media (max-width: 768px) {
+  .employeeLeaveRequest-balancesSection {
+    padding: 14px;
+    margin-bottom: 18px;
+  }
+
+  .employeeLeaveRequest-overallCards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .employeeLeaveRequest-overallCard {
+    padding: 12px;
+  }
+
+  .overall-card-inner .card-value {
+    font-size: 20px;
+  }
+
+  .employeeLeaveRequest-detailedGrid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+}
+
+
+
+.employeeLeaveRequest-balanceCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  /* margin-bottom: 16px; */
+}
+
+.employeeLeaveRequest-balanceCard {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+
+.employeeLeaveRequest-balanceTitle {
+  font-size: 12px;
+  color: #3A466D;
+  margin-bottom: 8px;
+}
+
+.employeeLeaveRequest-balanceValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #5977F8;
+}
+
+.employeeLeaveRequest-balanceLabel {
+  font-size: 11px;
+  color: #868585;
+  margin-top: 4px;
+}
+
+.employeeLeaveRequest-balanceFooter {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #77728E;
+}
+
+/* Form Structure Classes */
+.employeeLeaveRequest-balanceCards-container {
+  padding: 20px;
+}
+
+.employeeLeaveRequest-form-panel {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.employeeLeaveRequest-form-header {
+  padding: 0 0 5px 0 !important;
+}
+
+.employeeLeaveRequest-form-header .common-modal-close-x {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  margin-left: auto !important;
+}
+
+.employeeLeaveRequest-form-body {
+  background-color: #f6f6f6;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 0;
+  border: 1px solid var(--leave-border);
+}
+
+.employeeLeaveRequest-form-footer {
+  padding: 10px 0 0 0;
+  border-top: none;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px;
+  width: 100% !important;
+}
+

@@ -1,0 +1,1273 @@
+:root {
+  --admin-primary: #5977f8;
+  --admin-text-main: #3a466d;
+  --admin-text-light: #77728e;
+  --admin-border: #e5e7eb;
+  --admin-bg: #f8f8f8;
+  --admin-font-reg: "Gilroy-Regular", sans-serif;
+  --admin-font-med: "Gilroy-Medium", sans-serif;
+  --admin-font-bold: "Gilroy-SemiBold", sans-serif;
+  --theme-hover: #e0e0e0;
+  --theme-gradient: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+}
+
+/* =========================================
+   PAGINATION CSS
+   ========================================= */
+.adminpagination-container button {
+  border: none !important;
+  color: #3b3c58 !important;
+  /* font-weight: 400; */
+  line-height: 1.5;
+  border-radius: 0.2rem;
+  transition: all 0.2s ease-in-out;
+  margin-top: 10px;
+}
+
+.adminpagination-container .btn-primary {
+  background: #f6f6f6;
+  color: #3a466d !important;
+  border: none !important;
+  border: 2px solid #0000000d;
+  /* font-weight: 600; */
+}
+
+.adminpagination-container .btn-outline-primary.active {
+  background: var(--theme-gradient) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.adminpagination-container button:disabled {
+  opacity: 0.5;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  background-color: transparent !important;
+  border-color: #dee2e6 !important;
+}
+
+.adminpagination-container button:hover:not(:disabled):not(.btn-primary) {
+  background-color: var(--theme-hover) !important;
+  color: #3b3c58 !important;
+}
+
+/* =========================================
+   MAIN LAYOUT
+   ========================================= */
+.adminLeaveRequest-wrapper {
+  position: absolute;
+  left: 250px;
+  right: 15px;
+  top: 95px;
+  min-height: calc(100vh - 104px);
+  padding-left: 17px;
+  padding-right: 17px;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.adminLeaveRequest-panel {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   HEADER
+   ========================================= */
+.adminLeaveRequest-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.adminLeaveRequest-sectionTitle {
+  /* font-family: var(--admin-font-med); */
+  font-size: 16px;
+  color: var(--admin-text-main);
+  /* font-weight: 500; */
+}
+
+/* =========================================
+   FILTERS GROUP
+   ========================================= */
+.adminLeaveRequest-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Header Dropdowns (Year/Month) */
+.adminLeaveRequest-customSelect {
+  position: relative;
+  min-width: 120px;
+}
+
+.adminLeaveRequest-customSelectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  /* ↓ reduce gap */
+  padding: 6px 8px;
+  /* ✅ reduced padding */
+  min-height: 30px;
+  /* ✅ fixed height */
+  border-radius: 5px;
+  border: 1px solid #dce1e7;
+  background-color: #fff;
+  font-size: 12px;
+  /* ↓ smaller text */
+  color: #495057;
+  cursor: pointer;
+}
+
+.adminLeaveRequest-customSelect {
+  min-width: 90px;
+}
+
+.adminLeaveRequest-customSelectItem {
+  padding: 6px 10px;
+  /* ↓ reduce height */
+  font-size: 11px;
+  /* ↓ smaller text */
+}
+
+.adminLeaveRequest-dropdownArrow {
+  width: 12px;
+  height: 12px;
+}
+
+.adminLeaveRequest-dropdownArrow {
+
+  width: 17px;
+  height: 17px;
+  transition: transform 0.2s ease;
+
+  transition: transform 0.3s ease, opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.adminLeaveRequest-dropdownArrow.rotate {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.adminLeaveRequest-customSelectMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  z-index: 110;
+  animation: adminSelectSlideDown 0.2s ease-out;
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+@keyframes adminSelectSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.adminLeaveRequest-customSelectItem {
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--admin-text-main);
+  cursor: pointer;
+}
+
+.adminLeaveRequest-customSelectItem:hover {
+  background-color: #f0f4ff;
+}
+
+.adminLeaveRequest-customSelectItem.active {
+  background-color: #ebf0ff;
+  color: var(--admin-primary);
+  /* font-family: var(--admin-font-med); */
+}
+
+/* =========================================
+   FILTER ICON & POPUP
+   ========================================= */
+.adminLeaveRequest-filterWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.adminLeaveRequest-filterIconBtn {
+  border: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 6px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adminbtn {
+  width: 21px;
+  height: 20px;
+}
+
+.adminLeaveRequest-filterIcon {
+  opacity: 0.7;
+}
+
+/* The Popup */
+.adminLeaveRequest-filterPopup {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 250px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  z-index: 100;
+  animation: slideDown 0.2s ease-out;
+}
+
+@media (max-width: 576px) {
+  .adminLeaveRequest-filterPopup {
+    right: 0;
+    left: auto;
+    transform: none;
+    width: 220px;
+  }
+}
+
+
+@media (max-width: 415px) {
+  .adminLeaveRequest-filterPopup {
+    right: auto;
+    left: 0;
+    transform: none;
+    width: 200px;
+  }
+}
+
+@media (min-width: 391px) and (max-width: 400px) {
+  .adminLeaveRequest-filterPopup {
+    right: 0;
+    left: auto;
+  }
+}
+
+
+.filter-group-label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 8px;
+  /* font-family: var(--admin-font-bold); */
+
+}
+
+.filter-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adminLeaveRequest-checkboxLabel {
+  font-size: 12px;
+  color: var(--admin-text-main);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.adminLeaveRequest-checkboxLabel input {
+  accent-color: var(--admin-primary);
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+}
+
+.filter-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 12px 0;
+}
+
+/* =========================================
+   INNER EMPLOYEE DROPDOWN (UPDATED)
+   ========================================= */
+.filter-inner-dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.filter-inner-dropdown-trigger {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #dce1e7;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--admin-text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.filter-inner-dropdown-trigger:hover {
+  border-color: #b0b8c4;
+}
+
+.filter-inner-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  /* 👈 show above */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 105;
+  overflow: hidden;
+}
+
+/* SEARCH INPUT CONTAINER (FIXED AT TOP) */
+.filter-search-container {
+  padding: 6px;
+  background: #fdfdfd;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-search-input {
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 11px;
+  border: 1px solid #dce1e7;
+  border-radius: 4px;
+  outline: none;
+  /* font-family: var(--admin-font-reg); */
+}
+
+.filter-search-input:focus {
+  border-color: var(--admin-primary);
+}
+
+/* SCROLLABLE LIST AREA (BELOW INPUT) */
+.filter-inner-dropdown-scroll {
+  /* Logic: Approx 35px per item * 4 items = 140px */
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.filter-inner-dropdown-item {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--admin-text-main);
+  cursor: pointer;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.filter-inner-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.filter-inner-dropdown-item:hover {
+  background-color: #f0f4ff;
+}
+
+.filter-inner-dropdown-item.active {
+  background-color: #ebf0ff;
+  color: var(--admin-primary);
+  /* font-weight: 600; */
+}
+
+/* Scrollbar styling */
+.filter-inner-dropdown-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filter-inner-dropdown-scroll::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+/* =========================================
+   TABLE & BADGES
+   ========================================= */
+.adminLeaveRequest-tableCard {
+  border-radius: 8px;
+  overflow: hidden;
+
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.adminLeaveRequest-table {
+  width: 100%;
+  min-width: 1100px;
+}
+
+.adminLeaveRequest-tableHeader,
+.adminLeaveRequest-tableRow {
+  display: grid;
+  grid-template-columns: 35px 1fr 0.8fr 1fr 0.9fr 1.4fr 1.8fr 1fr 80px;
+  padding: 12px 15px;
+  align-items: center;
+  gap: 12px;
+}
+
+.adminLeaveRequest-tableHeader {
+  background-color: #f6f6f6;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.adminLeaveRequest-tableRow {
+  border-bottom: 1px solid #f3f4fe;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.adminLeaveRequest-tableRow:hover {
+  background: #f8f9ff;
+  transform: translateY(-1px);
+}
+
+.adminLeaveRequest-headerCell,
+.adminLeaveRequest-headerCellstart {
+  font-size: 11px;
+  font-weight: 400;
+  color: #77728e;
+  display: flex;
+}
+
+.adminLeaveRequest-headerCell {
+  justify-content: center;
+}
+
+.adminLeaveRequest-headerCellstart {
+  justify-content: start;
+}
+
+.adminLeaveRequest-tableCell,
+.adminLeaveRequest-tableCellstart {
+  font-size: 12px;
+  color: #3a466d;
+  display: flex;
+  align-items: center;
+}
+
+.adminLeaveRequest-tableCell {
+  justify-content: center;
+}
+
+.adminLeaveRequest-tableCellstart {
+  justify-content: start;
+}
+
+.adminLeaveRequest-reasonCell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: #555;
+}
+
+.adminLeaveRequest-headerCell--center,
+.adminLeaveRequest-tableCell--center {
+  justify-content: center;
+}
+
+.adminLeaveRequest-badge {
+  display: inline-flex;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  min-width: 90px;
+  justify-content: center;
+}
+
+.adminLeaveRequest-badge--pending {
+  background: #d0ecff;
+  color: #158fdf;
+}
+
+.adminLeaveRequest-badge--approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.adminLeaveRequest-badge--rejected {
+  background: #ffd9cf;
+  color: #fb6639;
+}
+
+.adminLeaveRequest-badge--leavecancel {
+  background: #ffd9cf;
+  color: #fb6639;
+  border: 1px solid #d6d8db;
+}
+
+.adminLeaveRequest-previewBtn {
+  background: transparent;
+  color: #77728e;
+  border: 1px solid #a29cc1;
+  padding: 4px 14px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.adminLeaveRequest-previewBtn:hover {
+  background: var(--admin-primary);
+  color: white;
+  border-color: var(--admin-primary);
+}
+
+/* =========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================= */
+
+@media (min-width: 1400px) {
+  .adminLeaveRequest-wrapper {
+    left: 270px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .adminLeaveRequest-wrapper {
+    left: 15px;
+    right: 15px;
+    top: 84px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* Tablet: up to 767px */
+@media (max-width: 768px) {
+  .adminLeaveRequest-wrapper {
+    left: 12px;
+    right: 12px;
+    top: 74px;
+  }
+
+  .adminLeaveRequest-panel {
+    padding: 12px;
+    margin-top: 0;
+  }
+
+  /* Let filters group items shrink so they fit on one row */
+  .alr-type-trigger {
+    min-width: 120px;
+    font-size: 11px;
+  }
+
+  .adminLeaveRequest-customSelect {
+    min-width: 80px;
+  }
+
+  .adminLeaveRequest-customSelectTrigger {
+    font-size: 11px;
+    padding: 5px 7px;
+  }
+
+  /* Table: enable horizontal scroll on tablet */
+  .adminLeaveRequest-tableCard {
+    overflow-x: auto;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .adminLeaveRequest-table {
+    min-width: 900px;
+  }
+}
+
+/* Tablet smaller: up to 640px (wrap title and filters) */
+@media (max-width: 640px) {
+  .adminLeaveRequest-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .adminLeaveRequest-filters-group {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile: up to 576px */
+@media (max-width: 576px) {
+  .adminLeaveRequest-wrapper {
+    left: 10px;
+    right: 10px;
+    top: 68px;
+  }
+
+  .adminLeaveRequest-panel {
+    padding: 10px;
+  }
+
+  .adminLeaveRequest-filters-group {
+    gap: 6px;
+  }
+
+  .alr-type-trigger {
+    min-width: 100px;
+    font-size: 10px;
+    padding: 5px 6px;
+  }
+
+  .adminLeaveRequest-customSelect {
+    min-width: 70px;
+  }
+
+  .adminLeaveRequest-customSelectTrigger {
+    font-size: 10px;
+    padding: 5px 6px;
+    gap: 4px;
+  }
+
+  .adminLeaveRequest-dropdownArrow {
+    width: 13px;
+    height: 13px;
+  }
+
+  .adminLeaveRequest-table {
+    min-width: 820px;
+  }
+}
+
+/* Small Mobile: up to 380px */
+@media (max-width: 380px) {
+  .adminLeaveRequest-wrapper {
+    left: 8px;
+    right: 8px;
+    top: 62px;
+  }
+
+  .adminLeaveRequest-panel {
+    padding: 8px;
+  }
+
+  .adminLeaveRequest-filters-group {
+    gap: 5px;
+  }
+
+  .alr-type-trigger {
+    min-width: 90px;
+    font-size: 10px;
+  }
+
+  .adminLeaveRequest-customSelect {
+    min-width: 60px;
+  }
+}
+
+/* =============================================
+   LEAVE STATUS CHANGE STYLES
+   ============================================= */
+
+/* Clickable Leave Item */
+.ha-approved-leave-item--clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ha-approved-leave-item--clickable:hover {
+  background-color: #f0fdf4;
+  border-color: #86efac;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.ha-approved-leave-item__status-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.ha-approved-leave-item__status-hint {
+  font-size: 9px;
+  color: #9ca3af;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.ha-approved-leave-item--clickable:hover .ha-approved-leave-item__status-hint {
+  opacity: 1;
+}
+
+.ha-approved-leave-item__reason {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+  font-style: italic;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Status colors */
+.ha-approved-leave-item__status--pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.ha-approved-leave-item__status--approved {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.ha-approved-leave-item__status--rejected {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.ha-approved-leave-item__status--cancelled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  text-decoration: line-through;
+}
+
+/* Status Action Button */
+.ha-leave-action-btn--status {
+  background-color: #ede9fe;
+  color: #7c3aed;
+}
+
+.ha-leave-action-btn--status:hover {
+  background-color: #ddd6fe;
+  color: #5b21b6;
+}
+
+/* =============================================
+   STATUS CHANGE MODAL
+   ============================================= */
+
+.ha-modal--status-change {
+  max-width: 520px;
+  width: 95%;
+}
+
+.ha-status-change-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ha-status-change-details {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.ha-status-change-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.ha-status-change-label {
+  font-size: 13px;
+  color: #6b7280;
+  /* font-weight: 500; */
+}
+
+.ha-status-change-value {
+  font-size: 13px;
+  color: #111827;
+  /* font-weight: 600; */
+  text-align: right;
+  max-width: 60%;
+}
+
+/* Status Badges */
+.ha-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  /* font-weight: 600; */
+  text-transform: capitalize;
+}
+
+.ha-status-badge--pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.ha-status-badge--approved {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.ha-status-badge--rejected {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.ha-status-badge--cancelled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Status Selection Form */
+.ha-status-change-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ha-status-change-form__label {
+  font-size: 14px;
+  /* font-weight: 600; */
+  color: #374151;
+}
+
+.ha-status-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.ha-status-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  /* font-weight: 500; */
+  color: #374151;
+}
+
+.ha-status-option:hover:not(:disabled) {
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ha-status-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ha-status-option--selected {
+  border-width: 2px;
+  /* font-weight: 600; */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ha-status-option__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ha-status-option__label {
+  flex: 1;
+}
+
+/* Remarks Section */
+.ha-status-change-remarks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ha-status-change-remarks .ha-textarea {
+  resize: none;
+  font-size: 13px;
+}
+
+/* Action Buttons */
+.ha-status-change-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Small spinner for buttons */
+.ha-spinner--sm {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border-width: 2px;
+}
+
+/* Badge for cancelled status */
+.badge--cancelled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .ha-status-options {
+    grid-template-columns: 1fr;
+  }
+
+  .ha-status-change-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .ha-status-change-value {
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .ha-status-change-actions {
+    flex-direction: column;
+  }
+
+  .ha-status-change-actions .ha-btn {
+    width: 100%;
+  }
+}
+
+/* ✅ NEW: Request Type Container */
+.adminLeaveRequest-requestTypeContainer {
+  position: relative;
+}
+
+/* ✅ NEW: Option with Badge */
+.adminLeaveRequest-optionWithBadge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+.adminLeaveRequest-optionBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  background-color: #1ddc69;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(29, 220, 105, 0.3);
+}
+
+/* ✅ NEW: Styling for dropdown with badges */
+.adminLeaveRequest__customDropdown--withBadge {
+  min-width: 180px;
+}
+
+.adminLeaveRequest__customDropdown--withBadge .custom-dropdown-menu {
+  min-width: 200px;
+}
+
+.adminLeaveRequest__customDropdown--withBadge .custom-dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.adminLeaveRequest__customDropdown--withBadge .custom-dropdown-item:hover {
+  background-color: rgba(29, 220, 105, 0.1);
+}
+
+/* Ensure badge is visible in dropdown options */
+.custom-dropdown-item .adminLeaveRequest-optionWithBadge {
+  width: 100%;
+}
+
+/* Active state styling */
+.adminLeaveRequest__customDropdown--withBadge .custom-dropdown-item.active {
+  background-color: rgba(29, 220, 105, 0.15);
+  border-left: 3px solid #1ddc69;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .adminLeaveRequest-optionBadge {
+    min-width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .adminLeaveRequest__customDropdown--withBadge {
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 576px) {
+  .adminLeaveRequest-optionBadge {
+    min-width: 22px;
+    height: 22px;
+    font-size: 9px;
+  }
+
+  .adminLeaveRequest__customDropdown--withBadge {
+    min-width: 130px;
+  }
+}
+
+.adminLeaveRequest-optionWithBadge,
+.adminLeaveRequest-selectedWithBadge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.adminLeaveRequest-optionBadge {
+  background-color: #ff4d4f;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* =====================================================
+   REQUEST TYPE CUSTOM DROPDOWN WITH BADGE
+   ===================================================== */
+
+/* Wrapper — needed for absolute positioning of corner badge */
+.alr-type-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Trigger button — matches style of other dropdowns */
+.alr-type-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 8px;
+  min-width: 160px;
+  border-radius: 5px;
+  border: 1px solid #dce1e7;
+  background-color: #fff;
+  font-size: 12px;
+  color: #495057;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s ease;
+}
+
+.alr-type-trigger:hover {
+  border-color: #b0b8c4;
+}
+
+.alr-type-trigger.open {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 2px rgba(89, 119, 248, 0.1);
+}
+
+.alr-type-trigger-label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Arrow icon inside trigger */
+.alr-type-arrow {
+
+  width: 17px;
+  height: 17px;
+  transition: transform 0.2s ease;
+}
+
+.alr-type-arrow.open {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* -------------------------------------------------------
+   CORNER BADGE
+   - Shows total (leave pending + wfh pending)
+   - Positioned top-right of the trigger button
+   - Hidden automatically when dropdown is open (via JSX)
+   - Hidden when count is 0 (via JSX)
+   ------------------------------------------------------- */
+.alr-corner-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 10;
+  min-width: 20px;
+  height: 20px;
+  background-color: #1ddc69;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(29, 220, 105, 0.45);
+  animation: alrBadgePop 0.25s ease;
+}
+
+@keyframes alrBadgePop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  65% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* -------------------------------------------------------
+   DROPDOWN MENU
+   ------------------------------------------------------- */
+.alr-type-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  overflow: hidden;
+  animation: alrMenuSlide 0.18s ease-out;
+}
+
+@keyframes alrMenuSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------------------
+   EACH OPTION ROW
+   - Label on left, circle badge on right
+   - Badge hidden when count is 0 (via JSX)
+   ------------------------------------------------------- */
+.alr-type-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 5px 14px 14px;
+  font-size: 12px;
+  color: #3a466d;
+  cursor: pointer;
+  gap: 12px;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.alr-type-option:last-child {
+  border-bottom: none;
+}
+
+.alr-type-option:hover {
+  background-color: #f0f4ff;
+}
+
+/* Active/selected option */
+.alr-type-option--active {
+  background-color: #ebf0ff;
+  color: #5977f8;
+}
+
+.alr-type-option-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Per-option circle badge (pending count for that type only) */
+.alr-option-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background-color: #1ddc69;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 0 4px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(29, 220, 105, 0.35);
+}

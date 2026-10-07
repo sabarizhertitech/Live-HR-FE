@@ -1,0 +1,584 @@
+/* Overlay */
+.admin-leave-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.admin-leave-container {
+  position: relative;
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #00000017;
+  width: 850px;
+  max-width: 86%;
+  max-height: 85vh;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  animation: adminPopupFade 0.3s ease-out forwards;
+}
+
+@keyframes adminPopupFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.admin-leave-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.admin-leave-title {
+  font-size: 16px;
+  color: #3a466d;
+  font-weight: 500;
+}
+
+.admin-leave-options-btn {
+  background: none;
+  border: none;
+  color: #3b3c58;
+  font-size: 20px;
+  cursor: pointer;
+  /* font-weight: bold; */
+}
+
+/* Body & Card */
+.admin-leave-body {
+  background-color: #f6f6f6;
+  border-radius: 6px;
+  overflow-y: auto;
+  flex: 1;
+  max-height: calc(85vh - 70px);
+}
+
+.admin-leave-card {
+  background-color: #F6F6F6;
+  border-radius: 6px;
+  padding: 15px !important;
+
+}
+
+/* Profile Section */
+.admin-leave-balance-row {
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.admin-leave-profile-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.admin-leave-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.admin-leave-avatar {
+  width: 53px;
+  height: 53px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px;
+  /* White border ring like design */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.admin-leave-profile-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-leave-emp-name {
+  font-size: 17px;
+  /* font-family: "Gilroy-Medium", sans-serif; */
+  color: #3a466d;
+  margin-bottom: 4px;
+}
+
+.admin-leave-emp-role {
+  font-size: 13px;
+  color: #77728E;
+  /* font-family: "Gilroy-Regular"; */
+  /* font-weight: 400; */
+}
+
+/* Grid Layout */
+.admin-leave-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  /* Spacing between rows */
+}
+
+.admin-leave-info-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  /* Aligns label with top of multiline text */
+}
+
+/* Labels */
+.admin-leave-label {
+  min-width: 110px;
+  /* Width for "Leave Type", "Documents" */
+  color: #868585;
+  font-size: 12px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  /* font-weight: 400; */
+  padding-top: 1px;
+  /* Visual alignment */
+}
+
+.leave-status {
+  margin-left: auto;
+  /* pushes to end (right side) */
+  /* font-weight: 400; */
+  align-self: center;
+  font-size: 12px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  padding: 4px 13px;
+  color: red;
+  background-color: #FFD9CF;
+  border-radius: 6px;
+
+}
+
+/* new */
+.employee-leave-status-badge {
+  padding: 4px 13px;
+  border-radius: 6px;
+  font-size: 12px;
+  /* font-family: "Gilroy-Medium"; */
+  /* font-weight: 400; */
+  text-transform: capitalize;
+
+
+}
+
+/* Default */
+.employee-leave-status-default {
+  color: red;
+  background-color: #FFD9CF;
+}
+
+/* colors */
+.leave-status.approved,
+.leave-status-approved {
+  color: green;
+  background-color: #D5FFCF;
+}
+
+.leave-status.rejected,
+.leave-status-rejected,
+.leave-status.cancelled,
+.leave-status-cancelled,
+.leave-status.Leave-Cancel,
+.leave-status-leave-cancel {
+  color: red;
+  background-color: #FFD9CF;
+}
+
+/* Values */
+.admin-leave-value {
+  color: #3a466d;
+  font-size: 14px;
+  /* font-family: "Gilroy-Medium", sans-serif; */
+  flex: 1;
+}
+
+.admin-leave-value.bold-text {
+  /* font-family: "Gilroy-Bold", sans-serif;  */
+  font-size: 15px;
+}
+
+.admin-leave-reason-text {
+  color: #3a466d;
+  font-size: 14px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  line-height: 1.5;
+  text-align: justify;
+  flex: 1;
+}
+
+/* Document Box (Matches Image) */
+.admin-leave-doc-box {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #E0E0E0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  gap: 8px;
+  width: 250px;
+  /* Fixed width like in design */
+}
+
+.doc-icon {
+  font-size: 16px;
+}
+
+.doc-text {
+  font-size: 13px;
+  color: #3A466D;
+}
+
+/* Input Field (Remarks) */
+.admin-leave-input {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #1F1F1F1F;
+  outline: none;
+  font-size: 13px;
+  height: 39px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+  background: #ffffff;
+}
+
+.admin-leave-input::placeholder {
+  color: #bbb;
+  font-size: 11px;
+  /* font-family: "Gilroy-Regular", sans-serif; */
+}
+
+/* Footer Buttons */
+.admin-leave-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px !important;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-leave-type-balance {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-leave-type-balance .balance-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-leave-type-balance .balance-label {
+  font-size: 13px;
+  color: #77728E;
+}
+
+.admin-leave-type-balance .balance-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3a466d;
+}
+
+.balance-exceeded {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+
+.balance-ok {
+  color: #22c55e !important;
+}
+
+.admin-leave-footer-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-leave-btn {
+  height: 35px;
+  min-width: 105px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.admin-leave-btn:hover {
+  opacity: 0.9;
+}
+
+/* Button Colors */
+.admin-btn-cancel {
+  background: #B4B4B4;
+  color: #ffffff;
+}
+
+.admin-btn-reject {
+  background: #EE5C22;
+  color: #ffffff;
+}
+
+.admin-btn-approve {
+  background: #31B057;
+  color: #ffffff;
+}
+
+/* =========================================
+   RESPONSIVE BREAKPOINTS FOR MODAL
+   ========================================= */
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 767.98px) {
+  .admin-leave-container {
+    width: calc(100% - 24px) !important;
+    max-width: 100% !important;
+    max-height: 90vh;
+    margin: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .admin-leave-body {
+    max-height: calc(90vh - 130px);
+    overflow-y: auto;
+  }
+
+  .admin-leave-info-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .admin-leave-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-top: 10px !important;
+    margin-top: 8px;
+  }
+
+  .admin-leave-type-balance {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px 12px !important;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 10px;
+  }
+
+  .admin-leave-type-balance .balance-item {
+    gap: 4px;
+  }
+
+  .admin-leave-type-balance .balance-label {
+    font-size: 11px;
+  }
+
+  .admin-leave-type-balance .balance-value {
+    font-size: 12px;
+  }
+
+  .admin-leave-footer-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .admin-leave-footer-buttons .admin-leave-btn {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 36px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Mobile: 576px */
+@media (max-width: 576px) {
+  .admin-leave-container {
+    width: calc(100% - 20px) !important;
+    max-height: 90vh;
+    margin: 10px;
+    padding: 12px;
+  }
+
+  .admin-leave-header {
+    padding: 4px 4px 0 4px;
+  }
+
+  .admin-leave-title {
+    font-size: 14px;
+  }
+
+  .admin-leave-card {
+    padding: 12px 14px !important;
+  }
+
+  .admin-leave-label {
+    min-width: 90px;
+    font-size: 11px;
+  }
+
+  .admin-leave-value {
+    font-size: 13px;
+  }
+
+  .admin-leave-reason-text {
+    font-size: 13px;
+  }
+
+  .admin-leave-doc-box {
+    width: 100%;
+  }
+}
+
+/* Small Mobile: 400px */
+@media (max-width: 400px) {
+  .admin-leave-container {
+    width: calc(100% - 12px) !important;
+    margin: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    max-height: 92vh;
+  }
+
+  .admin-leave-card {
+    padding: 10px !important;
+  }
+
+  .admin-leave-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .admin-leave-emp-name {
+    font-size: 14px;
+  }
+
+  .admin-leave-footer-buttons .admin-leave-btn {
+    font-size: 11px !important;
+    padding: 0 2px !important;
+  }
+}
+
+
+
+.confirmation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Semi-transparent white to cover the main modal */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  z-index: 10;
+}
+
+.confirmation-box {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid #eee;
+  text-align: center;
+  width: 300px;
+  animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.confirmation-box h3 {
+  margin: 0 0 10px 0;
+  color: #3A466D;
+  /* font-family: "Gilroy-Bold", sans-serif; */
+  font-size: 18px;
+}
+
+.confirmation-box p {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.confirm-btn {
+  padding: 8px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  /* font-weight: bold; */
+  /* font-family: "Gilroy-Medium", sans-serif; */
+  transition: 0.2s;
+}
+
+.no-btn {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.no-btn:hover {
+  background: #d0d0d0;
+}
+
+.yes-btn {
+  background: #31B057;
+  color: white;
+}
+
+.yes-btn:hover {
+  background: #279649;
+}

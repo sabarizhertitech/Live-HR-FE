@@ -1,0 +1,1014 @@
+:root {
+  --adminTaskPage-primary: #5977f8;
+  --adminTaskPage-danger: #ff6d4d;
+  --adminTaskPage-success: #2ecc71;
+  --adminTaskPage-warning: #ffb020;
+  --adminTaskPage-radius-card: 12px;
+  --adminTaskPage-font-main: "Gilroy-Regular", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --adminTaskPage-bg-body: #b13939;
+}
+
+body {
+  background-color: #ffffff;
+  /* font-family: "Urbanist", sans-serif; */
+  margin: 0;
+}
+
+.adminTaskPageWrapper {
+  background-color: #f8f8f8;
+}
+
+/* ===================== PAGE LAYOUT ===================== */
+
+/* Matches Sidebar.css breakpoint logic */
+.adminTaskPageWrapper {
+  /* margin-left: 245px; */
+  /* Matches Sidebar/Header logic */
+  /* padding-top: 90px; */
+  /* Matches Header height */
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.adminTaskPage {
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+/* .adminTaskPage__popupBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.adminTaskPage__popupBackdrop {
+  position: fixed;
+  inset: 0;                
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.adminTaskPage__popupContainer {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 720px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  cursor: default;       
+}
+*/
+
+.adminTaskPage__popupBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.adminTaskPage__popupOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.adminTaskPage__popupContainer {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 700px;
+  width: 92%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.adminTaskPage__popupContainer .assign-task-page {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.adminTaskPage__popupContainer .assign-task-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.adminTaskPage__popupContainer .task-header {
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  z-index: 200;
+}
+
+.adminTaskPage__popupContainer .task-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+.adminTaskPage__assignCard {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  width: 100%;
+  /* ✅ Mobile */
+}
+
+
+
+.adminTaskPage__assignCard-body {
+  max-width: 100%;
+  margin: 15px;
+}
+
+.adminTaskPage__assignCard-title {
+  font-size: 18px;
+  color: #3a466d;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.adminTaskPage__assignCard-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #77728e;
+  margin-bottom: 12px;
+}
+
+/* ===================== FILTER + TABS PANEL ===================== */
+.adminTaskPage__table {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 120px;
+  width: 100%;
+
+  /* This is the KEY line you are missing */
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.adminTaskPage__tablecenter {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 200px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  grid-column: 1 / -1;
+  /* if parent uses grid */
+}
+
+
+/* Focus effect */
+.adminTaskPage__filterSelect:focus {
+  border-color: #5977f8 !important;
+
+}
+
+
+.adminTaskPage__filterSelect:focus,
+.adminTaskPage__filterInput:focus {
+  border-color: var(--adminTaskPage-primary) !important;
+}
+
+
+
+.adminTaskPage__panel {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #1F1F1F1F;
+  padding: 15px 15px;
+}
+
+
+/* Filters Row */
+.adminTaskPage__filtersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  /* ✅ better spacing */
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.adminTaskPage__customDropdowndate {
+  width: 170px;
+  height: 32px;
+  /* ✅ proper height */
+}
+
+.adminTaskPage__customDropdown,
+.adminTaskPage__customoption {
+  height: 32px;
+  width: 145px;
+  /* Slightly wider for better label visibility */
+}
+
+.adminTaskPage__searchWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.adminTaskPage__searchInput {
+  width: 100% !important;
+  background: #fcfdfe;
+  transition: all 0.2s ease;
+}
+
+.adminTaskPage__searchInput:focus {
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.08);
+  border-color: #5977f8;
+}
+
+/* Custom dropdown trigger override inside this page */
+.adminTaskPage__filterItem .custom-dropdown-trigger {
+  height: 32px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.adminTaskPage__filterCol,
+.adminTaskPage__filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adminTaskPage__filterLabel {
+  font-size: 11px;
+  color: #77728e;
+  margin-bottom: 2px;
+  display: block;
+  font-weight: 400;
+}
+
+/* Filter Inputs & Selects */
+/* Filter Inputs & Selects (Used for native inputs like Date) */
+.adminTaskPage__filterInput {
+  font-size: 11px;
+  color: #3A466D;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 6px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  height: 32px;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+
+.adminTaskPage__filterSelect:focus,
+.adminTaskPage__filterInput:focus {
+  border-color: var(--adminTaskPage-primary) !important;
+}
+
+/* Wrapper */
+.app-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 150px;
+}
+
+.app-dropdown__icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 5px;
+  pointer-events: none;
+}
+
+
+
+.app-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.adminTaskPage__filterSelect:hover {
+  border-color: #dbe8ff !important;
+}
+
+.adminTaskPage__filterSelect:focus {
+  border-color: #5977F8 !important;
+
+}
+
+
+
+.adminTaskPage__statusTabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.adminTaskPage__statusTab {
+  border: none;
+  background: transparent;
+
+  font-size: 12px;
+  color: #77728E;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-weight: 400;
+  cursor: pointer;
+  white-space: 0;
+  line-height: 100%;
+  transition: all 0.2s;
+
+}
+
+.adminTaskPage__statusTab:hover {
+  background-color: #ffffff;
+  /* font-family: "Gilroy-SemiBold" ; */
+}
+
+.adminTaskPage__statusTab--active {
+  background: #5977F8 !important;
+
+  color: #ffffff !important;
+  padding: 5px 20px;
+}
+
+
+.adminTaskPage__tableCard {
+
+  background-color: #fbfcff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.adminTaskPage__table {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  min-width: max-content;
+}
+
+.adminTaskPage__tableHeader,
+.adminTaskPage__tableRow {
+  display: table-row;
+  width: 100%;
+}
+
+.adminTaskPage__tableHeader {
+  background-color: #f6f6f6 !important;
+  font-size: 11px;
+  color: #77728E;
+  font-weight: 400;
+}
+
+.adminTaskPage__tableRow {
+  font-size: 0.75rem;
+  background-color: #ffffff;
+  color: #3A466D;
+  font-weight: 400;
+  transition: background-color 0.1s;
+}
+
+.adminTaskPage__tableRow:hover {
+  background-color: #ffffff;
+}
+
+.adminTaskPage__taskTitle {
+
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.adminTaskPage__tableCell {
+  display: table-cell;
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4fe;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+}
+
+.adminTaskPage__tableHeaderCell {
+  display: table-cell;
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.adminTaskPage__tableCelldate {
+  display: table-cell;
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4fe;
+  text-align: center;
+}
+
+.adminTaskPage__tableHeaderCelldate {
+  display: table-cell;
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.adminTaskPage__taskDescription {
+  font-size: 0.7rem;
+  color: #A29CC1;
+}
+
+/* ===================== BADGES ===================== */
+.adminTaskPage__statusBadge,
+.adminTaskPage__assignedBadge,
+.adminTaskPage__priorityBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  /* font-family: Gilroy-Regular , sans-serif; */
+  font-weight: 400;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.adminTaskPage__priorityBadge--high {
+  background-color: #FFD9CF;
+  color: #FB6639;
+  /* font-family: "Gilroy-medium"; */
+  width: 80px;
+}
+
+.adminTaskPage__priorityBadge--mid {
+  background-color: #D0ECFF;
+  color: #158FDF;
+  /* font-family: "Gilroy-medium"; */
+  width: 80px;
+}
+
+.adminTaskPage__priorityBadge--low {
+  background-color: #D5FFCF;
+  color: #00D40E;
+  /* font-family: "Gilroy-medium"; */
+  width: 80px;
+}
+
+/* ===================== STATUS BADGE COLORS ===================== */
+
+/* Assigned */
+.adminTaskPage__statusBadge--assigned {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* In Process */
+.adminTaskPage__statusBadge--inprocess {
+  background-color: #ede9fe;
+  color: #7c3aed;
+}
+
+/* Completed */
+.adminTaskPage__statusBadge--completed {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+/* Pending */
+.adminTaskPage__statusBadge--pending {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Rejected */
+.adminTaskPage__statusBadge--rejected {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Ignored */
+.adminTaskPage__statusBadge--ignored {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+/* ===================== ASSIGNED STATUS BADGE COLORS ===================== */
+
+/* Assigned (waiting for accept) */
+.adminTaskPage__assignedBadge--assigned {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Accepted */
+.adminTaskPage__assignedBadge--accepted {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+/* Allocated */
+.adminTaskPage__assignedBadge--allocated {
+  background-color: #f0e8ff;
+  color: #7c3aed;
+}
+
+/* Pending */
+.adminTaskPage__assignedBadge--pending {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Rejected */
+.adminTaskPage__assignedBadge--rejected {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Ignored */
+.adminTaskPage__assignedBadge--ignored {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+
+/* ===================== BUTTONS ===================== */
+.adminTaskPage__button {
+  border-radius: 7px;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  /* font-family:"Gilroy-semiBold" , sans-serif; */
+  width: 120px;
+  height: 32px;
+  font-weight: 500;
+  line-height: 100%;
+  letter-spacing: 0.1px;
+}
+
+.adminTaskPage__button--primary {
+  background: #dbe8ff;
+  color: #5977F8;
+}
+
+.adminTaskPage__button--primary:hover {
+  background: #cce0ff;
+}
+
+.adminTaskPage__button--search {
+  background: var(--adminTaskPage-primary);
+  color: white;
+}
+
+.adminTaskPage__button--search:hover {
+  background: #4b66de;
+}
+
+.adminTaskPage__button--cancel {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.adminTaskPage__button--cancel:hover {
+  background: #ffffff;
+}
+
+/* scrol */
+/* Enable scrolling inside table card */
+.adminTaskPage__tableCard {
+  overflow-x: auto;
+}
+
+/* Scrollbar height (thickness) */
+.adminTaskPage__tableCard::-webkit-scrollbar {
+  height: 8px;
+  /* 👈 change thickness here */
+}
+
+/* Scrollbar background track */
+.adminTaskPage__tableCard::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+/* Scrollbar moving thumb */
+.adminTaskPage__tableCard::-webkit-scrollbar-thumb {
+  background: #e1e1e7;
+  /* 👈 blue color */
+  border-radius: 10px;
+}
+
+/* Thumb hover effect */
+.adminTaskPage__tableCard::-webkit-scrollbar-thumb:hover {
+  background: #c8c8cb;
+}
+
+/* Remove bootstrap scroll control */
+/* .table-responsive {
+  overflow-x: unset !important;
+} */
+
+/* ===================== STATUS TABS SCROLL ===================== */
+
+.adminTaskPage__statusTabsWrapper {
+  width: 100%;
+  overflow-x: auto;
+  /* ✅ scroll only if needed */
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.adminTaskPage__statusTabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  min-width: max-content;
+
+}
+
+/* Optional scrollbar styling */
+.adminTaskPage__statusTabsWrapper::-webkit-scrollbar {
+  height: 5px;
+}
+
+.adminTaskPage__statusTabsWrapper::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+/* ================= VIEW TOGGLE ================= */
+.adminTaskPage__viewToggleWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 5px;
+  max-width: 100%;
+}
+
+.adminTaskPage__viewToggleWrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.adminTaskPage__viewToggleWrapper::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.adminTaskPage__viewToggle {
+  display: flex;
+  background: #f8fafc;
+  border-radius: 6px;
+  border-radius: 14px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+  width: max-content;
+  gap: 4px;
+}
+
+.adminTaskPage__toggleBtn {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.adminTaskPage__toggleBtn:hover {
+  color: #334155;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.adminTaskPage__toggleBtn.active {
+  background: #ffffff;
+  color: #5977f8;
+  box-shadow: 0 4px 12px rgba(89, 119, 248, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.adminTaskPage__toggleBtn.active:active {
+  transform: translateY(0);
+}
+
+.adminTaskPage__viewToggleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.adminTaskPage__filterIconContainer {
+  margin-left: auto;
+}
+
+/* ===================== RESPONSIVE QUERIES (Synced with EmployeeTaskPage) ===================== */
+
+/* Tablet (< 992px) */
+@media (max-width: 991.98px) {
+  .adminTaskPageWrapper {
+    margin-left: 0;
+    padding-top: 80px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .adminTaskPage__panel {
+    padding: 15px;
+  }
+
+  .adminTaskPage__tableHeaderCell,
+  .adminTaskPage__tableCell {
+    padding: 12px 10px;
+    font-size: 11px;
+  }
+
+  .adminTaskPage__statusTab {
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
+  .adminTaskPage__viewToggleWrapper {
+    width: auto !important;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .adminTaskPage__viewToggle {
+    margin-bottom: 0;
+  }
+
+  .adminTaskPage__toggleBtn {
+    font-size: 12px;
+    padding: 8px 14px;
+    white-space: nowrap;
+  }
+
+  .adminTaskPage__viewToggleRow {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+  }
+
+  .adminTaskPage__filterIconContainer {
+    margin-left: auto !important;
+    align-self: center !important;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767.98px) {
+  .adminTaskPageWrapper {
+    padding-top: 70px;
+  }
+
+  .adminTaskPage__popupContainer {
+    width: calc(100% - 40px) !important;
+    margin: 20px !important;
+    max-height: calc(100vh - 40px) !important;
+    border-radius: 12px !important;
+  }
+
+  .adminTaskPage__assignCard {
+    flex-direction: column;
+    padding: 25px 20px !important;
+    text-align: center;
+    gap: 20px;
+    width: 100% !important;
+  }
+
+  .adminTaskPage__assignCard-body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .adminTaskPage__assignCard-title {
+    font-size: 18px;
+  }
+
+  .adminTaskPage__assignCard-text {
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+
+  .adminTaskPage__statusTab {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .adminTaskPage__button {
+    width: 100%;
+  }
+
+  .adminTaskPage__filterSelect,
+  .adminTaskPage__filterInput {
+    font-size: 12px;
+    padding: 10px 12px;
+    width: 100% !important;
+  }
+
+  .adminTaskPage__customDropdown,
+  .adminTaskPage__customoption {
+    width: 100% !important;
+  }
+}
+
+/* Small Mobile (< 576px) */
+@media (max-width: 575.98px) {
+
+
+  .adminTaskPage__statusTab {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .adminTaskPage__viewToggle {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .adminTaskPage__toggleBtn {
+    flex: 1;
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .adminTaskPage__viewToggleRow {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  .adminTaskPage__filterIconContainer {
+    width: 100%;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .adminTaskPage__taskViewDropdown {
+    flex: 1;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+}
+
+/* ── Category / Project meta tags in the table rows ──────── */
+.adminTaskPage__metaTag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 9.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  margin: 1px 2px;
+  line-height: 1.4;
+}
+
+.adminTaskPage__metaTag--cat {
+  background: #eef2ff;
+  color: #5977f8;
+  border: 1px solid #c7d0fd;
+}
+
+.adminTaskPage__metaTag--proj {
+  background: #f5f0ff;
+  color: #7c3aed;
+  border: 1px solid #d4b8fd;
+}
+
+/* ── Standardized Date Inputs ── */
+.dwu-date-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 400;
+  color: #77728E;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.dwu-date-input:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+.dwu-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(0.4);
+}
+
+
+
+/* Compact Dropdowns, Inputs, and Labels in Collapsible Filter */
+.dwu-filter-row .custom-dropdown-trigger {
+  height: 35px !important;
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+}
+
+.dwu-filter-row .custom-dropdown-menu .custom-dropdown-item {
+  font-size: 11px !important;
+  padding: 6px 10px !important;
+}
+
+.dwu-filter-row .dwu-filter-label {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  color: #77728e !important;
+  margin-bottom: 6px !important;
+  letter-spacing: 0.3px !important;
+}
+
+.dwu-filter-row .dwu-date-input {
+  height: 35px !important;
+  font-size: 11px !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+}
+
+.dwu-filter-row .dwu-filter-btn {
+  height: 28px !important;
+  font-size: 11px !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+}
+
+.adminTaskPage__tablecenter {
+  display: table-caption;
+  caption-side: bottom;
+  text-align: center;
+  padding: 40px 0;
+  color: #77728E;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Task View Dropdown (compact width) ── */
+.adminTaskPage__taskViewDropdown {
+  width: 130px;
+  min-width: 170px;
+}
+
+/* ── Popup container constraints for desktop ── */
+@media screen and (min-width: 769px) {
+  .adminTaskPage__popupContainer {
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}

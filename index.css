@@ -1,0 +1,572 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: "Gilroy", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #F8F8F8;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+img::selection {
+  background: none;
+}
+
+/* scroll bar (optional, uncomment if needed) */
+/* ::-webkit-scrollbar {
+    width: 15px;
+}
+  
+::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: #025468; 
+    border-radius: 5px; 
+}
+  
+* {
+    scrollbar-width: thin; 
+    scrollbar-color: #025468 #ffffff; 
+} */
+
+/* Toastify Override */
+.Toastify__toast-container {
+  z-index: 20000 !important;
+}
+
+/* ==========================================================================
+   GLOBAL POPUP / MODAL STANDARDIZATION
+   ========================================================================== */
+
+/* 1. Modal Title: Consistent font size, weight, and color */
+.common-modal-title {
+  font-size: 15px !important;
+  color: #3A466D !important;
+  font-weight: 300 !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+/* 2. Close Button ("x"): Standardized size for all close buttons */
+.common-modal-close-x {
+  height: 32px !important;
+  width: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+.common-modal-close-x:hover {
+  color: #1e293b !important;
+}
+
+/* 3. Common Buttons: Standardized height, font, weight, radius, and min-width */
+
+/* Force modal footer buttons to be right-aligned */
+.modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 15px !important;
+  flex-wrap: nowrap !important;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.common-modal-btn,
+.modal-footer .btn {
+  background: #5977f8 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  min-width: 120px !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.2) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+.btn-confirm-success {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
+.btn-small-cancel {
+  background: #bfbfbf !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  min-width: 120px !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.btn-small-cancel:hover {
+  background: #a6a6a6 !important;
+  color: #fff !important;
+}
+
+.btn-update {
+  background-color: #5977f8 !important;
+  color: #ffffff !important;
+}
+
+.btn-reject {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.common-modal-btn:hover,
+.modal-footer .btn:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+/* Audit modal footer — Save as Draft (gray) & Submit for Approval (blue) */
+.modal-footer .btn-secondary {
+  background: #d1d5db !important;
+  color: #374151 !important;
+}
+
+.modal-footer .btn-success {
+  background: #5977f8 !important;
+  color: #ffffff !important;
+}
+
+/* 4. Inner Padding: Same padding for all popup components */
+.modal-body,
+.common-modal-body {
+  padding: 10px 10px 10px 10px !important;
+  /* Top, Right, Bottom, Left */
+}
+
+/* Container Standardization */
+.modal-content,
+.common-modal-content {
+  border-radius: 18px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #edf2f7 !important;
+  overflow: hidden !important;
+  background-color: #ffffff !important;
+}
+
+/* ==========================================================================
+   MEDIA RESPONSIVE QUERIES
+   ========================================================================== */
+
+/* Tablet Devices (max-width: 768px) */
+@media screen and (max-width: 768px) {
+
+  .common-modal-title,
+  .modal-title {
+    font-size: 18px !important;
+  }
+
+  .checkin-modal .common-modal-title {
+    text-align: center !important;
+  }
+
+  .modal-body,
+  .common-modal-body {
+    padding: 20px !important;
+  }
+
+  .common-modal-btn {
+    min-width: auto !important;
+    height: 37px !important;
+    font-size: 13px !important;
+    padding: 0 15px !important;
+  }
+
+  .sal-header-new {
+    padding: 15px 20px !important;
+  }
+}
+
+/* Mobile Devices (max-width: 480px) */
+@media screen and (max-width: 480px) {
+
+  .common-modal-title,
+  .modal-title {
+    font-size: 15px !important;
+  }
+
+  .modal-body,
+  .common-modal-body {
+    padding: 15px 12px !important;
+  }
+
+  .common-modal-btn {
+    min-width: auto !important;
+    width: auto !important;
+    /* Full width buttons on mobile for better touch targets */
+    height: 37px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Force modals to be almost full screen width */
+  .sal-modal,
+  .sal-modal-premium,
+  .erti-delete-modal,
+  .ha-modal,
+  .ha-modal--xl,
+  .ha-modal--month,
+  .modal-content {
+    width: 96% !important;
+    max-width: 96% !important;
+    margin: 10px auto !important;
+    border-radius: 12px !important;
+  }
+
+  /* Header adjustments */
+  .sal-header-new {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .sal-header-actions {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .sal-tabs {
+    flex: 1 !important;
+    overflow-x: auto !important;
+  }
+
+  .common-modal-close-x {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+  }
+
+  /* Form adjustments */
+  .sal-form-grid,
+  .sal-form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Side-by-side layout for Due Date and Status */
+.todo-form-row {
+  display: flex !important;
+  gap: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.todo-form-row .todo-form-group {
+  flex: 1 !important;
+  width: 50% !important;
+}
+
+.status-dropdown-container {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.todo-form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  font-size: 14px;
+  color: #374151;
+  outline: none;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+.todo-form-group select:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 3px rgba(89, 119, 248, 0.1);
+}
+
+/* Checkout & Edit Modal Actions Mobile Fit */
+.checkout-modal-actions,
+.edit-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.edit-modal-actions {
+  margin-left: auto;
+}
+
+.checkout-modal-actions .common-modal-btn {
+  width: 100px !important;
+}
+
+@media (max-width: 576px) {
+
+  .checkout-modal-actions,
+  .edit-modal-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .checkout-modal-actions .common-modal-btn,
+  .edit-modal-actions .common-modal-btn {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* ── DOWNLOAD BUTTON (Common) ───────────────────────────────── */
+.security-download-btn {
+  height: 35px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: #c7f7d8;
+  color: #16A34A;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.security-download-btn:hover {
+  background: #16A34A;
+  color: #ffffff;
+}
+
+/* ── EXCEL EXPORT BUTTON ───────────────────────────────────── */
+.excel-export-btn {
+  height: 35px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: #c7f7d8;
+  color: #16A34A;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.excel-export-btn:hover {
+  background: #16A34A;
+  color: #ffffff;
+}
+
+/* ── PAYSLIP BUTTONS ───────────────────────────────────────── */
+.payslip-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px !important;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  min-width: 90px;
+  width: auto;
+  max-width: max-content;
+}
+
+.payslip-btn:active {
+  transform: translateY(1px);
+}
+
+.payslip-btn-view {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.payslip-btn-view:hover {
+  background: #2563eb !important;
+}
+
+.payslip-btn-download {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.payslip-btn-download:hover {
+  background: #059669 !important;
+}
+
+.payslip-btn-delete {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.payslip-btn-delete:hover {
+  background: #dc2626 !important;
+}
+
+.payslip-btn-dark {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+.payslip-btn-dark:hover {
+  background: #1e293b !important;
+}
+
+/* ── FORM GROUPS ───────────────────────────────────────────── */
+.form-group-a {
+  margin-bottom: 11px;
+  appearance: none;
+}
+
+.form-group-a label {
+  display: block;
+  font-size: 19px;
+  color: #868585;
+  margin-bottom: 6px;
+  line-height: 100%;
+  letter-spacing: 1;
+  align-items: center;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #374151;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #5977f8;
+  box-shadow: 0 0 0 2px rgba(89, 119, 248, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #94a3b8;
+  font-size: 11px;
+  opacity: 1;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  color: #868585;
+  font-weight: 500;
+  margin-bottom: 6px;
+  line-height: 100%;
+  letter-spacing: 0.5px;
+}
+
+/* ── ADMIN ASSIGN TASK SEARCH BOX ──────────────────────────── */
+.adminAssignTask__searchBox {
+  display: flex;
+  align-items: center;
+  width: 90% !important;
+  padding: 5px 9px;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  background: #fff;
+  margin-right: 2px;
+}
+
+/* Global dropdown trigger – common 8px horizontal padding */
+.custom-dropdown-trigger {
+  padding: 0 8px;
+}
+
+/* ── Admin AssignTask search box – 90% width ── */
+.adminAssignTask__searchBoxadmin {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  padding: 5px 9px;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  background: #fff;
+  gap: 6px;
+}
+
+.adminAssignTask__searchBoxadmin input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 11px;
+  color: #77728E;
+  width: 100%;
+}
+
+.adminAssignTask__searchBoxadmin input::placeholder {
+  color: #b0aac0;
+  font-size: 11px;
+}
+
+.adminAssignTask__searchBoxadmin img {
+  height: 15px;
+  width: 15px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}

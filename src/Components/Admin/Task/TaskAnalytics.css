@@ -1,0 +1,2155 @@
+/* ══════════════════════════════════════════════════════════════════
+   TASK ANALYTICS (ADMIN) & EMPLOYEE PERFORMANCE MODAL STYLESHEET
+   Matching pixel-perfect to reference UI specification
+   ══════════════════════════════════════════════════════════════════ */
+
+.ta-dashboard-layout {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  color: #1e293b;
+}
+
+/* ── 1. Header & Top Controls ── */
+.ta-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ta-header-titles .ta-main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.ta-header-titles .ta-main-subtitle {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ── Task Overview Header Card with Filter Toggle ── */
+.ta-overview-header-card {
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.ta-overview-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.ta-overview-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #3A466D;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.ta-overview-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* ── Collapsible Filter Row matching Daily Work Update & Admin Task Page ── */
+.dwu-filter-row {
+  padding: 20px;
+  border-radius: 12px;
+  background: #f6f6f6;
+  margin-top: 18px;
+  border: 1px solid #ededed;
+}
+
+.dwu-filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #718096;
+  margin-bottom: 6px;
+  text-transform: capitalize;
+}
+
+.dwu-filter-row .custom-dropdown-container {
+  width: 100%;
+}
+
+.dwu-filter-row .custom-dropdown-trigger {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  height: 38px !important;
+  font-size: 13px !important;
+  color: #2d3748 !important;
+}
+
+.dwu-date-input {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  height: 38px !important;
+  font-size: 13px !important;
+  color: #2d3748 !important;
+  padding: 6px 12px !important;
+  width: 100%;
+}
+
+@keyframes slideDownAnimation {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slideDownAnimation 0.25s ease-out forwards;
+}
+
+.ta-btn-search-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ta-btn-reset-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ta-btn-reset-filter:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ta-custom-dropdown {
+  width: 100% !important;
+}
+
+.ta-custom-dropdown .custom-dropdown-trigger {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 12.5px !important;
+  height: 38px !important;
+  box-sizing: border-box !important;
+}
+
+.ta-custom-dropdown .custom-dropdown-trigger.open {
+  border-color: #3b82f6 !important;
+  background: #ffffff !important;
+}
+
+/* ── 2. Top Metric KPI Cards (5 Cards) ── */
+.ta-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ta-kpi-card-v2 {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #eef2f6;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ta-kpi-card-v2:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ta-kpi-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.ta-kpi-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.ta-kpi-icon-box.blue {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.ta-kpi-icon-box.green {
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.ta-kpi-icon-box.orange {
+  background: #f97316;
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.ta-kpi-icon-box.pink {
+  background: #f43f5e;
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.ta-kpi-icon-box.purple {
+  background: #8b5cf6;
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.ta-kpi-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.ta-kpi-label {
+  font-size: 15px;
+  color: #3A466D;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.ta-kpi-number {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.ta-kpi-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ta-kpi-trend {
+  display: flex;
+  flex-direction: column;
+}
+
+.ta-trend-text {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ta-trend-text.green {
+  color: #16a34a;
+}
+
+.ta-trend-text.red {
+  color: #dc2626;
+}
+
+.ta-trend-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.ta-sparkline {
+  width: 54px;
+  height: 20px;
+}
+
+/* ── 3. General Card Panels & Grids ── */
+.ta-card-panel {
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.ta-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.ta-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ta-section-single {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.ta-panel-header-simple {
+  margin-bottom: 16px;
+}
+
+.ta-panel-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.ta-panel-title-v2 {
+  font-size: 17px;
+  font-weight: 500;
+  color: #3a466d;
+  margin: 0 0 3px 0;
+}
+
+.ta-panel-subtitle-v2 {
+  font-size: 12px;
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+.ta-btn-link {
+  background: #2563eb;
+  border: 1px solid #dbeafe;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ta-btn-link:hover {
+  background: #6d9bff;
+}
+
+.ta-select-xs {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #334155;
+  outline: none;
+}
+
+/* ── Status Distribution Donut Card ── */
+.ta-status-dist-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-height: 160px;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ta-donut-box {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  flex-shrink: 0;
+}
+
+.ta-donut-center-v2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  text-align: center;
+  width: 75px;
+}
+
+.ta-donut-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.ta-donut-lbl {
+  font-size: 9.5px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.ta-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ta-donut-legend::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ta-donut-legend::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.ta-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  width: 100%;
+  min-width: 0;
+  gap: 6px;
+}
+
+.ta-leg-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.ta-leg-dot.green { background: #10b981; }
+.ta-leg-dot.orange { background: #f97316; }
+.ta-leg-dot.pink { background: #f43f5e; }
+.ta-leg-dot.purple { background: #a855f7; }
+.ta-leg-dot.red { background: #ef4444; }
+.ta-leg-dot.blue { background: #3b82f6; }
+.ta-leg-dot.cyan { background: #06b6d4; }
+.ta-leg-dot.teal { background: #14b8a6; }
+.ta-leg-dot.yellow { background: #eab308; }
+
+.ta-leg-label {
+  color: #475569;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+}
+
+.ta-leg-value {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 11.5px;
+  white-space: nowrap;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── Task Trends Card ── */
+.ta-trend-chart-wrapper {
+  height: 180px;
+  width: 100%;
+}
+
+/* ── Average Completion Time Card ── */
+.ta-avg-time-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.ta-main-time-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ta-big-duration {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ta-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.ta-badge-pill.green {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.ta-time-caption {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-top: -2px;
+  margin-bottom: 14px;
+}
+
+.ta-sub-time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ta-time-subcard {
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ta-time-subcard.orange-tint {
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+}
+
+.ta-time-subcard.pink-tint {
+  background: #fdf2f8;
+  border: 1px solid #fce7f3;
+}
+
+.ta-time-subcard.purple-tint {
+  background: #f5f3ff;
+  border: 1px solid #ede9fe;
+}
+
+.ta-subcard-icon {
+  font-size: 16px;
+  margin-bottom: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ta-subcard-icon.yellow {
+  color: #d97706;
+}
+
+.ta-subcard-icon.pink {
+  color: #e11d48;
+}
+
+.ta-subcard-icon.purple {
+  color: #7e22ce;
+}
+
+.ta-subcard-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ta-subcard-lbl {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ── 4. Tables Styling (Matching Task Page Table UI) ── */
+.ta-table-wrap {
+  overflow-x: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #1F1F1F1F;
+  margin-top: 12px;
+}
+
+.ta-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ta-data-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 500;
+  color: #77728e;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 11px;
+  text-transform: capitalize;
+  background-color: #f6f6f6 !important;
+  white-space: nowrap;
+}
+
+.ta-data-table td {
+  padding: 12px 14px;
+  color: #3a466d;
+  vertical-align: middle;
+  font-size: 12px;
+  background-color: #ffffff;
+}
+
+
+.ta-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ta-row-clickable:hover td {
+  background-color: #fcfdfe;
+}
+
+.ta-col-rank {
+  color: #77728e;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.ta-emp-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ta-emp-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ta-emp-name {
+  font-weight: 500;
+  color: #3a466d;
+  font-size: 12px;
+}
+
+.ta-col-team {
+  font-weight: 400;
+  color: #77728e;
+  font-size: 12px;
+}
+
+.ta-col-num {
+  font-weight: 500;
+  color: #3a466d;
+  font-size: 12px;
+}
+
+.ta-col-dur {
+  font-weight: 400;
+  color: #77728e;
+  font-size: 12px;
+}
+
+.ta-task-title-v2 {
+  font-weight: 500;
+  color: #3a466d;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.ta-col-date {
+  color: #77728e;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ta-avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.ta-stacked-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  margin-left: -6px;
+  object-fit: cover;
+}
+
+.ta-stacked-avatar:first-child {
+  margin-left: 0;
+}
+
+.ta-status-pill-v2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.ta-status-pill-v2.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ta-status-pill-v2.inprogress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.ta-status-pill-v2.pending,
+.ta-status-pill-v2.assigned,
+.ta-status-pill-v2.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ta-status-pill-v2.onhold,
+.ta-status-pill-v2.hold {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ── Pagination in Recent Team Tasks ── */
+.ta-header-pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ta-page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ta-select-page-size {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+}
+
+.ta-select-page-size:focus {
+  border-color: #3b82f6;
+}
+
+.ta-table-pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ta-pagination-info {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.ta-pagination-info strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.ta-table-pagination-footer .pagination-container {
+  margin: 0 !important;
+}
+
+.ta-table-pagination-footer .pagination-container button {
+  padding: 4px 8px !important;
+  font-size: 11.5px !important;
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── 5. Horizontal Bar Time Analysis ── */
+.ta-horiz-bar-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  max-width: 1000px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.ta-horiz-bar-canvas {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+
+.ta-custom-bar-badges {
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding-top: 8px;
+  padding-bottom: 34px;
+  padding-left: 12px;
+  box-sizing: border-box;
+}
+
+.ta-bar-val-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   EMPLOYEE PERFORMANCE DETAILS POPUP MODAL STYLES
+   ══════════════════════════════════════════════════════════════════ */
+
+.ep-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ep-modal-container {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: epModalFadeIn 0.2s ease-out;
+}
+
+@keyframes epModalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.ep-modal-header {
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ep-modal-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.ep-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.ep-close-btn:hover {
+  color: #0f172a;
+}
+
+.ep-modal-content {
+  padding: 1px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Modal Profile Card ── */
+.ep-profile-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.ep-profile-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ep-profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}
+
+.ep-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ep-profile-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ep-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #16a34a;
+  background: #f0fdf4;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.ep-status-dot {
+  width: 6px;
+  height: 6px;
+  background: #16a34a;
+  border-radius: 50%;
+}
+
+.ep-profile-role {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 2px 0 4px 0;
+}
+
+.ep-profile-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.ep-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ep-meta-divider {
+  color: #cbd5e1;
+}
+
+.ep-btn-view-profile {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ep-btn-view-profile:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* ── Tab Navigation ── */
+.ep-tab-nav {
+  display: flex;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.ep-tab-btn {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  padding: 8px 2px 10px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.ep-tab-btn:hover {
+  color: #0f172a;
+}
+
+.ep-tab-btn.active {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.ep-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2563eb;
+  border-radius: 2px;
+}
+
+/* ── 5 Metric Mini Boxes ── */
+.ep-metric-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ep-metric-box {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #1F1F1F1F;
+  padding: 10px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-metric-lbl {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.ep-metric-val {
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.ep-metric-val.dark { color: #0f172a; }
+.ep-metric-val.green { color: #16a34a; }
+.ep-metric-val.orange { color: #d97706; }
+.ep-metric-val.pink { color: #e11d48; }
+.ep-metric-val.purple { color: #7e22ce; }
+.ep-metric-val.red { color: #dc2626; }
+
+/* ── 3 Summary Cards ── */
+.ep-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ep-summary-card {
+  background: #ffffff;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ep-radial-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ep-radial-svg {
+  width: 36px;
+  height: 36px;
+  transform: rotate(-90deg);
+}
+
+.ep-radial-bg {
+  fill: none;
+  stroke: #e2e8f0;
+  stroke-width: 3.5;
+}
+
+.ep-radial-fill {
+  fill: none;
+  stroke: #06b6d4;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.ep-radial-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-radial-title {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ep-radial-num {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ep-radial-sub {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.ep-radial-sub.green { color: #16a34a; }
+.ep-radial-sub.gray { color: #94a3b8; }
+
+.ep-summary-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ep-summary-icon-box.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.ep-summary-icon-box.purple {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.ep-summary-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-summary-lbl {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ep-summary-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ep-summary-sub {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.ep-summary-sub.green { color: #16a34a; }
+.ep-summary-sub.gray { color: #94a3b8; }
+
+/* ── Task Performance Trend in Modal ── */
+.ep-chart-panel {
+  background: #ffffff;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.ep-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ep-panel-heading {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.ep-select-sm {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  outline: none;
+}
+
+.ep-recent-tasks-dropdown.custom-dropdown-container {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  flex: 0 0 60px !important;
+}
+
+.ep-recent-tasks-dropdown .custom-dropdown-trigger {
+  width: 60px !important;
+  max-width: 60px !important;
+  box-sizing: border-box !important;
+  padding: 3px 6px !important;
+  font-size: 11px !important;
+  height: 26px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.ep-recent-tasks-dropdown .custom-dropdown-trigger span {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+}
+
+.ep-recent-tasks-dropdown .dropdown-arrow-icon {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.ep-recent-tasks-dropdown .custom-dropdown-menu {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  border-radius: 6px !important;
+  padding: 2px 0 !important;
+  margin-top: 4px !important;
+}
+
+.ep-recent-tasks-dropdown .custom-dropdown-option {
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+}
+
+.ep-trend-chart-box {
+  height: 160px;
+  width: 100%;
+}
+
+/* ── Bottom Split in Modal ── */
+.ep-bottom-split {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 14px;
+}
+
+.ep-card-split {
+  background: #ffffff;
+  border: 1px solid #1F1F1F1F;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.ep-link-viewall {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ep-cat-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 130px;
+}
+
+.ep-cat-donut-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.ep-donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ep-center-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.ep-center-lbl {
+  font-size: 9px;
+  color: #64748b;
+}
+
+.ep-cat-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ep-cat-legend-row {
+  display: flex;
+  align-items: center;
+  font-size: 10.5px;
+}
+
+.ep-cat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.ep-cat-dot.blue { background: #3b82f6; }
+.ep-cat-dot.teal { background: #06b6d4; }
+.ep-cat-dot.orange { background: #f59e0b; }
+.ep-cat-dot.purple { background: #8b5cf6; }
+.ep-cat-dot.pink { background: #ec4899; }
+
+.ep-cat-name {
+  color: #475569;
+  width: 75px;
+}
+
+.ep-cat-stat {
+  font-weight: 700;
+  color: #0f172a;
+  margin-left: auto;
+}
+
+/* ── Mini Table in Modal (Matching Task Page Table UI) ── */
+.ep-mini-table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 175px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #1F1F1F1F;
+  margin-top: 10px;
+}
+
+.ep-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ep-mini-table th {
+  text-align: left;
+  padding: 10px 12px;
+  color: #77728e;
+  font-size: 11px;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f6f6f6 !important;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.ep-mini-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4fe;
+  vertical-align: middle;
+  color: #3a466d;
+  font-size: 12px;
+  background-color: #ffffff;
+}
+
+.ep-task-name-cell {
+  font-weight: 500;
+  color: #3a466d;
+}
+
+.ep-task-dur {
+  color: #77728e;
+  font-weight: 400;
+}
+
+.ep-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.ep-pill.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ep-pill.inprogress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.ep-pill.pending,
+.ep-pill.assigned {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.ep-pill.rejected,
+.ep-pill.ignored {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ep-pill.onhold,
+.ep-pill.hold {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ── Full Table in Tab 2 (Matching Task Page Table UI) ── */
+.ep-full-table-wrapper {
+  overflow-x: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #1F1F1F1F;
+}
+
+.ep-full-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ep-full-table th {
+  text-align: left;
+  padding: 12px 14px;
+  color: #77728e;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f6f6f6 !important;
+  font-size: 11px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.ep-full-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f3f4fe;
+  color: #3a466d;
+  font-size: 12px;
+  background-color: #ffffff;
+  vertical-align: middle;
+}
+
+.ep-task-title-bold {
+  font-weight: 500;
+  color: #3a466d;
+  font-size: 12px;
+}
+
+.ep-priority-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ep-priority-tag.high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.ep-priority-tag.mid {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.ep-priority-tag.low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ep-tab-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ep-search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  width: 175px;
+}
+
+.ep-search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12px;
+  width: 100%;
+}
+
+.ep-filter-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.ep-filter-btn {
+  background: #f1f5f9;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.ep-filter-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* ── Team Tasks Grid in Tab 3 ── */
+.ep-team-tasks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ep-team-task-card {
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.ep-tt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.ep-tt-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ep-tt-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.ep-tt-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.ep-tt-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 3px;
+}
+
+.ep-tt-progress-text {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ── Time Tracking Cards in Tab 4 ── */
+.ep-time-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.ep-time-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-time-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ep-time-lbl {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ── Activity Timeline in Tab 5 ── */
+.ep-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ep-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ep-timeline-bullet {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.ep-timeline-bullet.completed { background: #10b981; }
+.ep-timeline-bullet.inprogress { background: #f59e0b; }
+.ep-timeline-bullet.meeting { background: #8b5cf6; }
+
+.ep-timeline-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-timeline-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ep-timeline-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ── Modal Footer ── */
+.ep-modal-footer {
+  padding: 14px 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ep-btn-close-footer {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ep-btn-close-footer:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MY TASK ANALYTICS (EMPLOYEE VIEW) STYLESHEET
+   Matching pixel-perfect to reference UI screenshot
+   ══════════════════════════════════════════════════════════════════ */
+
+.ta-emp-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ta-emp-date-range-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.ta-emp-date-range-badge:hover {
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.ta-emp-calendar-icon {
+  font-size: 16px;
+  color: #3b82f6;
+}
+
+.ta-emp-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ── Bottom 2-Column Split ── */
+.ta-emp-bottom-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+  gap: 20px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ta-emp-tasks-panel {
+  padding: 20px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ta-emp-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ta-emp-filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ta-emp-tabs-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 24px;
+}
+
+.ta-emp-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ta-emp-tab-btn:hover {
+  color: #1e293b;
+}
+
+.ta-emp-tab-btn.active {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+}
+
+.ta-emp-custom-dropdown {
+  min-width: 140px;
+}
+
+.ta-emp-custom-dropdown .custom-dropdown-container {
+  width: 100%;
+}
+
+.ta-emp-custom-dropdown .custom-dropdown-trigger {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  height: 36px !important;
+  font-size: 12px !important;
+  background: #ffffff !important;
+}
+
+.ta-emp-custom-dropdown .custom-dropdown-trigger span {
+  font-size: 12px !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+
+.ta-emp-custom-dropdown.page-size {
+  min-width: 115px;
+}
+
+.ta-emp-table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ta-emp-table th {
+  font-size: 11px;
+  font-weight: 500;
+  color: #77728e;
+  text-transform: capitalize;
+  padding: 12px 14px;
+  background-color: #f6f6f6 !important;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.ta-emp-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f3f4fe;
+  color: #3a466d;
+  font-size: 12px;
+  vertical-align: middle;
+  background-color: #ffffff;
+}
+
+.ta-emp-priority-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 54px;
+  text-align: center;
+}
+
+.ta-emp-priority-pill.high {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.ta-emp-priority-pill.medium {
+  background: #ffedd5;
+  color: #f97316;
+}
+
+.ta-emp-priority-pill.low {
+  background: #dcfce7;
+  color: #10b981;
+}
+
+.ta-emp-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 74px;
+  text-align: center;
+}
+
+.ta-emp-status-pill.completed {
+  background: #dcfce7;
+  color: #10b981;
+}
+
+.ta-emp-status-pill.inprogress {
+  background: #ffedd5;
+  color: #f97316;
+}
+
+.ta-emp-status-pill.pending {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.ta-emp-status-pill.rejected {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.ta-emp-btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ta-emp-btn-view:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+/* ── Right Column Cards ── */
+.ta-emp-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.ta-emp-cat-dist {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  min-height: 160px;
+  height: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ta-emp-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ta-emp-activity-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ta-emp-activity-list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.ta-emp-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 4px 0;
+  min-width: 0;
+}
+
+.ta-emp-act-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.ta-emp-act-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ta-emp-act-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.35;
+}
+
+.ta-emp-act-time {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ── Dedicated Task Trends Chart Container ── */
+.ta-trend-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  margin-top: 12px;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 1200px) {
+  .ta-kpi-row,
+  .ta-emp-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ta-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .ta-grid-2,
+  .ta-emp-bottom-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ta-kpi-row,
+  .ta-emp-kpi-row {
+    grid-template-columns: 1fr;
+  }
+  .ep-summary-grid, .ep-bottom-split, .ep-team-tasks-grid {
+    grid-template-columns: 1fr;
+  }
+  .ta-emp-filter-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ── Table Pagination Footer Under Bottom ── */
+.ta-table-pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #ffffff;
+  border-radius: 0 0 12px 12px;
+  margin-top: 4px;
+}
+
+.ta-table-pagination-footer .ta-pagination-info {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.ta-table-pagination-footer .ta-pagination-info strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
