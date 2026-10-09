@@ -60,7 +60,14 @@ function AssignTask({ onClose, onSuccess }) {
     phases: [],
     category: "",
     project: "",
+    workType: "",
+    hasPages: false,
+    pages: [],
   });
+
+  const [projectPages, setProjectPages] = useState([]);
+  const [newPageVal, setNewPageVal] = useState("");
+  const [phasePointByPoint, setPhasePointByPoint] = useState({});
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -112,6 +119,7 @@ function AssignTask({ onClose, onSuccess }) {
           setProjects(sortedProjs);
           setFullCategories(r.data.data.fullCategories || []);
           setFullProjects(r.data.data.fullProjects || []);
+          setProjectPages(r.data.data.projectPages || []);
         }
       })
       .catch(() => { });
@@ -178,8 +186,302 @@ function AssignTask({ onClose, onSuccess }) {
         nextProject = "";
       }
 
-      return { ...prev, category: nextCategory, project: nextProject };
+      return {
+        ...prev,
+        category: nextCategory,
+        project: nextProject,
+        workType: isStackEligibleCategory(nextCategory) ? prev.workType : "",
+        pages: []
+      };
     });
+  };
+
+  const isStackEligibleCategory = (cat) => {
+    if (!cat) return false;
+    const normalized = cat.trim().toLowerCase();
+    return (
+      normalized === "website" ||
+      normalized === "app" ||
+      normalized === "client projects" ||
+      normalized === "client project" ||
+      normalized === "dashboard" ||
+      normalized === "dashbaord"
+    );
+  };
+
+  const getPagesForProject = (catName, projName) => {
+    if (!catName || !projName) return [];
+    const normCat = (catName || "").trim().toLowerCase();
+    const normProj = (projName || "").trim().toLowerCase();
+    const found = projectPages.find(
+      pp =>
+        (pp.category || "").trim().toLowerCase() === normCat &&
+        (pp.project || "").trim().toLowerCase() === normProj
+    );
+    return found?.pages || [];
+  };
+
+  const handleTogglePagesRadio = () => {
+    setFormData(prev => {
+      const nextVal = !prev.hasPages;
+      return {
+        ...prev,
+        hasPages: nextVal,
+        pages: nextVal ? (prev.pages || []) : []
+      };
+    });
+  };
+
+  const handlePageSelect = (pageVal) => {
+    if (!formData.project) {
+      toast.warning("Please select a Project first");
+      return;
+    }
+    if (pageVal === "Add") {
+      setActiveOtherField("page");
+      setNewPageVal("");
+      return;
+    }
+    if (!pageVal) return;
+    setFormData(prev => {
+      const currentPages = prev.pages || [];
+      if (currentPages.includes(pageVal)) return prev;
+      return { ...prev, pages: [...currentPages, pageVal] };
+    });
+  };
+
+  const removePage = (pageName) => {
+    setFormData(prev => ({
+      ...prev,
+      pages: (prev.pages || []).filter(p => p !== pageName)
+    }));
+  };
+
+  const handleAddPage = async () => {
+    const val = newPageVal?.trim();
+    if (!val) return;
+    const catName = formData.category;
+    const projName = formData.project;
+    if (!catName || !projName) return toast.warning("Please select category and project first");
+
+    const existingProjectPages = getPagesForProject(catName, projName);
+    const exists = existingProjectPages.some(p => (p || "").toLowerCase() === val.toLowerCase());
+    if (exists) {
+      toast.info(`"${val}" is already available in the dropdown.`);
+      setActiveOtherField(null);
+      setNewPageVal("");
+      return;
+    }
+
+    try {
+      const res = await portalInstance.post("/creat/task-meta/page", {
+        category: catName,
+        project: projName,
+        name: val
+      });
+      if (res.data?.success && res.data.data) {
+        const updatedPages = res.data.data.pages || [val];
+        setProjectPages(prev => {
+          const normCat = (catName || "").trim().toLowerCase();
+          const normProj = (projName || "").trim().toLowerCase();
+          const existing = prev.find(
+            pp =>
+              (pp.category || "").trim().toLowerCase() === normCat &&
+              (pp.project || "").trim().toLowerCase() === normProj
+          );
+          if (existing) {
+            return prev.map(pp =>
+              (pp.category || "").trim().toLowerCase() === normCat &&
+              (pp.project || "").trim().toLowerCase() === normProj
+                ? { ...pp, pages: updatedPages }
+                : pp
+            );
+          } else {
+            return [...prev, { category: catName, project: projName, pages: updatedPages }];
+          }
+        });
+      }
+      setFormData(prev => ({
+        ...prev,
+        pages: [...new Set([...(prev.pages || []), val])]
+      }));
+      setActiveOtherField(null);
+      setNewPageVal("");
+      toast.success(`Page "${val}" added`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to add page");
+    }
+  };
+
+  const [pageToDeleteFromProject, setPageToDeleteFromProject] = useState(null);
+
+  const handlePromptDeleteProjectPage = (pageName, category, project) => {
+    if (!pageName || !project || !category) return;
+    setPageToDeleteFromProject({ pageName, category, project });
+  };
+
+  const confirmDeleteProjectPage = async () => {
+    if (!pageToDeleteFromProject) return;
+    const { pageName, category, project } = pageToDeleteFromProject;
+    try {
+      const res = await portalInstance.delete("/creat/task-meta/page", {
+        data: { category, project, page: pageName }
+      });
+      if (res.data?.success) {
+        toast.success(`Page "${pageName}" deleted successfully!`);
+        const updatedPages = res.data.data?.pages;
+        setProjectPages(prev => {
+          const normCat = (category || "").trim().toLowerCase();
+          const normProj = (project || "").trim().toLowerCase();
+          return prev.map(pp => {
+            if (
+              (pp.category || "").trim().toLowerCase() === normCat &&
+              (pp.project || "").trim().toLowerCase() === normProj
+            ) {
+              return {
+                ...pp,
+                pages: updatedPages || (pp.pages || []).filter(p => p.toLowerCase() !== pageName.toLowerCase())
+              };
+            }
+            return pp;
+          });
+        });
+
+        setFormData(prev => ({
+          ...prev,
+          pages: Array.isArray(prev.pages) ? prev.pages.filter(p => p.toLowerCase() !== pageName.toLowerCase()) : []
+        }));
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete page");
+    } finally {
+      setPageToDeleteFromProject(null);
+    }
+  };
+
+  const formatToNumberedPoints = (text) => {
+    if (!text || !text.trim()) return "1. ";
+    const rawLines = text.split("\n");
+    const cleaned = rawLines
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    if (cleaned.length === 0) return "1. ";
+    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+  };
+
+  const removeNumberedPoints = (text) => {
+    if (!text) return "";
+    return text
+      .split("\n")
+      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const handleTogglePhasePointByPoint = (index) => {
+    const isCurrent = !!phasePointByPoint[index];
+    const nextMode = !isCurrent;
+    setPhasePointByPoint(prev => ({ ...prev, [index]: nextMode }));
+    const currentDesc = formData.phases[index]?.phaseDescription || "";
+    if (nextMode) {
+      handlePhaseChange(index, "phaseDescription", formatToNumberedPoints(currentDesc));
+    } else {
+      handlePhaseChange(index, "phaseDescription", removeNumberedPoints(currentDesc));
+    }
+  };
+
+  const handlePhaseDescKeyDown = (e, index) => {
+    if (!phasePointByPoint[index]) return;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const textarea = e.target;
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      const textBeforeCursor = value.substring(0, selectionStart);
+      const textAfterCursor = value.substring(selectionEnd);
+
+      const linesBefore = textBeforeCursor.split("\n");
+      const currentLine = linesBefore[linesBefore.length - 1];
+
+      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+
+      if (match) {
+        const num = parseInt(match[1], 10);
+        const content = match[2];
+
+        if (!content.trim()) {
+          const newLines = linesBefore.slice(0, -1);
+          const newBefore = newLines.length > 0 ? newLines.join("\n") + "\n" : "";
+          const newText = newBefore + textAfterCursor;
+          handlePhaseChange(index, "phaseDescription", newText);
+          setTimeout(() => {
+            textarea.selectionStart = textarea.selectionEnd = newBefore.length;
+          }, 0);
+          return;
+        }
+
+        const nextNum = num + 1;
+        const insertion = `\n${nextNum}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        handlePhaseChange(index, "phaseDescription", newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      } else {
+        const lineCount = linesBefore.length + 1;
+        const insertion = `\n${lineCount}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        handlePhaseChange(index, "phaseDescription", newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      }
+    }
+  };
+
+  const handlePhaseDescPaste = (e, index) => {
+    if (!phasePointByPoint[index]) return;
+
+    const pastedText = e.clipboardData?.getData("text");
+    if (!pastedText || !pastedText.includes("\n")) return;
+
+    e.preventDefault();
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const textBefore = value.substring(0, selectionStart);
+    const textAfter = value.substring(selectionEnd);
+
+    const pastedLines = pastedText
+      .split("\n")
+      .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    const linesBefore = textBefore.split("\n");
+    const currentLine = linesBefore[linesBefore.length - 1];
+    const match = currentLine.match(/^(\d+)\.\s*/);
+    let startNum = match ? parseInt(match[1], 10) : linesBefore.length;
+
+    const formattedPaste = pastedLines
+      .map((line, i) => `${startNum + i}. ${line}`)
+      .join("\n");
+
+    const newBefore = match
+      ? textBefore.substring(0, textBefore.length - match[0].length)
+      : textBefore;
+
+    const newText = newBefore + formattedPaste + textAfter;
+    handlePhaseChange(index, "phaseDescription", newText);
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd =
+        (newBefore + formattedPaste).length;
+    }, 0);
   };
 
   // Project toggle
@@ -426,6 +728,11 @@ function AssignTask({ onClose, onSuccess }) {
       data.append("category", formData.category);
       data.append("project", formData.project);
 
+      const formattedWorkType = isStackEligibleCategory(formData.category) ? (formData.workType || "").trim() : "";
+      const formattedPages = formData.hasPages && Array.isArray(formData.pages) ? formData.pages : [];
+      if (formattedWorkType) data.append("workType", formattedWorkType);
+      if (formattedPages.length > 0) data.append("pages", JSON.stringify(formattedPages));
+
       uploadedFiles.forEach((file) => data.append("files", file));
 
       // ✅ SINGLE API CALL ONLY — backend createTask already calls
@@ -445,7 +752,11 @@ function AssignTask({ onClose, onSuccess }) {
         phases: [],
         category: "",
         project: "",
+        workType: "",
+        hasPages: false,
+        pages: [],
       });
+      setPhasePointByPoint({});
       setUploadedFiles([]);
       if (onSuccess) onSuccess();
       setTimeout(() => onClose && onClose(), 1500);
@@ -614,6 +925,222 @@ function AssignTask({ onClose, onSuccess }) {
               </div>
             </div>
 
+            {/* Work Type */}
+            {isStackEligibleCategory(formData.category) && (
+              <div className="form-group animate-fade-in" style={{ marginBottom: "12px" }}>
+                <label className="mb-1" style={{ fontSize: "12px", fontWeight: "400", color: "#868585" }}>Work Type</label>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: "8px",
+                    width: "100%",
+                    padding: "1px 0"
+                  }}
+                >
+                  {[
+                    { value: "BE", title: "BE", desc: "Back End" },
+                    { value: "FE", title: "FE", desc: "Front End" },
+                    { value: "FE & BE", title: "FE & BE", desc: "Front & Back End" },
+                    { value: "Design", title: "Design", desc: "Design" }
+                  ].map((opt) => {
+                    const isSelected = formData.workType === opt.value;
+                    return (
+                      <div
+                        key={opt.value}
+                        onClick={() => setFormData(prev => ({ ...prev, workType: isSelected ? "" : opt.value }))}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                          border: isSelected ? "1.5px solid #5977f8" : "1px solid #e2e8f0",
+                          background: isSelected ? "#f0f4ff" : "#ffffff",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          userSelect: "none",
+                          boxShadow: isSelected ? "0 1px 4px rgba(89, 119, 248, 0.1)" : "none"
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="createTaskWorkType"
+                          checked={isSelected}
+                          onChange={() => {}}
+                          style={{
+                            accentColor: "#5977f8",
+                            cursor: "pointer",
+                            width: "13px",
+                            height: "13px",
+                            margin: 0,
+                            flexShrink: 0,
+                            pointerEvents: "none"
+                          }}
+                        />
+                        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: isSelected ? "600" : "500",
+                              color: isSelected ? "#5977f8" : "#2d3748"
+                            }}
+                          >
+                            {opt.title}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "9px",
+                              color: isSelected ? "#5977f8" : "#8c9ba5",
+                              marginTop: "1px",
+                              fontWeight: "400"
+                            }}
+                          >
+                            {opt.desc}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Pages Radio & Multi-select */}
+            <div className="form-group" style={{ marginBottom: formData.hasPages ? "8px" : "12px" }}>
+              <label
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "500",
+                  color: "#334155",
+                  lineHeight: "1",
+                  userSelect: "none",
+                  margin: 0
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleTogglePagesRadio();
+                }}
+              >
+                <input
+                  type="radio"
+                  name="createTaskPagesRadio"
+                  checked={!!formData.hasPages}
+                  onChange={() => {}}
+                  style={{
+                    accentColor: "#5977f8",
+                    width: "16px",
+                    height: "16px",
+                    margin: 0,
+                    cursor: "pointer",
+                    flexShrink: 0
+                  }}
+                />
+                <span>Pages</span>
+              </label>
+            </div>
+
+            {formData.hasPages && (
+              <div className="form-group animate-fade-in" style={{ marginBottom: "12px" }}>
+                <label style={{ fontSize: "12px", fontWeight: "400", color: "#868585" }}>Select Page</label>
+                {activeOtherField === "page" ? (
+                  <div className="atMeta__inlineAdd animate-fade-in">
+                    <input
+                      type="text"
+                      className="hrms-unified-input-style atMeta__addInput"
+                      placeholder="New page name..."
+                      value={newPageVal}
+                      autoFocus
+                      onChange={(e) => setNewPageVal(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleAddPage(); }}
+                      disabled={!formData.project}
+                    />
+                    <button type="button" className="atMeta__saveBtn" onClick={handleAddPage} disabled={!formData.project}>
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        background: "#f1f5f9",
+                        border: "none",
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        fontSize: "11px",
+                        color: "#475569",
+                        marginLeft: "4px",
+                        cursor: "pointer"
+                      }}
+                      onClick={() => {
+                        setActiveOtherField(null);
+                        setNewPageVal("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <CustomDropdown
+                    options={[
+                      ...getPagesForProject(formData.category, formData.project).filter(p => p && p.toLowerCase() !== "add").map(p => ({
+                        value: p,
+                        label: p,
+                        onDelete: () => handlePromptDeleteProjectPage(p, formData.category, formData.project)
+                      })),
+                      { value: "Add", label: "Add" }
+                    ]}
+                    value=""
+                    placeholder={formData.project ? "Select Page" : "Select Project First"}
+                    onChange={(v) => handlePageSelect(v)}
+                    disabled={!formData.project}
+                    className="hrms-unified-dropdown-style atMeta__customDrop"
+                  />
+                )}
+
+                {/* Selected pages chips */}
+                {Array.isArray(formData.pages) && formData.pages.length > 0 && (
+                  <div className="dwu-selected-pages-container" style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
+                    {formData.pages.map((pName) => (
+                      <div
+                        key={pName}
+                        className="dwu-page-card"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          background: "#f0f4ff",
+                          border: "1px solid #c7d2fe",
+                          borderRadius: "4px",
+                          padding: "2px 8px",
+                          fontSize: "12px",
+                          color: "#374151"
+                        }}
+                      >
+                        <span>{pName}</span>
+                        <button
+                          type="button"
+                          title={`Remove ${pName}`}
+                          onClick={() => removePage(pName)}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            color: "#6b7280",
+                            cursor: "pointer",
+                            fontSize: "11px",
+                            padding: "0 2px"
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Task Title */}
             <div className="form-group">
@@ -832,14 +1359,45 @@ function AssignTask({ onClose, onSuccess }) {
                       </div>
                     </div>
 
-                    {/* Row 3: Description */}
+                    {/* Row 3: Description with Point by Point */}
+                    <div className="d-flex justify-content-between align-items-center mb-1 mt-2">
+                      <label style={{ fontSize: "11px", fontWeight: "500", color: "#64748b", margin: 0 }}>Description</label>
+                      <label
+                        className="d-flex align-items-center gap-1"
+                        onClick={() => handleTogglePhasePointByPoint(index)}
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: "500",
+                          color: phasePointByPoint[index] ? "#5977f8" : "#77728e",
+                          cursor: "pointer",
+                          userSelect: "none",
+                          margin: 0
+                        }}
+                        title="Format description as numbered points (1., 2., 3.)"
+                      >
+                        <input
+                          type="radio"
+                          name={`phaseDescFormat-${index}`}
+                          checked={!!phasePointByPoint[index]}
+                          readOnly
+                          style={{
+                            cursor: "pointer",
+                            accentColor: "#5977f8",
+                            width: "12px",
+                            height: "12px",
+                            margin: 0
+                          }}
+                        />
+                        <span>Point by Point</span>
+                      </label>
+                    </div>
                     <textarea
                       className="hrms-unified-input-style hrms-common-textarea" style={{
                         fontSize: "13px",
                         color: "#374151"
                       }}
 
-                      placeholder="Phase Description (e.g. Completed UI mockups...)"
+                      placeholder={phasePointByPoint[index] ? "1. Enter first point..." : "Phase Description (e.g. Completed UI mockups...)"}
                       value={p.phaseDescription}
                       onChange={(e) =>
                         handlePhaseChange(
@@ -848,6 +1406,8 @@ function AssignTask({ onClose, onSuccess }) {
                           e.target.value
                         )
                       }
+                      onKeyDown={(e) => handlePhaseDescKeyDown(e, index)}
+                      onPaste={(e) => handlePhaseDescPaste(e, index)}
                       rows={2}
 
                       disabled={!formData.category}
@@ -919,6 +1479,45 @@ function AssignTask({ onClose, onSuccess }) {
           </div>
         </div>
       </div>
+      {pageToDeleteFromProject && (
+        <div className="dwu-page-confirm-overlay" onClick={() => setPageToDeleteFromProject(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 30000 }}>
+          <div className="dwu-page-confirm-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ background: "#ffffff", padding: "20px 24px", borderRadius: "16px", width: "90%", maxWidth: "340px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", position: "relative" }}>
+            <button
+              type="button"
+              className="dwu-page-confirm-close-btn"
+              onClick={() => setPageToDeleteFromProject(null)}
+              title="Close"
+              aria-label="Close"
+              style={{ position: "absolute", top: "12px", right: "12px", background: "transparent", border: "none", fontSize: "16px", color: "#94a3b8", cursor: "pointer" }}
+            >
+              ✕
+            </button>
+            <h3 className="dwu-page-confirm-title" style={{ fontSize: "16px", fontWeight: "600", color: "#1e293b", marginBottom: "8px" }}>Delete Page?</h3>
+            <p className="dwu-page-confirm-text" style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.5", marginBottom: "20px" }}>
+              Are you sure you want to delete <strong>"{pageToDeleteFromProject.pageName}"</strong>? This will permanently delete it from project <strong>"{pageToDeleteFromProject.project}"</strong>.
+            </p>
+            <div className="dwu-page-confirm-actions" style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button
+                type="button"
+                className="hrms-common-btn-cancel"
+                onClick={() => setPageToDeleteFromProject(null)}
+                style={{ flex: 1, padding: "8px 16px" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="hrms-common-btn-delete"
+                onClick={confirmDeleteProjectPage}
+                style={{ flex: 1, padding: "8px 16px" }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 9999999 }} />
     </div>
   );

@@ -105,6 +105,7 @@ const EmployeeDailyWorkUpdate = () => {
     if (upper === "FE & BE" || upper === "FE AND BE" || upper === "BE & FE" || upper === "BE AND FE") {
       return "FE & BE - Front End and Back End";
     }
+    if (upper === "DESIGN") return "Design";
     return wt;
   };
 
@@ -314,7 +315,7 @@ const EmployeeDailyWorkUpdate = () => {
     }
     setAppliedFilters({ category, project, dateMode, fromDate, toDate });
     setCurrentPage(1);
-    setShowFilterMenu(false);
+    // Kept open: filter only closes when clicking Cancel or the filter icon
   };
 
   const handleReset = () => {
@@ -327,16 +328,6 @@ const EmployeeDailyWorkUpdate = () => {
     setCurrentPage(1);
     setShowFilterMenu(false);
   };
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (filterRef.current && !filterRef.current.contains(e.target) && !e.target.closest(".dwu-filter-toggle-btn")) {
-        setShowFilterMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // --- 5. Page Helpers & Handlers ---
   const getPagesForProject = (catName, projName) => {
@@ -402,6 +393,55 @@ const EmployeeDailyWorkUpdate = () => {
     toast.success(`Page "${pageName}" removed`);
   };
 
+  const [pageToDeleteFromProject, setPageToDeleteFromProject] = useState(null); // { pageName, category, project, entryIdx }
+
+  const handlePromptDeleteProjectPage = (pageName, category, project, entryIdx) => {
+    if (!pageName || !project || !category) return;
+    setPageToDeleteFromProject({ pageName, category, project, entryIdx });
+  };
+
+  const confirmDeleteProjectPage = async () => {
+    if (!pageToDeleteFromProject) return;
+    const { pageName, category, project } = pageToDeleteFromProject;
+    try {
+      const res = await portalInstance.delete("/creat/task-meta/page", {
+        data: { category, project, page: pageName }
+      });
+      if (res.data?.success) {
+        toast.success(`Page "${pageName}" deleted successfully!`);
+        const updatedPages = res.data.data?.pages;
+        setProjectPages(prev => {
+          const normCat = (category || "").trim().toLowerCase();
+          const normProj = (project || "").trim().toLowerCase();
+          return prev.map(pp => {
+            if (
+              (pp.category || "").trim().toLowerCase() === normCat &&
+              (pp.project || "").trim().toLowerCase() === normProj
+            ) {
+              return {
+                ...pp,
+                pages: updatedPages || (pp.pages || []).filter(p => p.toLowerCase() !== pageName.toLowerCase())
+              };
+            }
+            return pp;
+          });
+        });
+
+        // Remove from selected pages if it was selected in any form entry
+        setFormEntries(prev => prev.map(entry => ({
+          ...entry,
+          pages: Array.isArray(entry.pages) ? entry.pages.filter(p => p.toLowerCase() !== pageName.toLowerCase()) : []
+        })));
+
+        await fetchMeta();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete page");
+    } finally {
+      setPageToDeleteFromProject(null);
+    }
+  };
+
   // --- 6. Form Submission Handlers ---
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
@@ -415,10 +455,6 @@ const EmployeeDailyWorkUpdate = () => {
       }
       if (!entry.project?.trim()) {
         toast.warning("Project is required. Please select a Project.");
-        return;
-      }
-      if (isStackEligibleCategory(entry.category) && !entry.workType?.trim()) {
-        toast.warning("Please select a Work Type (BE, FE, or FE & BE)");
         return;
       }
       if (!entry.title?.trim()) {
@@ -1375,7 +1411,7 @@ const EmployeeDailyWorkUpdate = () => {
                             ) : (
                               <span className="empTask__metaNone">-</span>
                             )}
-                            {u.workType && (
+                            {(u.workType || u.task?.workType) && (
                               <span
                                 style={{
                                   fontSize: "10px",
@@ -1387,11 +1423,29 @@ const EmployeeDailyWorkUpdate = () => {
                                   padding: "0px 5px",
                                   marginLeft: "2px"
                                 }}
-                                title={formatWorkType(u.workType)}
+                                title={formatWorkType(u.workType || u.task?.workType)}
                               >
-                                {u.workType}
+                                {u.workType || u.task?.workType}
                               </span>
                             )}
+                            {((u.pages && u.pages.length > 0) ? u.pages : (u.task?.pages && u.task.pages.length > 0 ? u.task.pages : [])).map((pName, pIdx) => (
+                              <span
+                                key={pIdx}
+                                style={{
+                                  fontSize: "10px",
+                                  fontWeight: "500",
+                                  color: "#334155",
+                                  background: "#f1f5f9",
+                                  border: "1px solid #cbd5e1",
+                                  borderRadius: "4px",
+                                  padding: "0px 5px",
+                                  marginLeft: "2px"
+                                }}
+                                title={`Page: ${pName}`}
+                              >
+                                {pName}
+                              </span>
+                            ))}
                           </div>
                         </div>
                         <div className="employeeTaskPage__tableCell employeeTaskPage__col--title" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
@@ -1595,7 +1649,7 @@ const EmployeeDailyWorkUpdate = () => {
                             <div
                               style={{
                                 display: "grid",
-                                gridTemplateColumns: "repeat(3, 1fr)",
+                                gridTemplateColumns: "repeat(4, 1fr)",
                                 gap: "8px",
                                 width: "100%",
                                 padding: "1px 0"
@@ -1604,13 +1658,14 @@ const EmployeeDailyWorkUpdate = () => {
                               {[
                                 { value: "BE", title: "BE", desc: "Back End" },
                                 { value: "FE", title: "FE", desc: "Front End" },
-                                { value: "FE & BE", title: "FE & BE", desc: "Front & Back End" }
+                                { value: "FE & BE", title: "FE & BE", desc: "Front & Back End" },
+                                { value: "Design", title: "Design", desc: "Design" }
                               ].map((opt) => {
                                 const isSelected = entry.workType === opt.value;
                                 return (
                                   <div
                                     key={opt.value}
-                                    onClick={() => updateFormEntry(idx, "workType", opt.value)}
+                                    onClick={() => updateFormEntry(idx, "workType", isSelected ? "" : opt.value)}
                                     style={{
                                       display: "flex",
                                       alignItems: "center",
@@ -1629,14 +1684,15 @@ const EmployeeDailyWorkUpdate = () => {
                                       type="radio"
                                       name={`workType_${idx}`}
                                       checked={isSelected}
-                                      onChange={() => updateFormEntry(idx, "workType", opt.value)}
+                                      onChange={() => { }}
                                       style={{
                                         accentColor: "#5977f8",
                                         cursor: "pointer",
                                         width: "13px",
                                         height: "13px",
                                         margin: 0,
-                                        flexShrink: 0
+                                        flexShrink: 0,
+                                        pointerEvents: "none"
                                       }}
                                     />
                                     <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
@@ -1691,17 +1747,20 @@ const EmployeeDailyWorkUpdate = () => {
                                 type="radio"
                                 name={`pagesRadio_${idx}`}
                                 checked={!!entry.hasPages}
-                                onChange={() => { }}
+                                readOnly
                                 style={{
                                   accentColor: "#5977f8",
                                   width: "16px",
                                   height: "16px",
                                   margin: 0,
                                   cursor: "pointer",
-                                  flexShrink: 0
+                                  flexShrink: 0,
+                                  pointerEvents: "none"
                                 }}
                               />
-                              <span style={{ display: "inline-block", lineHeight: "1", verticalAlign: "middle" }}>Pages</span>
+                              <span style={{ display: "inline-block", lineHeight: "1", verticalAlign: "middle" }}>
+                                Pages
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -1754,7 +1813,8 @@ const EmployeeDailyWorkUpdate = () => {
                                 options={[
                                   ...getPagesForProject(entry.category, entry.project).filter(p => p && p.toLowerCase() !== "add").map(p => ({
                                     value: p,
-                                    label: p
+                                    label: p,
+                                    onDelete: () => handlePromptDeleteProjectPage(p, entry.category, entry.project, idx)
                                   })),
                                   { value: "Add", label: "Add" }
                                 ]}
@@ -1816,9 +1876,13 @@ const EmployeeDailyWorkUpdate = () => {
                         <div className="col-12 ">
                           <div className="d-flex justify-content-between align-items-center mb-2">
                             <label className="dwu-meta-label mb-0">Description</label>
+
                             <label
                               className="d-flex align-items-center gap-1"
-                              onClick={() => handleTogglePointByPoint(idx)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleTogglePointByPoint(idx);
+                              }}
                               style={{
                                 fontSize: "11px",
                                 fontWeight: "500",
@@ -1834,16 +1898,19 @@ const EmployeeDailyWorkUpdate = () => {
                                 name={`descFormatMode-${idx}`}
                                 checked={isPointByPoint}
                                 readOnly
+                                tabIndex={-1}
                                 style={{
                                   cursor: "pointer",
                                   accentColor: "#5977f8",
                                   width: "13px",
                                   height: "13px",
-                                  margin: 0
+                                  margin: 0,
+                                  pointerEvents: "none"
                                 }}
                               />
                               <span>Point by Point</span>
                             </label>
+
                           </div>
                           <textarea
                             className="form-control"
@@ -1921,6 +1988,44 @@ const EmployeeDailyWorkUpdate = () => {
                 onClick={confirmDeletePage}
               >
                 Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pageToDeleteFromProject && (
+        <div className="dwu-page-confirm-overlay" onClick={() => setPageToDeleteFromProject(null)} style={{ zIndex: 30000 }}>
+          <div className="dwu-page-confirm-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ background: "#ffffff", padding: "20px 24px", borderRadius: "16px", width: "90%", maxWidth: "340px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", position: "relative" }}>
+            <button
+              type="button"
+              className="dwu-page-confirm-close-btn"
+              onClick={() => setPageToDeleteFromProject(null)}
+              title="Close"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <h3 className="dwu-page-confirm-title" style={{ fontSize: "16px", fontWeight: "600", color: "#1e293b", marginBottom: "8px" }}>Delete Page?</h3>
+            <p className="dwu-page-confirm-text" style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.5", marginBottom: "20px" }}>
+              Are you sure you want to delete <strong>"{pageToDeleteFromProject.pageName}"</strong>? This will permanently delete it from project <strong>"{pageToDeleteFromProject.project}"</strong>.
+            </p>
+            <div className="dwu-page-confirm-actions" style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button
+                type="button"
+                className="hrms-common-btn-cancel"
+                onClick={() => setPageToDeleteFromProject(null)}
+                style={{ flex: 1, padding: "8px 16px" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="hrms-common-btn-delete"
+                onClick={confirmDeleteProjectPage}
+                style={{ flex: 1, padding: "8px 16px" }}
+              >
+                Delete
               </button>
             </div>
           </div>

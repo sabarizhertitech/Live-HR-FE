@@ -29,6 +29,9 @@ const REJECTABLE_CATEGORIES = [
       { id: "school12", label: "12th School Name" },
       { id: "marks10", label: "10th Marks / Percentage" },
       { id: "marks12", label: "12th Marks / Percentage" },
+      { id: "passedOutYear10", label: "10th Passed-Out Year" },
+      { id: "passedOutYear12", label: "12th Passed-Out Year" },
+      { id: "careerGaps", label: "Career Gap Details" },
       { id: "courses", label: "College / Degree Details" },
     ],
   },
@@ -102,6 +105,9 @@ const getFieldFriendlyName = (fieldId) => {
     school12: "12th School Name",
     marks10: "10th Marks / Percentage",
     marks12: "12th Marks / Percentage",
+    passedOutYear10: "10th Passed-Out Year",
+    passedOutYear12: "12th Passed-Out Year",
+    careerGaps: "Career Gap Details",
     degreeCertificate: "Degree / Diploma Certificate",
     courses: "College / Degree Details",
     aadhaarFile: "Masked Aadhaar Card",
@@ -148,9 +154,12 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     school10: "",
     marks10: "",
     marksheet10: null,
+    passedOutYear10: "",
     school12: "",
     marks12: "",
     marksheet12: null,
+    passedOutYear12: "",
+    careerGaps: [],
     courses: [],
     aadhaarNo: "",
     panNo: "",
@@ -221,6 +230,40 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     marks10: "",
     marks12: "",
   });
+
+  /* ================= CAREER GAP STATE ================= */
+  const [showCareerGapModal, setShowCareerGapModal] = useState(false);
+  const [careerGapReasonInput, setCareerGapReasonInput] = useState("");
+  const [careerGapModalError, setCareerGapModalError] = useState("");
+  const [yearErrors, setYearErrors] = useState({
+    passedOutYear10: "",
+    passedOutYear12: "",
+  });
+
+  const calculate10to12Gap = useCallback((y10Val, y12Val) => {
+    if (!y10Val || !y12Val) return null;
+    const s10 = String(y10Val).trim();
+    const s12 = String(y12Val).trim();
+    if (s10.length !== 4 || s12.length !== 4) return null;
+
+    const y10 = parseInt(s10, 10);
+    const y12 = parseInt(s12, 10);
+    if (isNaN(y10) || isNaN(y12)) return null;
+
+    const expected11th = y10 + 1;
+    const expected12th = y10 + 2;
+    const gap = y12 - expected12th;
+
+    return {
+      y10,
+      y12,
+      expected11th,
+      expected12th,
+      gap: gap > 0 ? gap : 0,
+      hasGap: gap > 0,
+      isInvalid: y12 < expected12th,
+    };
+  }, []);
 
   const [contactErrors, setContactErrors] = useState({
     emergencyContact: "",
@@ -618,9 +661,19 @@ const EmployeeDetails = ({ isAdmin = false }) => {
           })),
 
           isProfileCompleted: emp.isProfileCompleted ?? false,
+          passedOutYear10: emp.passedOutYear10 || "",
+          passedOutYear12: emp.passedOutYear12 || "",
+          careerGaps: Array.isArray(emp.careerGaps) ? emp.careerGaps : [],
 
           picture: null
         }));
+
+        const savedGap1012 = Array.isArray(emp.careerGaps)
+          ? emp.careerGaps.find((g) => g && g.educationStage === "10th to 12th Standard")
+          : null;
+        if (savedGap1012 && savedGap1012.reason) {
+          setCareerGapReasonInput(savedGap1012.reason);
+        }
 
         if (emp.profileApprovalStatus) {
           setApprovalStatus(emp.profileApprovalStatus);
@@ -879,6 +932,85 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       const errorMsg = validate12Marks(formData.marks12, newTotal);
       setMarksErrors((prev) => ({ ...prev, marks12: errorMsg }));
     }
+  };
+
+  /* ================= PASSED-OUT YEAR & CAREER GAP HANDLERS ================= */
+  const handleYearChange = (key, value) => {
+    const sanitized = value.replace(/[^0-9]/g, "").slice(0, 4);
+    handleChange(key, sanitized);
+
+    const next10 = key === "passedOutYear10" ? sanitized : (formData.passedOutYear10 || "");
+    const next12 = key === "passedOutYear12" ? sanitized : (formData.passedOutYear12 || "");
+
+    let err10 = "";
+    let err12 = "";
+
+    const currentYear = new Date().getFullYear();
+
+    if (next10.length === 4) {
+      const n10 = parseInt(next10, 10);
+      if (n10 < 1960 || n10 > currentYear) {
+        err10 = `Year must be between 1960 and ${currentYear}`;
+      }
+    }
+
+    if (next12.length === 4) {
+      const n12 = parseInt(next12, 10);
+      if (n12 < 1960 || n12 > currentYear + 2) {
+        err12 = `Year must be between 1960 and ${currentYear + 2}`;
+      }
+    }
+
+    if (next10.length === 4 && next12.length === 4 && !err10 && !err12 && (educationPath === "12th" || !educationPath)) {
+      const gapInfo = calculate10to12Gap(next10, next12);
+      if (gapInfo) {
+        if (gapInfo.isInvalid) {
+          err12 = `12th completion year cannot be before expected year (${gapInfo.expected12th})`;
+        } else if (gapInfo.hasGap) {
+          // A career gap is detected!
+          // Open the popup if reason not provided yet
+          if (!careerGapReasonInput.trim()) {
+            setShowCareerGapModal(true);
+          }
+        }
+      }
+    }
+
+    setYearErrors({
+      passedOutYear10: err10,
+      passedOutYear12: err12,
+    });
+  };
+
+  const handleSaveCareerGapReason = () => {
+    if (!careerGapReasonInput.trim()) {
+      setCareerGapModalError("Reason for career gap is required.");
+      return;
+    }
+    const gapInfo = calculate10to12Gap(formData.passedOutYear10, formData.passedOutYear12);
+    if (!gapInfo || !gapInfo.hasGap) {
+      setShowCareerGapModal(false);
+      return;
+    }
+
+    markFieldAsUpdated("careerGaps");
+    setFormData((prev) => ({
+      ...prev,
+      careerGaps: [
+        {
+          educationStage: "10th to 12th Standard",
+          passedOutYear10: String(prev.passedOutYear10),
+          expectedYear12: String(gapInfo.expected12th),
+          actualYear12: String(prev.passedOutYear12),
+          gapDuration: gapInfo.gap,
+          reason: careerGapReasonInput.trim(),
+        },
+      ],
+    }));
+
+    setShowCareerGapModal(false);
+    setCareerGapModalError("");
+    toast.success("Career gap reason recorded successfully.");
   };
 
   const handleEmergencyContactChange = (value) => {
@@ -1279,7 +1411,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     if ((field === "degreeCertificate" || field === "courses") && (rejectedFields.includes("degreeCertificate") || rejectedFields.includes("courses"))) return true;
     if (rejectedFields.includes("kyc") && ["aadhaarNo", "panNo", "aadhaarFile", "panFile"].includes(field)) return true;
     if (rejectedFields.includes("bank") && ["bankName", "accountHolder", "accountNumber", "ifscCode", "branch", "passbookFile"].includes(field)) return true;
-    if (rejectedFields.includes("education") && ["school10", "marks10", "marksheet10", "certificate10", "school12", "marks12", "marksheet12", "certificate12", "educationPath", "courses", "degreeCertificate"].includes(field)) return true;
+    if (rejectedFields.includes("education") && ["school10", "marks10", "marksheet10", "certificate10", "passedOutYear10", "school12", "marks12", "marksheet12", "certificate12", "passedOutYear12", "careerGaps", "educationPath", "courses", "degreeCertificate"].includes(field)) return true;
     if (rejectedFields.includes("personal") && ["dob", "gender", "phone", "emergencyContact", "bloodGroup", "address"].includes(field)) return true;
     if (rejectedFields.includes("family") && ["fatherName", "motherName", "fatherOccupation", "motherOccupation", "siblings"].includes(field)) return true;
     if (rejectedFields.includes("working") && ["previousExperiences", "department", "designation", "experience"].includes(field)) return true;
@@ -1339,8 +1471,9 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       "experience", "salary", "previousExperiences",
     ],
     education: [
-      "school10", "marks10", "marksheet10",
-      "school12", "marks12", "marksheet12",
+      "school10", "marks10", "marksheet10", "passedOutYear10",
+      "school12", "marks12", "marksheet12", "passedOutYear12",
+      "careerGaps",
     ],
     courses: ["courses"],
     kyc: ["aadhaarNo", "panNo", "aadhaarFile", "panFile"],
@@ -1394,6 +1527,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       { key: "status", label: "Employment Status" },
       { key: "school10", label: "10th School" },
       { key: "marks10", label: "10th Marks" },
+      { key: "passedOutYear10", label: "10th Passed-Out Year" },
       { key: "marksheet10", label: "10th Marksheet" },
       { key: "courses", label: "Course Details" },
       { key: "degreeCertificate", label: "Degree Certificate" },
@@ -1410,9 +1544,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     ];
 
     if (educationPath === "12th" || (!educationPath && (formData.school12 || formData.marks12 || formData.marksheet12))) {
-      requiredFields.splice(14, 0, 
+      requiredFields.splice(15, 0, 
         { key: "school12", label: "12th School" },
         { key: "marks12", label: "12th Marks" },
+        { key: "passedOutYear12", label: "12th Passed-Out Year" },
         { key: "marksheet12", label: "12th Marksheet" }
       );
     }
@@ -1508,6 +1643,31 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       }
     }
 
+    if (yearErrors.passedOutYear10 || yearErrors.passedOutYear12) {
+      showErrorModal("Validation Error", yearErrors.passedOutYear10 || yearErrors.passedOutYear12);
+      return;
+    }
+
+    if (educationPath === "12th") {
+      if (formData.passedOutYear10 && formData.passedOutYear12) {
+        const gapInfo = calculate10to12Gap(formData.passedOutYear10, formData.passedOutYear12);
+        if (gapInfo && gapInfo.isInvalid) {
+          showErrorModal("Validation Error", `12th completion year cannot be before expected year (${gapInfo.expected12th})`);
+          return;
+        }
+        if (gapInfo && gapInfo.hasGap) {
+          if (!careerGapReasonInput || !careerGapReasonInput.trim()) {
+            setShowCareerGapModal(true);
+            showErrorModal(
+              "Career Gap Reason Required",
+              "A career gap was detected between 10th and 12th Standard. Please provide the reason before saving."
+            );
+            return;
+          }
+        }
+      }
+    }
+
     if (canEditField("aadhaarNo") && (kycErrors.aadhaarNo || (formData.aadhaarNo && !formData.aadhaarNo.includes("X") && !/^\d{12}$/.test(formData.aadhaarNo)))) {
       showErrorModal("Validation Error", kycErrors.aadhaarNo || "Aadhaar must be 12 digits");
       return;
@@ -1594,7 +1754,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
         "bloodGroup", "address", "fatherName", "motherName",
         "fatherOccupation", "motherOccupation", "department",
         "designation", "status", "dateRelieved", "experience", "salary",
-        "school10", "marks10", "school12", "marks12",
+        "school10", "marks10", "passedOutYear10", "school12", "marks12", "passedOutYear12",
         "aadhaarNo", "panNo", "uanNo", "pfNo",
         "bankName", "accountHolder", "accountNumber", "ifscCode", "branch", "toDate",
       ];
@@ -1643,6 +1803,25 @@ const EmployeeDetails = ({ isAdmin = false }) => {
         });
         form.append("courses", JSON.stringify(coursesPayload));
       }
+
+      // Career Gap Payload (10th to 12th) - only saved when gap detected + reason provided
+      let careerGapsPayload = [];
+      if (educationPath === "12th" && formData.passedOutYear10 && formData.passedOutYear12) {
+        const gapInfo = calculate10to12Gap(formData.passedOutYear10, formData.passedOutYear12);
+        if (gapInfo && gapInfo.hasGap && careerGapReasonInput.trim()) {
+          careerGapsPayload = [
+            {
+              educationStage: "10th to 12th Standard",
+              passedOutYear10: String(formData.passedOutYear10),
+              expectedYear12: String(gapInfo.expected12th),
+              actualYear12: String(formData.passedOutYear12),
+              gapDuration: gapInfo.gap,
+              reason: careerGapReasonInput.trim(),
+            },
+          ];
+        }
+      }
+      form.append("careerGaps", JSON.stringify(careerGapsPayload));
 
       form.append("educationPath", educationPath);
 
@@ -1722,6 +1901,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
         if (employeeUpdate.salary !== undefined) {
           employeeUpdate.salary = Number(employeeUpdate.salary);
+        }
+
+        if (careerGapsPayload.length > 0) {
+          detailsUpdate.careerGaps = careerGapsPayload;
         }
 
         const reqPayload = {
@@ -2665,6 +2848,27 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                       </div>
                     </div>
 
+                    <div id="field-wrapper-passedOutYear10" className="employeedetails-col-md-6 employeedetails-mb-4">
+                      <div className="employeedetails-detail-label">10th Passed-Out Year</div>
+                      <div className="employeedetails-field-wrapper">
+                        <input
+                          className={`employeedetails-detail-input ${!canEditField("passedOutYear10") ? "employeedetails-input-locked" : ""} ${yearErrors.passedOutYear10 ? "employeedetails-input-error" : ""}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={4}
+                          value={formData.passedOutYear10 || ""}
+                          onChange={(e) => handleYearChange("passedOutYear10", e.target.value)}
+                          onKeyDown={handleNumberKeyDown}
+                          disabled={!canEditField()} visible={canEditField()}
+                          readOnly={!canEditField("passedOutYear10")}
+                          placeholder="e.g. 2021"
+                        />
+                        {yearErrors.passedOutYear10 && (
+                          <div className="employeedetails-field-error">{yearErrors.passedOutYear10}</div>
+                        )}
+                      </div>
+                    </div>
+
                     <div id="field-wrapper-marksheet10" className="employeedetails-col-md-6 employeedetails-mb-4">
                       <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span>10th Marksheet</span>
@@ -2779,6 +2983,27 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           </div>
                         </div>
 
+                        <div id="field-wrapper-passedOutYear12" className="employeedetails-col-md-6 employeedetails-mb-4">
+                          <div className="employeedetails-detail-label">12th Passed-Out Year</div>
+                          <div className="employeedetails-field-wrapper">
+                            <input
+                              className={`employeedetails-detail-input ${!canEditField("passedOutYear12") ? "employeedetails-input-locked" : ""} ${yearErrors.passedOutYear12 ? "employeedetails-input-error" : ""}`}
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={4}
+                              value={formData.passedOutYear12 || ""}
+                              onChange={(e) => handleYearChange("passedOutYear12", e.target.value)}
+                              onKeyDown={handleNumberKeyDown}
+                              disabled={!canEditField()} visible={canEditField()}
+                              readOnly={!canEditField("passedOutYear12")}
+                              placeholder="e.g. 2023"
+                            />
+                            {yearErrors.passedOutYear12 && (
+                              <div className="employeedetails-field-error">{yearErrors.passedOutYear12}</div>
+                            )}
+                          </div>
+                        </div>
+
                         <div id="field-wrapper-marksheet12" className="employeedetails-col-md-6 employeedetails-mb-4">
                           <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span>12th Marksheet</span>
@@ -2801,6 +3026,83 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                             {renderFilePreview("marksheet12", "12th Marksheet")}
                           </div>
                         </div>
+
+                        {/* ── Career Gap Display for Admin & Employee Review ── */}
+                        {(() => {
+                          const gapInfo = calculate10to12Gap(formData.passedOutYear10, formData.passedOutYear12);
+                          const savedGap = Array.isArray(formData.careerGaps)
+                            ? formData.careerGaps.find((g) => g && g.educationStage === "10th to 12th Standard")
+                            : null;
+                          const showGapCard = (gapInfo && gapInfo.hasGap) || (savedGap && Number(savedGap.gapDuration) > 0);
+                          if (!showGapCard) return null;
+
+                          const stage = savedGap?.educationStage || "10th to 12th Standard";
+                          const y10Display = formData.passedOutYear10 || savedGap?.passedOutYear10 || "-";
+                          const expectedDisplay = savedGap?.expectedYear12 || (gapInfo ? gapInfo.expected12th : "-");
+                          const actualDisplay = formData.passedOutYear12 || savedGap?.actualYear12 || "-";
+                          const durationDisplay = savedGap?.gapDuration
+                            ? `${savedGap.gapDuration} ${savedGap.gapDuration === 1 ? "Year" : "Years"}`
+                            : (gapInfo ? `${gapInfo.gap} ${gapInfo.gap === 1 ? "Year" : "Years"}` : "-");
+                          const reasonDisplay = savedGap?.reason || careerGapReasonInput.trim();
+
+                          return (
+                            <div className="employeedetails-col-md-12 employeedetails-mb-2">
+                              <div className="career-gap-review-card">
+                                <div className="career-gap-review-header">
+                                  <div className="career-gap-review-title-badge">
+                                    <span>Career Gap Information ({stage})</span>
+                                  </div>
+                                  {!isAdmin && canEditField("careerGaps") && (
+                                    <button
+                                      type="button"
+                                      className="btn-edit-gap-reason"
+                                      onClick={() => {
+                                        setCareerGapReasonInput(reasonDisplay || "");
+                                        setShowCareerGapModal(true);
+                                      }}
+                                    >
+                                      {reasonDisplay ? "Edit Reason" : "+ Provide Reason"}
+                                    </button>
+                                  )}
+                                </div>
+                                <div className="career-gap-review-grid">
+                                  <div className="career-gap-review-col">
+                                    <span className="career-gap-col-label">Education Stage</span>
+                                    <span className="career-gap-col-val">{stage}</span>
+                                  </div>
+                                  <div className="career-gap-review-col">
+                                    <span className="career-gap-col-label">10th Passed-Out Year</span>
+                                    <span className="career-gap-col-val">{y10Display}</span>
+                                  </div>
+                                  <div className="career-gap-review-col">
+                                    <span className="career-gap-col-label">Expected 12th Year</span>
+                                    <span className="career-gap-col-val">{expectedDisplay}</span>
+                                  </div>
+                                  <div className="career-gap-review-col">
+                                    <span className="career-gap-col-label">Actual 12th Year</span>
+                                    <span className="career-gap-col-val">{actualDisplay}</span>
+                                  </div>
+                                  <div className="career-gap-review-col">
+                                    <span className="career-gap-col-label">Career Gap Duration</span>
+                                    <span className="career-gap-duration-pill">{durationDisplay}</span>
+                                  </div>
+                                </div>
+                                <div className="career-gap-review-reason-box">
+                                  <span className="career-gap-col-label">Reason for Career Gap</span>
+                                  <p className="career-gap-reason-text">
+                                    {reasonDisplay ? (
+                                      reasonDisplay
+                                    ) : (
+                                      <span style={{ color: "#dc2626", fontWeight: "600" }}>
+                                        ⚠️ Reason required. Please click "+ Provide Reason" above to enter your career gap explanation.
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </>
@@ -3447,6 +3749,108 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                 onClick={handleCropApply}
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= CAREER GAP POPUP MODAL ================= */}
+      {showCareerGapModal && (
+        <div className="employeedetails-modal-overlay">
+          <div className="employeedetails-modal-card career-gap-modal-card" style={{ maxWidth: 520, width: "95%" }}>
+            <div className="career-gap-modal-header">
+              <div style={{ flex: 1, paddingRight: "20px" }}>
+                <h4 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#1f2937" }}>
+                  Career Gap Detected
+                </h4>
+                <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#6b7280" }}>
+                  Please explain the gap between your 10th and 12th Standard education timeline.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="career-gap-modal-close"
+                onClick={() => {
+                  setShowCareerGapModal(false);
+                  setCareerGapModalError("");
+                }}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="career-gap-details-grid">
+              <div className="career-gap-grid-item">
+                <span className="career-gap-label">Education Stage</span>
+                <span className="career-gap-value">10th to 12th Standard</span>
+              </div>
+              <div className="career-gap-grid-item">
+                <span className="career-gap-label">10th Passed-Out Year</span>
+                <span className="career-gap-value">{formData.passedOutYear10 || "-"}</span>
+              </div>
+              <div className="career-gap-grid-item">
+                <span className="career-gap-label">Expected Completion Year</span>
+                <span className="career-gap-value font-highlight">
+                  {formData.passedOutYear10 ? parseInt(formData.passedOutYear10, 10) + 2 : "-"}
+                </span>
+              </div>
+              <div className="career-gap-grid-item">
+                <span className="career-gap-label">Actual Completion Year</span>
+                <span className="career-gap-value font-highlight">
+                  {formData.passedOutYear12 || "-"}
+                </span>
+              </div>
+              <div className="career-gap-grid-item full-width highlight-duration">
+                <span className="career-gap-label">Career Gap Duration</span>
+                <span className="career-gap-value-badge">
+                  {(() => {
+                    const info = calculate10to12Gap(formData.passedOutYear10, formData.passedOutYear12);
+                    return info && info.gap > 0 ? `${info.gap} ${info.gap === 1 ? "Year" : "Years"}` : "0 Years";
+                  })()}
+                </span>
+              </div>
+            </div>
+
+            <div className="career-gap-reason-section">
+              <label className="employeedetails-detail-label">
+                Reason for Career Gap <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <textarea
+                className={`employeedetails-detail-input career-gap-textarea ${careerGapModalError ? "employeedetails-input-error" : ""}`}
+                rows={4}
+                placeholder="Explain the reason for the career gap (required)..."
+                value={careerGapReasonInput}
+                onChange={(e) => {
+                  setCareerGapReasonInput(e.target.value);
+                  if (e.target.value.trim()) setCareerGapModalError("");
+                }}
+              />
+              {careerGapModalError && (
+                <div className="employeedetails-field-error" style={{ marginTop: "4px" }}>
+                  {careerGapModalError}
+                </div>
+              )}
+            </div>
+
+            <div className="career-gap-modal-actions">
+              <button
+                type="button"
+                className="common-modal-btn btn-small-cancel"
+                onClick={() => {
+                  setShowCareerGapModal(false);
+                  setCareerGapModalError("");
+                }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="employeedetails-btn-save"
+                onClick={handleSaveCareerGapReason}
+              >
+                Submit Reason
               </button>
             </div>
           </div>

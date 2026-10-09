@@ -707,7 +707,42 @@ const AdminTaskPage = () => {
                             </div>
                             <div className="adminTaskPage__tableCell">
                               {task.project ? (
-                                <span className="adminTaskPage__metaTag adminTaskPage__metaTag--proj">{task.project}</span>
+                                <div className="d-flex align-items-center flex-wrap gap-1">
+                                  <span className="adminTaskPage__metaTag adminTaskPage__metaTag--proj">{task.project}</span>
+                                  {task.workType && (
+                                    <span
+                                      style={{
+                                        fontSize: "10px",
+                                        fontWeight: "600",
+                                        color: "#5977f8",
+                                        background: "#eef2ff",
+                                        border: "1px solid #c7d2fe",
+                                        borderRadius: "4px",
+                                        padding: "0px 4px"
+                                      }}
+                                      title={`Work Type: ${task.workType}`}
+                                    >
+                                      {task.workType}
+                                    </span>
+                                  )}
+                                  {task.pages && task.pages.length > 0 && task.pages.map((p, pIdx) => (
+                                    <span
+                                      key={pIdx}
+                                      style={{
+                                        fontSize: "10px",
+                                        fontWeight: "500",
+                                        color: "#475569",
+                                        background: "#f1f5f9",
+                                        border: "1px solid #cbd5e1",
+                                        borderRadius: "4px",
+                                        padding: "0px 4px"
+                                      }}
+                                      title={`Page: ${p}`}
+                                    >
+                                      {p}
+                                    </span>
+                                  ))}
+                                </div>
                               ) : (
                                 <span className="text-muted" style={{ fontSize: "11px" }}>—</span>
                               )}

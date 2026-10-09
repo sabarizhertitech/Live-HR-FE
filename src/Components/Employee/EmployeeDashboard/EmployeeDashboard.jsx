@@ -2026,7 +2026,7 @@ const EmployeeDashboard = () => {
                       className={`kural-language-btn ${language === "tamil" ? "active" : ""}`}
                       onClick={() => setLanguage("tamil")}
                     >
-                      à®¤à®®à®¿à®´à¯
+                      தமிழ்
                     </button>
                     <button
                       className={`kural-language-btn ${language === "english" ? "active" : ""}`}
@@ -2865,7 +2865,7 @@ const EmployeeDashboard = () => {
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} centered className="employee-todo-detail-modal">
         <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center">
           <h5 className="common-modal-title">{selectedTodo ? (selectedTodo.title || selectedTodo.description.split("\n")[0]) : "To Do Details"}</h5>
-          <button className="common-modal-close-x" onClick={() => setShowDetailModal(false)}>âœ•</button>
+          <button className="common-modal-close-x" onClick={() => setShowDetailModal(false)}>✕</button>
         </Modal.Header>
         <Modal.Body className="common-modal-body">
           {selectedTodo && (
@@ -2944,7 +2944,7 @@ const EmployeeDashboard = () => {
           <div className="todo-modal-content edit-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="todo-modal-header modal-header">
               <h3 className="common-modal-title">{isEditMode ? "Update To Do List" : "To Do List"}</h3>
-              <button className="common-modal-close-x" onClick={handleCloseTodoModal}>âœ•</button>
+              <button className="common-modal-close-x" onClick={handleCloseTodoModal}>✕</button>
             </div>
             <div className="todo-modal-body common-modal-body">
               <div className="todo-form-group">
@@ -3205,7 +3205,7 @@ const EmployeeDashboard = () => {
               setPermissionData({ fromTime: "", toTime: "", reason: "", informedVia: "Mobile Call", permissionType: "" });
             }}
           >
-            âœ•
+            ✕
           </button>
         </Modal.Header>
         <Modal.Body className="p-4 pt-1">

@@ -1330,7 +1330,6 @@ function Sidebar() {
     { title: "Work Updates", iconName: "Work Updates", path: "/emp/daily-work-updates" },
     { title: "Operation Hub", iconName: "Operation Hub", path: "/emp/marker" },
     { title: "Salary Slip", iconName: "Salary Slip", path: "/emp/salary-slip" },
-    { title: "HR Requests", iconName: "Leave Requests", path: "/emp/hr-requests" },
     ...(!user?.isHr
       ? [
         {
@@ -1408,6 +1407,12 @@ function Sidebar() {
             { label: "Termination Letter", path: "/admin/termination-letter", iconName: "Salary Slip" },
             { label: "Increment Letter", path: "/admin/increment-letter", iconName: "Salary Slip" }
           ]
+        },
+        {
+          isHrItem: true,
+          title: "HR Requests",
+          iconName: "Leave Requests",
+          path: "/emp/hr-requests"
         }
       ]
       : [])

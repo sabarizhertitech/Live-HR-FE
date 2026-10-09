@@ -22,6 +22,7 @@ import Sidebar from "../../HeaderSidebar/Sidebar";
 import Pagination from "../../Employee/Pagination/Pagination";
 import CustomDropdown from "../../Common/CustomDropdown";
 import { portalInstance } from "../../../Services/instance";
+import { useUser } from "../../UserContext";
 import FilterIconImg from "../../../../public/Filter.svg?url";
 import "../../../Globel/Layout.css";
 import "./HrRequestsPage.css";
@@ -117,9 +118,20 @@ const buildAvatarUrl = (photoPath) => {
 const HrRequestsPage = ({ isAdmin = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUser();
 
   // Determine admin state from prop or route
   const effectiveIsAdmin = isAdmin || location.pathname.startsWith("/admin");
+  const isAdminUser = effectiveIsAdmin || user?.role === "admin";
+  const isHrUser = Boolean(user?.isHr);
+
+  // Restrict access: Only HR and Admin users can access this page
+  useEffect(() => {
+    if (user && !isAdminUser && !isHrUser) {
+      toast.error("Access denied. HR Requests are only accessible to HR and Admin users.");
+      navigate("/emp/dashboard", { replace: true });
+    }
+  }, [user, isAdminUser, isHrUser, navigate]);
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);

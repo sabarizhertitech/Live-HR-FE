@@ -1211,14 +1211,14 @@ const DetailsView = () => {
             <Grid>
               <Item label="Employee ID" value={employee.empIdString} />
               <Item label="Name" value={employee.name} />
-              <Item label="Email" value={isEmployeeView ? maskEmail(employee.email) : employee.email} />
+              <Item label="Email" value={employee.email} />
               <Item
                 label="Status"
                 value={employee.status === "full_time" ? "Full-time" : "Intern"}
               />
               <Item id="field-item-gender" label="Gender" value={employee.gender} />
-              <Item id="field-item-phone" label="Phone" value={isEmployeeView ? maskPhone(employee.phone) : employee.phone} />
-              <Item id="field-item-emergencyContact" label="Emergency Contact" value={isEmployeeView ? maskEmergencyContact(employee.emergencyContact) : employee.emergencyContact} />
+              <Item id="field-item-phone" label="Phone" value={employee.phone} />
+              <Item id="field-item-emergencyContact" label="Emergency Contact" value={employee.emergencyContact} />
               <Item id="field-item-bloodGroup" label="Blood Group" value={employee.bloodGroup} />
               <Item id="field-item-address" label="Address" value={employee.address} full />
             </Grid>
@@ -1308,9 +1308,60 @@ const DetailsView = () => {
             <Grid>
               <Item id="field-item-school10" label="10th School" value={employee.school10} />
               <Item id="field-item-marks10" label="10th Marks" value={employee.marks10} />
-              <Item id="field-item-school12" label="12th School" value={employee.school12} />
-              <Item id="field-item-marks12" label="12th Marks" value={employee.marks12} />
+              <Item id="field-item-passedOutYear10" label="10th Passed-Out Year" value={employee.passedOutYear10} />
+              {employee.educationPath !== "Diploma" && (
+                <>
+                  <Item id="field-item-school12" label="12th School" value={employee.school12} />
+                  <Item id="field-item-marks12" label="12th Marks" value={employee.marks12} />
+                  <Item id="field-item-passedOutYear12" label="12th Passed-Out Year" value={employee.passedOutYear12} />
+                </>
+              )}
             </Grid>
+
+            {/* ── Career Gap Details for Admin Review ── */}
+            {(() => {
+              const gap1012 = (employee.careerGaps || []).find(
+                (g) => g && g.educationStage === "10th to 12th Standard" && Number(g.gapDuration) > 0 && g.reason
+              );
+              if (!gap1012) return null;
+              return (
+                <div className="career-gap-review-card">
+                  <div className="career-gap-review-header">
+                    <div className="career-gap-review-title-badge">
+                      <span>Career Gap Information ({gap1012.educationStage})</span>
+                    </div>
+                  </div>
+                  <div className="career-gap-review-grid">
+                    <div className="career-gap-review-col">
+                      <span className="career-gap-col-label">Education Stage</span>
+                      <span className="career-gap-col-val">{gap1012.educationStage}</span>
+                    </div>
+                    <div className="career-gap-review-col">
+                      <span className="career-gap-col-label">10th Passed-Out Year</span>
+                      <span className="career-gap-col-val">{gap1012.passedOutYear10 || employee.passedOutYear10 || "-"}</span>
+                    </div>
+                    <div className="career-gap-review-col">
+                      <span className="career-gap-col-label">Expected 12th Year</span>
+                      <span className="career-gap-col-val">{gap1012.expectedYear12 || "-"}</span>
+                    </div>
+                    <div className="career-gap-review-col">
+                      <span className="career-gap-col-label">Actual 12th Year</span>
+                      <span className="career-gap-col-val">{gap1012.actualYear12 || employee.passedOutYear12 || "-"}</span>
+                    </div>
+                    <div className="career-gap-review-col">
+                      <span className="career-gap-col-label">Career Gap Duration</span>
+                      <span className="career-gap-duration-pill">
+                        {gap1012.gapDuration} {gap1012.gapDuration === 1 ? "Year" : "Years"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="career-gap-review-reason-box">
+                    <span className="career-gap-col-label">Reason for Career Gap</span>
+                    <p className="career-gap-reason-text">{gap1012.reason}</p>
+                  </div>
+                </div>
+              );
+            })()}
           </Section>
 
           <Section id="section-courses" title="Courses">

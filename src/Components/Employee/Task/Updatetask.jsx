@@ -65,6 +65,7 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
       <div className="atPhase__item animate-fade-in" style={{ padding: "12px 16px", borderRadius: "8px", background: "#f8fafc", border: "1px solid #e2e8f0", marginBottom: "10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>Phase {index + 1}</span>
             <strong style={{ fontSize: "13px", color: "#1e293b", fontWeight: "600" }}>{phaseTitle}</strong>
             <span
               style={{
@@ -128,6 +129,134 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
     );
   }
 
+  const [isPointByPoint, setIsPointByPoint] = useState(() => {
+    return /^\s*\d+[\.\)]\s*/.test(phaseDescription || "");
+  });
+
+  const formatToNumberedPoints = (text) => {
+    if (!text || !text.trim()) return "1. ";
+    const rawLines = text.split("\n");
+    const cleaned = rawLines
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    if (cleaned.length === 0) return "1. ";
+    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+  };
+
+  const removeNumberedPoints = (text) => {
+    if (!text) return "";
+    return text
+      .split("\n")
+      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const handleTogglePointByPoint = () => {
+    const nextMode = !isPointByPoint;
+    setIsPointByPoint(nextMode);
+    const currentDesc = phaseDescription || "";
+    if (nextMode) {
+      onChange(index, "phaseDescription", formatToNumberedPoints(currentDesc));
+    } else {
+      onChange(index, "phaseDescription", removeNumberedPoints(currentDesc));
+    }
+  };
+
+  const handleDescriptionKeyDown = (e) => {
+    if (!isPointByPoint) return;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const textarea = e.target;
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      const textBeforeCursor = value.substring(0, selectionStart);
+      const textAfterCursor = value.substring(selectionEnd);
+
+      const linesBefore = textBeforeCursor.split("\n");
+      const currentLine = linesBefore[linesBefore.length - 1];
+
+      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+
+      if (match) {
+        const num = parseInt(match[1], 10);
+        const content = match[2];
+
+        if (!content.trim()) {
+          const newLines = linesBefore.slice(0, -1);
+          const newBefore = newLines.length > 0 ? newLines.join("\n") + "\n" : "";
+          const newText = newBefore + textAfterCursor;
+          onChange(index, "phaseDescription", newText);
+          setTimeout(() => {
+            textarea.selectionStart = textarea.selectionEnd = newBefore.length;
+          }, 0);
+          return;
+        }
+
+        const nextNum = num + 1;
+        const insertion = `\n${nextNum}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        onChange(index, "phaseDescription", newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      } else {
+        const lineCount = linesBefore.length + 1;
+        const insertion = `\n${lineCount}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        onChange(index, "phaseDescription", newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      }
+    }
+  };
+
+  const handleDescriptionPaste = (e) => {
+    if (!isPointByPoint) return;
+
+    const pastedText = e.clipboardData?.getData("text");
+    if (!pastedText || !pastedText.includes("\n")) return;
+
+    e.preventDefault();
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const textBefore = value.substring(0, selectionStart);
+    const textAfter = value.substring(selectionEnd);
+
+    const pastedLines = pastedText
+      .split("\n")
+      .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    const linesBefore = textBefore.split("\n");
+    const currentLine = linesBefore[linesBefore.length - 1];
+    const match = currentLine.match(/^(\d+)\.\s*/);
+    let startNum = match ? parseInt(match[1], 10) : linesBefore.length;
+
+    const formattedPaste = pastedLines
+      .map((line, i) => `${startNum + i}. ${line}`)
+      .join("\n");
+
+    const newBefore = match
+      ? textBefore.substring(0, textBefore.length - match[0].length)
+      : textBefore;
+
+    const newText = newBefore + formattedPaste + textAfter;
+    onChange(index, "phaseDescription", newText);
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd =
+        (newBefore + formattedPaste).length;
+    }, 0);
+  };
+
   return (
     <div className="atPhase__item animate-fade-in" style={{ marginBottom: "10px" }}>
       {/* Row 1: Close button on the right end */}
@@ -177,13 +306,48 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
         </div>
       </div>
 
-      {/* Row 3: Description */}
+      {/* Row 3: Description with Point by Point */}
+      <div className="d-flex justify-content-between align-items-center mb-1 mt-2">
+        <label style={{ fontSize: "11px", fontWeight: "500", color: "#64748b", margin: 0 }}>Description</label>
+        {canEdit && (
+          <label
+            className="d-flex align-items-center gap-1"
+            onClick={handleTogglePointByPoint}
+            style={{
+              fontSize: "11px",
+              fontWeight: "500",
+              color: isPointByPoint ? "#5977f8" : "#77728e",
+              cursor: "pointer",
+              userSelect: "none",
+              margin: 0
+            }}
+            title="Format description as numbered points (1., 2., 3.)"
+          >
+            <input
+              type="radio"
+              name={`phaseRowPointByPoint-${index}`}
+              checked={isPointByPoint}
+              readOnly
+              style={{
+                cursor: "pointer",
+                accentColor: "#5977f8",
+                width: "12px",
+                height: "12px",
+                margin: 0
+              }}
+            />
+            <span>Point by Point</span>
+          </label>
+        )}
+      </div>
       <textarea
         className="atPhase__input hrms-common-textarea"
-        placeholder={`Phase ${index + 1} Description…`}
+        placeholder={isPointByPoint ? "1. Enter first point..." : `Phase ${index + 1} Description…`}
         value={phaseDescription}
         disabled={!canEdit}
         onChange={e => onChange(index, "phaseDescription", e.target.value)}
+        onKeyDown={handleDescriptionKeyDown}
+        onPaste={handleDescriptionPaste}
         rows={2}
       />
 
@@ -459,7 +623,7 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
   }, []);
 
   const handleAddPhase = useCallback(() => {
-    setPhases(prev => [...prev, { phaseTitle: "", phaseDescription: "", phaseStatus: "pending" }]);
+    setPhases(prev => [...prev, { phaseTitle: "", phaseDescription: "", phaseStatus: "pending", isSaved: false }]);
     setIsDirty(true);
   }, []);
 
@@ -533,10 +697,46 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
         setFormData(loaded);
         setSelectedEmployees(td.assignedMembers || []);
 
-        /* ── Phases: Post-Only Mode ── */
-        // We always start with a clean phase row for new updates, 
-        // ignoring any static phases defined in the Task record.
-        const initialPhases = [];
+        /* ── Phases: Load Previous Phases ── */
+        const isAssigned = (td.assignedMembers || []).some(m => {
+          const id = typeof m === "string" ? m : m?._id || m?.id || m?.userId || "";
+          return String(id).trim() === String(currentUserId).trim();
+        });
+
+        const rawPhases = Array.isArray(td.phases) ? td.phases : [];
+        const memberPhases = (!isUserCreator && isAssigned && currentUserId)
+          ? rawPhases.filter(p => {
+              if (typeof p !== "object" || !p) return true;
+              const ownerId = (p.employeeId?._id || p.employeeId || "").toString();
+              return !ownerId || ownerId === String(currentUserId);
+            })
+          : rawPhases;
+
+        const initialPhases = memberPhases
+          .map(p => {
+            if (typeof p === "string") {
+              const trimmed = p.trim();
+              return trimmed ? {
+                phaseTitle: trimmed,
+                phaseDescription: "",
+                phaseStatus: "pending",
+                isSaved: true,
+              } : null;
+            }
+            const title = (p.phaseTitle || p.phase || "").trim();
+            if (!title) return null;
+            return {
+              _id: p._id,
+              phaseTitle: title,
+              phaseDescription: (p.phaseDescription || p.description || "").trim(),
+              phaseStatus: p.phaseStatus || p.status || "pending",
+              employeeId: p.employeeId?._id || p.employeeId || undefined,
+              updateDate: p.updateDate,
+              isSaved: true,
+            };
+          })
+          .filter(Boolean);
+
         setPhases(initialPhases);
 
         initialDataRef.current = {
@@ -607,7 +807,7 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
     }
 
     // 2. Validation: If they modified a phase status but left the title empty
-    const emptyPhaseWithStatus = phases.find(p => p.phaseTitle.trim() === "" && p.phaseStatus !== "pending");
+    const emptyPhaseWithStatus = phases.find(p => !(p.phaseTitle || "").trim() && ((p.phaseDescription || "").trim() || (p.phaseStatus && p.phaseStatus !== "pending")));
     if (emptyPhaseWithStatus) {
       toast.warning("Please enter the phase title before updating.");
       return;
@@ -649,13 +849,17 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
       const loggedInUserId = currentUserId || localStorage.getItem("userId") || sessionStorage.getItem("userId") || "";
       const filteredPhases = phases
         .filter(p => p.phaseTitle?.trim())
-        .map(p => ({
-          phaseTitle: p.phaseTitle.trim(),
-          phaseDescription: (p.phaseDescription || "").trim(),
-          phaseStatus: p.phaseStatus || "pending",
-          updateDate: new Date().toISOString(),
-          employeeId: p.employeeId || loggedInUserId || undefined,
-        }));
+        .map(p => {
+          const empId = p.employeeId?._id || p.employeeId || loggedInUserId || undefined;
+          return {
+            ...(p._id ? { _id: p._id } : {}),
+            phaseTitle: p.phaseTitle.trim(),
+            phaseDescription: (p.phaseDescription || "").trim(),
+            phaseStatus: p.phaseStatus || "pending",
+            updateDate: p.updateDate || new Date().toISOString(),
+            ...(empId ? { employeeId: empId } : {}),
+          };
+        });
 
       data.append("phases", JSON.stringify(filteredPhases));
 
@@ -799,6 +1003,27 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
           {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ RIGHT: Form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <div className="admin-task-details-update-form">
 
+            {(task?.category || task?.project || task?.workType || (task?.pages && task.pages.length > 0)) && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginBottom: "16px", background: "#f8fafc", padding: "10px 14px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                {(task?.category || task?.project) && (
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>
+                    <span style={{ fontWeight: "600", color: "#334155" }}>Project: </span>
+                    <span>{(task?.category || "").toUpperCase()} / {task?.project || ""}</span>
+                  </div>
+                )}
+                {task?.workType && (
+                  <span style={{ fontSize: "11px", fontWeight: "600", color: "#5977f8", background: "#eef2ff", border: "1px solid #c7d2fe", borderRadius: "4px", padding: "2px 8px" }}>
+                    {task.workType}
+                  </span>
+                )}
+                {task?.pages && task.pages.length > 0 && task.pages.map((pg, pIdx) => (
+                  <span key={pIdx} style={{ fontSize: "11px", fontWeight: "500", color: "#334155", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "2px 8px" }}>
+                    {pg}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <FieldWrapper label="Task Title">
               <input type="text" name="taskTitle" value={formData.taskTitle}
                 onChange={handleChange} disabled={!canEditField("taskTitle")}
@@ -915,7 +1140,7 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
               <div className="atPhase__list">
                 {phases.map((p, index) => (
                   <PhaseRow
-                    key={index}
+                    key={p._id || index}
                     index={index}
                     phaseTitle={p.phaseTitle}
                     phaseDescription={p.phaseDescription}

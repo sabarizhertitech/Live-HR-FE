@@ -65,7 +65,7 @@ function PhaseItem({ phaseObj, phaseNumber, dailyUpdates }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span className="td-phase-number">Phase {phaseNumber}</span>
           <span className="td-phase-text">
-            {phaseName || <em style={{ color: "#9ca3af" }}>â€”</em>}
+            {phaseName || <em style={{ color: "#9ca3af" }}>—</em>}
           </span>
         </div>
         {/* If no daily updates yet, show the initial status set during task creation */}
@@ -83,9 +83,9 @@ function PhaseItem({ phaseObj, phaseNumber, dailyUpdates }) {
                 <span className="td-phase-update-by">
                   {(() => {
                     const dateValue = u.updateDate || u.createdAt;
-                    if (!dateValue) return "â€”";
+                    if (!dateValue) return "—";
                     const d = new Date(dateValue);
-                    if (isNaN(d.getTime())) return "â€”";
+                    if (isNaN(d.getTime())) return "—";
 
                     return d.toLocaleDateString("en-GB", {
                       day: "2-digit",
@@ -163,12 +163,35 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
     return editableStatuses.includes(status);
   }, [isTaskCreator, isAssignedMember, task]);
 
+  const isAssigner = useMemo(() => {
+    if (!currentUserId || !createdById) return false;
+    return String(currentUserId) === String(createdById);
+  }, [currentUserId, createdById]);
+
   const canDeleteTask = useMemo(() => {
-    if (!isTaskCreator || !task?.status) return false;
-    const status = task.status.toLowerCase().trim();
-    const deletableStatuses = ["assigned", "pending", "inprocess", "hold", "rejected"];
-    return deletableStatuses.includes(status);
-  }, [isTaskCreator, task]);
+    if (!isAssigner || !task) return false;
+
+    // Check if assignee has accepted
+    if ((task.assignedStatus || "").toLowerCase() === "accepted") return false;
+    if (Array.isArray(task.memberStatuses) && task.memberStatuses.length > 0) {
+      if (task.memberStatuses.some(ms => (ms.assignedStatus || "").toLowerCase() === "accepted")) {
+        return false;
+      }
+    }
+
+    // Check if task status has moved to In Progress, Completed, Hold or any other subsequent status
+    const statusNormalized = (task.status || "").toLowerCase().replace(/[\s\-_]/g, "");
+    if (statusNormalized && !["assigned", "pending", "allocated"].includes(statusNormalized)) {
+      return false;
+    }
+
+    const assignedStatusNormalized = (task.assignedStatus || "").toLowerCase().replace(/[\s\-_]/g, "");
+    if (assignedStatusNormalized && !["allocated", "assigned", "pending", "rejected"].includes(assignedStatusNormalized)) {
+      return false;
+    }
+
+    return true;
+  }, [isAssigner, task]);
 
   /* ================= HELPERS ================= */
   const formatDate = (dateString) => {
@@ -295,13 +318,13 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                 </span>
               </div>
 
-              {isTaskCreator && (
+              {canDeleteTask && (
                 <div className="admin-task-details-options-container">
                   <button
                     className="admin-task-details-options-btn"
                     onClick={() => setShowOptionsDropdown(!showOptionsDropdown)}
                   >
-                    â€¢â€¢â€¢
+                    •••
                   </button>
 
                   {showOptionsDropdown && (
@@ -349,6 +372,26 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
 
               {/* RIGHT: Info */}
               <div className="admin-task-details-info-panel">
+                {(task?.category || task?.project || task?.workType || (task?.pages && task.pages.length > 0)) && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginBottom: "16px", background: "#f8fafc", padding: "10px 14px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    {(task?.category || task?.project) && (
+                      <div style={{ fontSize: "12px", color: "#64748b" }}>
+                        <span style={{ fontWeight: "600", color: "#334155" }}>Project: </span>
+                        <span>{(task?.category || "").toUpperCase()} / {task?.project || ""}</span>
+                      </div>
+                    )}
+                    {task?.workType && (
+                      <span style={{ fontSize: "11px", fontWeight: "600", color: "#5977f8", background: "#eef2ff", border: "1px solid #c7d2fe", borderRadius: "4px", padding: "2px 8px" }}>
+                        {task.workType}
+                      </span>
+                    )}
+                    {task?.pages && task.pages.length > 0 && task.pages.map((pg, pIdx) => (
+                      <span key={pIdx} style={{ fontSize: "11px", fontWeight: "500", color: "#334155", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "2px 8px" }}>
+                        {pg}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="admin-task-details-info-row">
                   <div className="admin-task-details-info-stat">
                     <label>Start Date</label>

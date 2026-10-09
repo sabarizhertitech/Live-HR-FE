@@ -104,16 +104,142 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
     });
   }, [phaseUpdates, phase]);
 
+  const [isPointByPoint, setIsPointByPoint] = useState(false);
+
   useEffect(() => {
+    const desc = typeof phase === 'object' ? (phase.phaseDescription || "") : "";
     setEditTitle(typeof phase === 'object' ? (phase.phaseTitle || "") : "");
-    setEditDesc(typeof phase === 'object' ? (phase.phaseDescription || "") : "");
+    setEditDesc(desc);
     setEditStatus(currentStatus.toLowerCase());
+    setIsPointByPoint(/^\s*1[\.\)]/m.test(desc));
   }, [phase, currentStatus]);
 
   const phaseName = typeof phase === 'object' ? (phase.phaseTitle || phase.phase) : phase;
   const phaseDesc = typeof phase === 'object' ? phase.phaseDescription : '';
 
   const canEdit = (isOwner || isTaskCreator) && ["pending", "inprocess", "hold"].includes(currentStatus.toLowerCase());
+
+  const formatToNumberedPoints = (text) => {
+    if (!text || !text.trim()) return "1. ";
+    const rawLines = text.split("\n");
+    const cleaned = rawLines
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    if (cleaned.length === 0) return "1. ";
+    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+  };
+
+  const removeNumberedPoints = (text) => {
+    if (!text) return "";
+    return text
+      .split("\n")
+      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const handleTogglePointByPoint = () => {
+    const nextMode = !isPointByPoint;
+    setIsPointByPoint(nextMode);
+    if (nextMode) {
+      setEditDesc(prev => formatToNumberedPoints(prev));
+    } else {
+      setEditDesc(prev => removeNumberedPoints(prev));
+    }
+  };
+
+  const handleDescriptionKeyDown = (e) => {
+    if (!isPointByPoint) return;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const textarea = e.target;
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      const textBeforeCursor = value.substring(0, selectionStart);
+      const textAfterCursor = value.substring(selectionEnd);
+
+      const linesBefore = textBeforeCursor.split("\n");
+      const currentLine = linesBefore[linesBefore.length - 1];
+
+      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+
+      if (match) {
+        const num = parseInt(match[1], 10);
+        const content = match[2];
+
+        if (!content.trim()) {
+          const newLines = linesBefore.slice(0, -1);
+          const newBefore = newLines.length > 0 ? newLines.join("\n") + "\n" : "";
+          const newText = newBefore + textAfterCursor;
+          setEditDesc(newText);
+          setTimeout(() => {
+            textarea.selectionStart = textarea.selectionEnd = newBefore.length;
+          }, 0);
+          return;
+        }
+
+        const nextNum = num + 1;
+        const insertion = `\n${nextNum}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        setEditDesc(newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      } else {
+        const lineCount = linesBefore.length + 1;
+        const insertion = `\n${lineCount}. `;
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        setEditDesc(newText);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      }
+    }
+  };
+
+  const handleDescriptionPaste = (e) => {
+    if (!isPointByPoint) return;
+
+    const pastedText = e.clipboardData?.getData("text");
+    if (!pastedText || !pastedText.includes("\n")) return;
+
+    e.preventDefault();
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const textBefore = value.substring(0, selectionStart);
+    const textAfter = value.substring(selectionEnd);
+
+    const pastedLines = pastedText
+      .split("\n")
+      .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    const linesBefore = textBefore.split("\n");
+    const currentLine = linesBefore[linesBefore.length - 1];
+    const match = currentLine.match(/^(\d+)\.\s*/);
+    let startNum = match ? parseInt(match[1], 10) : linesBefore.length;
+
+    const formattedPaste = pastedLines
+      .map((line, i) => `${startNum + i}. ${line}`)
+      .join("\n");
+
+    const newBefore = match
+      ? textBefore.substring(0, textBefore.length - match[0].length)
+      : textBefore;
+
+    const newText = newBefore + formattedPaste + textAfter;
+    setEditDesc(newText);
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = (newBefore + formattedPaste).length;
+    }, 0);
+  };
 
   const handleSave = async () => {
     if (!editTitle.trim()) {
@@ -211,12 +337,44 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
             </div>
           </div>
           <div className="td-phase-edit-field" style={{ marginTop: '12px' }}>
-            <label className="td-phase-edit-label">Phase Description</label>
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="td-phase-edit-label mb-0">Phase Description</label>
+              <label
+                className="d-flex align-items-center gap-1"
+                onClick={handleTogglePointByPoint}
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "500",
+                  color: isPointByPoint ? "#5977f8" : "#77728e",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  margin: 0
+                }}
+                title="Format description as numbered points (1., 2., 3.)"
+              >
+                <input
+                  type="radio"
+                  name={`editPhasePointByPoint-${idx}`}
+                  checked={isPointByPoint}
+                  readOnly
+                  style={{
+                    cursor: "pointer",
+                    accentColor: "#5977f8",
+                    width: "12px",
+                    height: "12px",
+                    margin: 0
+                  }}
+                />
+                <span>Point by Point</span>
+              </label>
+            </div>
             <textarea
               className="td-phase-edit-textarea"
               value={editDesc}
               onChange={e => setEditDesc(e.target.value)}
-              placeholder="Enter phase description..."
+              onKeyDown={handleDescriptionKeyDown}
+              onPaste={handleDescriptionPaste}
+              placeholder={isPointByPoint ? "1. Enter first point..." : "Enter phase description..."}
               rows={3}
             />
           </div>
@@ -304,6 +462,36 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
     if (!currentUserId || !createdById) return false;
     return String(currentUserId) === String(createdById);
   }, [currentUserId, createdById, isAdmin]);
+
+  const isAssigner = useMemo(() => {
+    if (!currentUserId || !createdById) return false;
+    return String(currentUserId) === String(createdById);
+  }, [currentUserId, createdById]);
+
+  const canDeleteTask = useMemo(() => {
+    if (!isAssigner || !task) return false;
+
+    // Check if assignee has accepted
+    if ((task.assignedStatus || "").toLowerCase() === "accepted") return false;
+    if (Array.isArray(task.memberStatuses) && task.memberStatuses.length > 0) {
+      if (task.memberStatuses.some(ms => (ms.assignedStatus || "").toLowerCase() === "accepted")) {
+        return false;
+      }
+    }
+
+    // Check if task status has moved to In Progress, Completed, Hold or any other subsequent status
+    const statusNormalized = (task.status || "").toLowerCase().replace(/[\s\-_]/g, "");
+    if (statusNormalized && !["assigned", "pending", "allocated"].includes(statusNormalized)) {
+      return false;
+    }
+
+    const assignedStatusNormalized = (task.assignedStatus || "").toLowerCase().replace(/[\s\-_]/g, "");
+    if (assignedStatusNormalized && !["allocated", "assigned", "pending", "rejected"].includes(assignedStatusNormalized)) {
+      return false;
+    }
+
+    return true;
+  }, [isAssigner, task]);
 
   const isAssignedMember = useMemo(() => {
     if (!currentUserId || !task?.assignedMembers) return false;
@@ -465,13 +653,13 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
   useEffect(() => { fetchAllData(); }, [fetchAllData]);
 
   const handleDeleteTask = async () => {
-    if (!isTaskCreator) { toast.error("No permission to delete."); return; }
+    if (!canDeleteTask) { toast.error("No permission to delete."); return; }
     try {
       setLoading(true);
       await portalInstance.delete(`/creat/task/${taskId}`);
       toast.success("Task deleted successfully!");
       setTimeout(onClose, 1500);
-    } catch { toast.error("Failed to delete task."); }
+    } catch (err) { toast.error(err.response?.data?.message || "Failed to delete task."); }
     finally { setLoading(false); setShowDeleteConfirm(false); }
   };
 
@@ -628,7 +816,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                   </span>
                 </div>
                 <div className="header-right-actions">
-                  {isTaskCreator && (
+                  {canDeleteTask && (
                     <div className="options-menu-container" onClick={e => e.stopPropagation()}>
                       <button className="employee-task-details-options-btn"
                         onClick={e => { e.stopPropagation(); setShowOptionsMenu(p => !p); }}>
@@ -717,6 +905,66 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
 
                 {/* Task info + docs */}
                 <div className="employee-task-details-info-panel">
+                  {/* Category, Project, Work Type & Pages */}
+                  {(task?.category || task?.project || task?.workType || (task?.pages && task?.pages.length > 0)) && (
+                    <div className="employee-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "14px", flexWrap: "wrap" }}>
+                      {(task?.category || task?.project) && (
+                        <div className="employee-task-details-info-stat" style={{ flex: "1", minWidth: "140px" }}>
+                          <label className="admin-task-details-section-label">Category / Project</label>
+                          <div className="admin-task-details-value" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <span>{(task?.category || "—").toUpperCase()}</span>
+                            <span style={{ color: "#c4c4c4" }}>/</span>
+                            <span>{task?.project ? (task.project.charAt(0).toUpperCase() + task.project.slice(1).toLowerCase()) : "—"}</span>
+                          </div>
+                        </div>
+                      )}
+                      {task?.workType && (
+                        <div className="employee-task-details-info-stat" style={{ flex: "0 0 auto", minWidth: "90px" }}>
+                          <label className="admin-task-details-section-label">Work Type</label>
+                          <div className="admin-task-details-value">
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: "600",
+                                color: "#5977f8",
+                                background: "#eef2ff",
+                                border: "1px solid #c7d2fe",
+                                borderRadius: "4px",
+                                padding: "2px 8px",
+                                display: "inline-block"
+                              }}
+                            >
+                              {task.workType}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {task?.pages && task.pages.length > 0 && (
+                        <div className="employee-task-details-info-stat" style={{ flex: "1", minWidth: "140px" }}>
+                          <label className="admin-task-details-section-label">Pages</label>
+                          <div className="admin-task-details-value" style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                            {task.pages.map((pg, pIdx) => (
+                              <span
+                                key={pIdx}
+                                style={{
+                                  fontSize: "11px",
+                                  fontWeight: "500",
+                                  color: "#334155",
+                                  background: "#f1f5f9",
+                                  border: "1px solid #cbd5e1",
+                                  borderRadius: "4px",
+                                  padding: "1px 7px"
+                                }}
+                              >
+                                {pg}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* ROW 1: Start Date and End Date */}
                   <div className="employee-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "14px" }}>
                     <div className="employee-task-details-info-stat" style={{ flex: "1" }}>

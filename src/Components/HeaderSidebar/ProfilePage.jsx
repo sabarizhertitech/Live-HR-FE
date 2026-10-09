@@ -1154,7 +1154,7 @@ function ProfilePage({ isOpen, onClose, onLogout }) {
 
       {!showPasswordBox && (
         <div className="profile-page-footer">
-          {(isAdmin || role === "employee") && (
+          {/* {(isAdmin || role === "employee") && (
             <button
               className="profile-page-outline-btn"
               onClick={() => {
@@ -1165,7 +1165,7 @@ function ProfilePage({ isOpen, onClose, onLogout }) {
             >
               Edit Profile
             </button>
-          )}
+          )} */}
           <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
             <button
               className="profile-page-outline-btn"

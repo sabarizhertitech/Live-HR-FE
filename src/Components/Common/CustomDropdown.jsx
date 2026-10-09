@@ -62,7 +62,21 @@ const CustomDropdown = ({ options, value, onChange, placeholder, className, styl
               className={`custom-dropdown-option ${isMatch(option.value, value) ? "selected" : ""}`}
               onClick={() => handleSelect(option.value)}
             >
-              {option.label}
+              <span className="custom-dropdown-option-label">{option.label}</span>
+              {option.onDelete && (
+                <button
+                  type="button"
+                  className="custom-dropdown-opt-delete-btn"
+                  title={`Delete ${option.label}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    option.onDelete(option.value);
+                  }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
           ))}
         </div>

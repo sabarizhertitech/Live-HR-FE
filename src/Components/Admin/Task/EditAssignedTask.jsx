@@ -565,6 +565,8 @@ function EditAssignedTask({ task, onClose }) {
       data.append("dueDate", formData.dueDate);
       data.append("category", formData.category);
       data.append("project", formData.project);
+      if (task?.workType) data.append("workType", task.workType);
+      if (task?.pages && task.pages.length > 0) data.append("pages", JSON.stringify(task.pages));
       data.append("assignedMembers", JSON.stringify(selectedEmployees.map((e) => e._id)));
 
       if (deletedDocuments.length > 0) {
@@ -738,6 +740,29 @@ function EditAssignedTask({ task, onClose }) {
                 />
               )}
             </div>
+
+            {(task?.workType || (task?.pages && task.pages.length > 0)) && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", marginBottom: "12px", background: "#f8fafc", padding: "8px 12px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                {task?.workType && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "500" }}>Work Type:</span>
+                    <span style={{ fontSize: "11px", fontWeight: "600", color: "#5977f8", background: "#eef2ff", border: "1px solid #c7d2fe", borderRadius: "4px", padding: "1px 6px" }}>
+                      {task.workType}
+                    </span>
+                  </div>
+                )}
+                {task?.pages && task.pages.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "500" }}>Pages:</span>
+                    {task.pages.map((pg, pIdx) => (
+                      <span key={pIdx} style={{ fontSize: "11px", fontWeight: "500", color: "#334155", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "1px 6px" }}>
+                        {pg}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="form-group">
               <label>Task Title *</label>
