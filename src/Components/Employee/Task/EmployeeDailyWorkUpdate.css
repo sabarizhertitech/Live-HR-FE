@@ -798,16 +798,284 @@ input.dwu-emp__filterInput:focus {
 
 .dwu-modal-container {
   background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 580px;
-  padding: 15px;
+  border-radius: 14px;
+  width: 95%;
+  max-width: 780px;
+  padding: 22px;
   border: 1px solid rgba(31, 31, 31, 0.08);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-  max-height: 90vh;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  max-height: 94vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.dwu-modal-body {
+  overflow-y: auto;
+  max-height: calc(94vh - 120px);
+  padding-right: 4px;
+}
+
+/* ================= PAGES RADIO & CONTROLS ================= */
+.dwu-pages-radio-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 6px 0 2px 0;
+}
+
+.dwu-pages-radio-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  line-height: 1;
+}
+
+.dwu-pages-radio-label input[type="radio"] {
+  accent-color: #5977f8;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.dwu-pages-radio-label span {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Selected Pages Cards */
+.dwu-selected-pages-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  min-height: 28px;
+}
+
+.dwu-page-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
+  transition: all 0.2s ease;
+}
+
+.dwu-page-card:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.dwu-page-card-name {
+  line-height: 1.2;
+}
+
+.dwu-page-card-delete-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dwu-page-card-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Page Delete Confirmation Popup */
+.dwu-page-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.dwu-page-confirm-modal {
+  position: relative;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px 24px 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: scaleIn 0.2s ease;
+}
+
+.dwu-page-confirm-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.dwu-page-confirm-close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.dwu-page-confirm-icon {
+  display: none;
+}
+
+.dwu-page-confirm-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.dwu-page-confirm-text {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.dwu-page-confirm-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Header Pending Work Reminders Toggle Button & Badge */
+.dwu-pending-toggle-icon {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  border-radius: 6px;
+  color: #77728e;
+  background: transparent;
+  border: none;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.dwu-pending-toggle-icon:hover {
+  color: #5977f8;
+}
+
+.dwu-pending-toggle-icon.active {
+  color: #5977f8;
+}
+
+.dwu-pending-count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  pointer-events: none;
+}
+
+.dwu-page-confirm-cancel-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-page-confirm-cancel-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.dwu-page-confirm-delete-btn {
+  background: #ef4444;
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-page-confirm-delete-btn:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* Page pill badge in work table / cards */
+.dwu-page-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: 0.2px;
 }
 
 .dwu-section {
@@ -961,6 +1229,8 @@ input.dwu-emp__filterInput:focus {
 .dwu-modal-body .custom-dropdown-menu {
   max-height: 180px !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
   scrollbar-width: thin !important;
   scrollbar-color: #cbd5e1 #f8fafc !important;
   z-index: 99999 !important;
@@ -2142,4 +2412,108 @@ input.dwu-emp__filterInput:focus {
 
 .dwu-custom-calendar-icon:hover {
   opacity: 1;
+}
+
+/* ================= PREVIOUS PENDING WORK REMINDERS ================= */
+.dwu-reminder-banner {
+  background: #f6f6f6;
+  border: 1px solid #E1E1E1;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 8px;
+}
+
+.dwu-reminder-banner__header {
+  margin-bottom: 12px;
+}
+
+.dwu-reminder-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dwu-reminder-heading {
+  font-size: 15px;
+  font-weight: 500;
+  color: #3a466d;
+  line-height: 1.2;
+}
+
+.dwu-reminder-subheading {
+  font-size: 11px;
+  color: #a0aec0;
+  opacity: 0.85;
+}
+
+.dwu-reminder-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.dwu-reminder-item-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.dwu-reminder-item-card:hover {
+  border-color: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.dwu-reminder-item-title {
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 65%;
+}
+
+.dwu-reminder-tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 10px;
+}
+
+.dwu-reminder-edit-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #5977f8;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-reminder-edit-action-btn:hover {
+  background: #4361ee;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(89, 119, 248, 0.25);
+}
+
+@media (max-width: 576px) {
+  .dwu-reminder-items-grid {
+    grid-template-columns: 1fr;
+  }
 }

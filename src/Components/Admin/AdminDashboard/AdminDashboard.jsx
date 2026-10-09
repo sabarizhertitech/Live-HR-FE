@@ -79,6 +79,76 @@ const slogansData = {
   ]
 };
 
+const normalizeStatusKey = (s) => {
+  const str = String(s || "pending").toLowerCase().replace(/[\s_-]+/g, "");
+  if (str.includes("complete")) return "completed";
+  if (str.includes("process")) return "inprocess";
+  if (str.includes("hold")) return "hold";
+  return "pending";
+};
+
+const formatStatusLabel = (s) => {
+  const key = normalizeStatusKey(s);
+  if (key === "completed") return "Completed";
+  if (key === "inprocess") return "In Process";
+  if (key === "hold") return "On Hold";
+  return "Pending";
+};
+
+const groupTasksWithHistory = (items) => {
+  if (!Array.isArray(items) || items.length === 0) return [];
+
+  const groups = new Map();
+
+  items.forEach((item) => {
+    const rawTitle = (item.taskTitle || item.displayTitle || item.name || item.title || item.phase || "").trim();
+    const titleKey = rawTitle.toLowerCase();
+    const refKey = item.referenceId ? String(item.referenceId) : null;
+    const taskIdKey = (item.task_id && item.task_id !== "standalone")
+      ? String(item.task_id)
+      : (item.task?._id ? String(item.task._id) : null);
+
+    let groupKey = titleKey;
+    if (!groupKey && refKey) groupKey = `ref_${refKey}`;
+    if (!groupKey && taskIdKey) groupKey = `task_${taskIdKey}`;
+    if (!groupKey) groupKey = `item_${item._id || Math.random()}`;
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, []);
+    }
+    groups.get(groupKey).push(item);
+  });
+
+  const grouped = [];
+
+  groups.forEach((groupItems) => {
+    const sorted = [...groupItems].sort((a, b) => {
+      const dateA = new Date(a.date || a.completionDate || a.updateDate || a.createdAt || 0).getTime();
+      const dateB = new Date(b.date || b.completionDate || b.updateDate || b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
+
+    const latest = sorted[0];
+
+    grouped.push({
+      ...latest,
+      taskTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
+      displayTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
+      latestDate: latest.date || latest.completionDate || latest.updateDate || latest.createdAt,
+      latestStatus: latest.status || latest.phaseStatus || "Pending",
+      history: sorted,
+    });
+  });
+
+  grouped.sort((a, b) => {
+    const dateA = new Date(a.latestDate || 0).getTime();
+    const dateB = new Date(b.latestDate || 0).getTime();
+    return dateB - dateA;
+  });
+
+  return grouped;
+};
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
@@ -606,8 +676,8 @@ const AdminDashboard = () => {
     const empsList = Array.isArray(empOrEmps)
       ? empOrEmps
       : empOrEmps
-      ? [empOrEmps]
-      : todayBirthdays;
+        ? [empOrEmps]
+        : todayBirthdays;
     setTargetEmpsForWish(empsList);
     setWishMessage(
       "Wishing you a very Happy Birthday! May your year ahead be filled with success, happiness, and great health!"
@@ -1241,30 +1311,36 @@ const AdminDashboard = () => {
                           <span className="project-details-right-header-title">{activeEmp.name} Working Status</span>
                         </div>
                         <div className="project-details-right-list">
-                          {activeEmp.updates.map((u, idx) => {
+                          {groupTasksWithHistory(activeEmp.updates).map((u, idx) => {
                             const cardKey = `${activeEmpId}-${idx}`;
+                            const hasMultipleUpdates = Array.isArray(u.history) && u.history.length > 1;
                             const isExpanded = !!projExpandedCards[cardKey];
+                            const normKey = normalizeStatusKey(u.latestStatus);
+                            const isCompleted = normKey === "completed";
+
                             return (
                               <div
                                 key={idx}
                                 className={`dwu-work-card ${isExpanded ? "expanded" : ""}`}
                                 style={{ cursor: "pointer", margin: "10px" }}
-                                onClick={() => setProjExpandedCards((prev) => ({ ...prev, [cardKey]: !isExpanded }))}
+                                onClick={() => {
+                                  setProjExpandedCards((prev) => ({ ...prev, [cardKey]: !isExpanded }));
+                                }}
                               >
                                 <div className="dwu-work-card__header" style={{ display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px" }}>
                                   <div className="dwu-work-card__field dwu-field-title" style={{ flex: 1, minWidth: 0 }}>
                                     <span className="dwu-work-card__label">
                                       {activeEmpId === "all" ? (u.employeeDetails?.name || "Employee") : "Task"}
                                     </span>
-                                    <span className="dwu-work-card__value" title={u.displayTitle || u.task?.taskTitle || "Task Title"} style={{ display: "block", wordBreak: "break-word", whiteSpace: "normal" }}>
-                                      {u.displayTitle || u.task?.taskTitle || "Task Title"}
+                                    <span className="dwu-work-card__value" title={u.displayTitle || u.taskTitle || "Task Title"} style={{ display: "block", wordBreak: "break-word", whiteSpace: "normal" }}>
+                                      {u.displayTitle || u.taskTitle || "Task Title"}
                                     </span>
                                   </div>
                                   <div className="dwu-work-card__field dwu-field-date" style={{ width: "70px", flexShrink: 0, textAlign: "left" }}>
                                     <span className="dwu-work-card__label dwu-label-hide-mobile">Date</span>
                                     <span className="dwu-work-card__value">
-                                      {u.completionDate
-                                        ? new Date(u.completionDate).toLocaleDateString("en-GB", {
+                                      {u.latestDate
+                                        ? new Date(u.latestDate).toLocaleDateString("en-GB", {
                                           day: "2-digit",
                                           month: "short",
                                         })
@@ -1274,8 +1350,9 @@ const AdminDashboard = () => {
 
                                   <div className="dwu-work-card__field dwu-field-status" style={{ width: "95px", flexShrink: 0, textAlign: "left" }}>
                                     <span className="dwu-work-card__label dwu-label-hide-mobile">Status</span>
-                                    <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${(u.phaseStatus || "pending").toLowerCase().replace(/\s+/g, "")}`}>
-                                      {u.phaseStatus || "Pending"}
+                                    <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${normKey}`} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                                      {formatStatusLabel(u.latestStatus)}
+                                      {isCompleted && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
                                     </span>
                                   </div>
                                   <div
@@ -1292,35 +1369,130 @@ const AdminDashboard = () => {
                                       className="project-task-card-chevron"
                                       style={{
                                         transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                        transition: "transform 0.2s"
+                                        fontSize: "12px",
+                                        color: "#94a3b8",
+                                        transition: "transform 0.25s ease"
                                       }}
                                     />
                                   </div>
                                 </div>
 
                                 {isExpanded && (
-                                  <div className="dwu-work-card__section_phase">
-                                    <span className="dwu-work-card__label mt-0 d-block mb-1">
-                                      Description
-                                    </span>
-                                    <p
-                                      className="dwu-work-card__text"
-                                      style={{
-                                        cursor: "pointer",
-                                        wordBreak: "break-word",
-                                        overflowWrap: "anywhere",
-                                        whiteSpace: "pre-wrap",
-                                        margin: 0,
-                                        paddingRight: "8px"
-                                      }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedUpdate(u);
-                                        setShowUpdateDetailModal(true);
-                                      }}
-                                    >
-                                      {u.description || u.phase || u.details || u.note || "No additional description provided."}
-                                    </p>
+                                  <div className="dwu-work-card__section_phase" style={{ paddingTop: "8px", borderTop: "1px dashed #e2e8f0" }} onClick={(e) => e.stopPropagation()}>
+                                    {hasMultipleUpdates ? (
+                                      <div className="dwu-task-history-section">
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                                          <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569" }}>
+                                            Status History ({u.history.length})
+                                          </span>
+                                          <span style={{ fontSize: "11px", color: "#94a3b8" }}>
+                                            Latest First
+                                          </span>
+                                        </div>
+
+                                        <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "#f8fafc" }}>
+                                          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                            <thead>
+                                              <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: "600" }}>
+                                                <th style={{ padding: "6px 10px", textAlign: "left", width: "85px" }}>Date</th>
+                                                <th style={{ padding: "6px 10px", textAlign: "left", width: "115px" }}>Status</th>
+                                                <th style={{ padding: "6px 10px", textAlign: "left" }}>Work Summary</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {u.history.map((h, hIdx) => {
+                                                const hStatusRaw = h.status || h.phaseStatus || "Pending";
+                                                const hKey = normalizeStatusKey(hStatusRaw);
+                                                const hLocked = hKey === "completed";
+                                                const dateVal = h.date || h.completionDate || h.updateDate || h.createdAt;
+                                                const dateStr = dateVal
+                                                  ? new Date(dateVal).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
+                                                  : "—";
+
+                                                return (
+                                                  <tr
+                                                    key={hIdx}
+                                                    style={{
+                                                      borderBottom: hIdx === u.history.length - 1 ? "none" : "1px solid #e2e8f0",
+                                                      background: hIdx % 2 === 0 ? "#ffffff" : "#f8fafc",
+                                                      cursor: "pointer"
+                                                    }}
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setSelectedUpdate(h);
+                                                      setShowUpdateDetailModal(true);
+                                                    }}
+                                                  >
+                                                    <td style={{ padding: "7px 10px", verticalAlign: "top", fontWeight: "500", color: "#334155" }}>
+                                                      {dateStr}
+                                                    </td>
+                                                    <td style={{ padding: "7px 10px", verticalAlign: "top" }}>
+                                                      <span
+                                                        className={`dwu-admin__statusBadge dwu-admin__statusBadge--${hKey}`}
+                                                        style={{
+                                                          display: "inline-flex",
+                                                          alignItems: "center",
+                                                          gap: "4px",
+                                                          padding: "2px 8px",
+                                                          fontSize: "11px",
+                                                          whiteSpace: "nowrap"
+                                                        }}
+                                                        title={hLocked ? "Completed update is final and read-only" : ""}
+                                                      >
+                                                        {formatStatusLabel(hStatusRaw)}
+                                                        {hLocked && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
+                                                      </span>
+                                                    </td>
+                                                    <td style={{ padding: "7px 10px", verticalAlign: "top", color: "#475569" }}>
+                                                      <div style={{ wordBreak: "break-word", overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}>
+                                                        {h.note || h.description || h.details || "—"}
+                                                      </div>
+                                                      {Array.isArray(h.pages) && h.pages.length > 0 && (
+                                                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+                                                          {h.pages.map((p, pI) => (
+                                                            <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                                              {p}
+                                                            </span>
+                                                          ))}
+                                                        </div>
+                                                      )}
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              })}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      /* ── Single update: show description & work summary ── */
+                                      <div style={{ padding: "4px 0 8px 0" }}>
+                                        <span className="dwu-work-card__label mt-0 d-block mb-1">Work Summary</span>
+                                        <p
+                                          className="dwu-work-card__text"
+                                          style={{
+                                            wordBreak: "break-word",
+                                            overflowWrap: "anywhere",
+                                            whiteSpace: "pre-wrap",
+                                            margin: 0,
+                                            paddingRight: "8px",
+                                            fontSize: "12px",
+                                            color: "#475569"
+                                          }}
+                                        >
+                                          {u.history?.[0]?.note || u.history?.[0]?.description || u.history?.[0]?.details || u.description || u.details || u.note || "No description provided."}
+                                        </p>
+                                        {Array.isArray(u.history?.[0]?.pages) && u.history[0].pages.length > 0 && (
+                                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                                            {u.history[0].pages.map((p, pI) => (
+                                              <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                                {p}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -1379,30 +1551,36 @@ const AdminDashboard = () => {
         <Modal.Body className="project-details-modal-body px-4 pt-0 pb-4" style={{ maxHeight: "60vh", overflowY: "auto" }}>
           {selectedEmpUpdates && (
             <div className="project-details-right-list">
-              {selectedEmpUpdates.updates.map((u, idx) => {
+              {groupTasksWithHistory(selectedEmpUpdates.updates).map((u, idx) => {
                 const cardKey = `popup-${selectedEmpUpdates.empId}-${idx}`;
+                const hasMultipleUpdates = Array.isArray(u.history) && u.history.length > 1;
                 const isExpanded = !!projExpandedCards[cardKey];
+                const normKey = normalizeStatusKey(u.latestStatus);
+                const isCompleted = normKey === "completed";
+
                 return (
                   <div
                     key={idx}
                     className={`dwu-work-card ${isExpanded ? "expanded" : ""}`}
                     style={{ cursor: "pointer", margin: "10px 0" }}
-                    onClick={() => setProjExpandedCards((prev) => ({ ...prev, [cardKey]: !isExpanded }))}
+                    onClick={() => {
+                      setProjExpandedCards((prev) => ({ ...prev, [cardKey]: !isExpanded }));
+                    }}
                   >
                     <div className="dwu-work-card__header" style={{ display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px" }}>
                       <div className="dwu-work-card__field dwu-field-title" style={{ flex: 1, minWidth: 0 }}>
                         <span className="dwu-work-card__label">
                           {selectedEmpUpdates.isAll ? (u.employeeDetails?.name || "Employee") : "Task"}
                         </span>
-                        <span className="dwu-work-card__value" title={u.displayTitle || u.task?.taskTitle || "Task Title"} style={{ display: "block", wordBreak: "break-word", whiteSpace: "normal" }}>
-                          {u.displayTitle || u.task?.taskTitle || "Task Title"}
+                        <span className="dwu-work-card__value" title={u.displayTitle || u.taskTitle || "Task Title"} style={{ display: "block", wordBreak: "break-word", whiteSpace: "normal" }}>
+                          {u.displayTitle || u.taskTitle || "Task Title"}
                         </span>
                       </div>
                       <div className="dwu-work-card__field dwu-field-date" style={{ width: "70px", flexShrink: 0, textAlign: "left" }}>
                         <span className="dwu-work-card__label">Date</span>
                         <span className="dwu-work-card__value">
-                          {u.completionDate
-                            ? new Date(u.completionDate).toLocaleDateString("en-GB", {
+                          {u.latestDate
+                            ? new Date(u.latestDate).toLocaleDateString("en-GB", {
                               day: "2-digit",
                               month: "short",
                             })
@@ -1412,8 +1590,9 @@ const AdminDashboard = () => {
 
                       <div className="dwu-work-card__field dwu-field-status" style={{ width: "95px", flexShrink: 0, textAlign: "left" }}>
                         <span className="dwu-work-card__label">Status</span>
-                        <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${(u.phaseStatus || "pending").toLowerCase().replace(/\s+/g, "")}`}>
-                          {u.phaseStatus || "Pending"}
+                        <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${normKey}`} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                          {formatStatusLabel(u.latestStatus)}
+                          {isCompleted && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
                         </span>
                       </div>
                       <div style={{ width: "20px", flexShrink: 0, display: "flex", justifyContent: "flex-start", alignItems: "start" }}>
@@ -1421,16 +1600,98 @@ const AdminDashboard = () => {
                           className="project-task-card-chevron"
                           style={{
                             transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                            fontSize: "12px",
+                            color: "#94a3b8",
                             transition: "transform 0.2s"
                           }}
                         />
                       </div>
                     </div>
                     {isExpanded && (
-                      <div className="dwu-work-card__expanded-content" style={{ padding: "0 12px 12px 12px", borderTop: "1px dashed #e2e8f0", marginTop: "8px", paddingTop: "8px" }}>
-                        <p style={{ margin: "5px 0", fontSize: "12px", color: "#475569" }}>
-                          {u.description || u.phase || u.details || u.note || "No additional description provided."}
-                        </p>
+                      <div className="dwu-work-card__expanded-content" style={{ padding: "0 12px 12px 12px", borderTop: "1px dashed #e2e8f0", marginTop: "8px", paddingTop: "8px" }} onClick={(e) => e.stopPropagation()}>
+                        {hasMultipleUpdates ? (
+                          /* Status History */
+                          <div className="dwu-task-history-section" style={{ marginTop: "10px" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                              <span style={{ fontSize: "11px", fontWeight: "600", color: "#475569" }}>
+                                Status History ({u.history.length})
+                              </span>
+                              <span style={{ fontSize: "10px", color: "#94a3b8" }}>
+                                Latest First
+                              </span>
+                            </div>
+                            <div style={{ border: "1px solid #e2e8f0", borderRadius: "6px", overflow: "hidden", background: "#f8fafc" }}>
+                              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
+                                <thead>
+                                  <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", color: "#64748b" }}>
+                                    <th style={{ padding: "5px 8px", textAlign: "left", width: "75px" }}>Date</th>
+                                    <th style={{ padding: "5px 8px", textAlign: "left", width: "100px" }}>Status</th>
+                                    <th style={{ padding: "5px 8px", textAlign: "left" }}>Work Summary</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {u.history.map((h, hIdx) => {
+                                    const hStatusRaw = h.status || h.phaseStatus || "Pending";
+                                    const hKey = normalizeStatusKey(hStatusRaw);
+                                    const hLocked = hKey === "completed";
+                                    const dateVal = h.date || h.completionDate || h.updateDate || h.createdAt;
+                                    const dateStr = dateVal ? new Date(dateVal).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) : "—";
+                                    return (
+                                      <tr key={hIdx} style={{ borderBottom: hIdx === u.history.length - 1 ? "none" : "1px solid #e2e8f0" }}>
+                                        <td style={{ padding: "5px 8px", verticalAlign: "top", color: "#334155" }}>{dateStr}</td>
+                                        <td style={{ padding: "5px 8px", verticalAlign: "top" }}>
+                                          <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${hKey}`} style={{ display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "10px", padding: "1px 6px" }}>
+                                            {formatStatusLabel(hStatusRaw)}
+                                            {hLocked && <span></span>}
+                                          </span>
+                                        </td>
+                                        <td style={{ padding: "5px 8px", verticalAlign: "top", color: "#475569" }}>
+                                          <div>{h.note || h.description || h.details || "—"}</div>
+                                          {Array.isArray(h.pages) && h.pages.length > 0 && (
+                                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+                                              {h.pages.map((p, pI) => (
+                                                <span key={pI} style={{ fontSize: "9px", background: "#e0e7ff", color: "#3730a3", padding: "1px 4px", borderRadius: "4px", fontWeight: "500" }}>
+                                                  {p}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Single update: show description */
+                          <div style={{ padding: "4px 0 4px 0" }}>
+                            <span className="dwu-work-card__label mt-0 d-block mb-1">Work Summary</span>
+                            <p
+                              className="dwu-work-card__text"
+                              style={{
+                                wordBreak: "break-word",
+                                overflowWrap: "anywhere",
+                                whiteSpace: "pre-wrap",
+                                margin: 0,
+                                fontSize: "12px",
+                                color: "#475569"
+                              }}
+                            >
+                              {u.history?.[0]?.note || u.history?.[0]?.description || u.history?.[0]?.details || u.description || u.details || u.note || "No description provided."}
+                            </p>
+                            {Array.isArray(u.history?.[0]?.pages) && u.history[0].pages.length > 0 && (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                                {u.history[0].pages.map((p, pI) => (
+                                  <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                    {p}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1643,77 +1904,77 @@ const AdminDashboard = () => {
             </div>
           )}
 
-      {/* Send Birthday Wish Modal */}
-      <Modal
-        show={showWishModal}
-        onHide={() => setShowWishModal(false)}
-        backdrop="static"
-        keyboard={false}
-        centered
-        className="birthday-wish-modal-custom"
-      >
-        <Modal.Header closeButton className="bday-modal__header">
-          <Modal.Title className="bday-modal__title">
-            <span>Send Birthday Wish</span>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="bday-modal__body">
-          {targetEmpsForWish.length > 0 && (
-            <div
-              className="bday-modal__user-cards-container"
-              style={{
-                display: "grid",
-                gridTemplateColumns: targetEmpsForWish.length === 1 ? "1fr" : "repeat(2, 1fr)",
-                gap: "10px",
-                maxHeight: "220px",
-                overflowY: "auto",
-                marginBottom: "14px"
-              }}
-            >
-              {targetEmpsForWish.map((emp) => (
-                <div key={emp._id} className="bday-modal__user-card" style={{ marginBottom: 0 }}>
-                  <img
-                    src={emp.photo || "/avatar.png"}
-                    alt={emp.name}
-                    className="bday-modal__user-img"
-                    onError={(e) => { e.target.src = "/avatar.png"; }}
-                  />
-                  <div>
-                    <h6 className="bday-modal__user-name">{emp.name}</h6>
-                    <small className="bday-modal__user-info">{emp.empId} • {emp.designation || "Employee"}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <Form.Group className="mb-2">
-            <Form.Label className="bday-modal__label">
-              Wish Message (Default pre-filled, customize as you like):
-            </Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={4}
-              value={wishMessage}
-              onChange={(e) => setWishMessage(e.target.value)}
-              placeholder="Type your birthday message here..."
-              className="bday-modal__textarea"
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer className="bday-modal__footer">
-          <Button variant="light" onClick={() => setShowWishModal(false)} className="common-modal-btn btn-small-cancel">
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSendWish}
-            disabled={sendingWish || !wishMessage.trim()}
-            className="common-modal-btn btn-update"
+          {/* Send Birthday Wish Modal */}
+          <Modal
+            show={showWishModal}
+            onHide={() => setShowWishModal(false)}
+            backdrop="static"
+            keyboard={false}
+            centered
+            className="birthday-wish-modal-custom"
           >
-            {sendingWish ? <Spinner animation="border" size="sm" /> : "Send Wish"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            <Modal.Header closeButton className="bday-modal__header">
+              <Modal.Title className="bday-modal__title">
+                <span>Send Birthday Wish</span>
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="bday-modal__body">
+              {targetEmpsForWish.length > 0 && (
+                <div
+                  className="bday-modal__user-cards-container"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: targetEmpsForWish.length === 1 ? "1fr" : "repeat(2, 1fr)",
+                    gap: "10px",
+                    maxHeight: "220px",
+                    overflowY: "auto",
+                    marginBottom: "14px"
+                  }}
+                >
+                  {targetEmpsForWish.map((emp) => (
+                    <div key={emp._id} className="bday-modal__user-card" style={{ marginBottom: 0 }}>
+                      <img
+                        src={emp.photo || "/avatar.png"}
+                        alt={emp.name}
+                        className="bday-modal__user-img"
+                        onError={(e) => { e.target.src = "/avatar.png"; }}
+                      />
+                      <div>
+                        <h6 className="bday-modal__user-name">{emp.name}</h6>
+                        <small className="bday-modal__user-info">{emp.empId} • {emp.designation || "Employee"}</small>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Form.Group className="mb-2">
+                <Form.Label className="bday-modal__label">
+                  Wish Message (Default pre-filled, customize as you like):
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={4}
+                  value={wishMessage}
+                  onChange={(e) => setWishMessage(e.target.value)}
+                  placeholder="Type your birthday message here..."
+                  className="bday-modal__textarea"
+                />
+              </Form.Group>
+            </Modal.Body>
+            <Modal.Footer className="bday-modal__footer">
+              <Button variant="light" onClick={() => setShowWishModal(false)} className="common-modal-btn btn-small-cancel">
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSendWish}
+                disabled={sendingWish || !wishMessage.trim()}
+                className="common-modal-btn btn-update"
+              >
+                {sendingWish ? <Spinner animation="border" size="sm" /> : "Send Wish"}
+              </Button>
+            </Modal.Footer>
+          </Modal>
 
           {/* Stats */}
           <div className="stats-grid">
@@ -2061,7 +2322,7 @@ const AdminDashboard = () => {
       {/* ── Todo Detail Modal ── */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} centered className="admin-todo-detail-modal">
         <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center">
-          
+
           <h5 className="common-modal-title">{selectedTodo ? (selectedTodo.title || selectedTodo.description.split("\n")[0]) : "To Do Details"}</h5>
           <button className="common-modal-close-x" onClick={() => setShowDetailModal(false)}>✕</button>
         </Modal.Header>

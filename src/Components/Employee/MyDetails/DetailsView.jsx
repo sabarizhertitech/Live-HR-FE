@@ -1,12 +1,122 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Spinner, Modal, Form } from "react-bootstrap";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { FaPaperPlane, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaFileAlt } from "react-icons/fa";
+import { FaPaperPlane, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaFileAlt, FaArrowDown } from "react-icons/fa";
 
 import { portalInstance } from "../../../Services/instance";
 import Sidebar from "../../HeaderSidebar/Sidebar";
 import "./DetailsView.css";
 import "./EditRequest.css";
+
+const REJECTABLE_CATEGORIES = [
+  {
+    category: "Education Section",
+    items: [
+      { id: "marksheet10", label: "10th Mark Sheet" },
+      { id: "marksheet12", label: "12th Mark Sheet" },
+      { id: "degreeCertificate", label: "Degree / Diploma Certificate" },
+      { id: "school10", label: "10th School Name" },
+      { id: "school12", label: "12th School Name" },
+      { id: "marks10", label: "10th Marks / Percentage" },
+      { id: "marks12", label: "12th Marks / Percentage" },
+      { id: "courses", label: "College / Degree Details" },
+    ],
+  },
+  {
+    category: "KYC & Identity Section",
+    items: [
+      { id: "aadhaarFile", label: "Masked Aadhaar Card" },
+      { id: "panFile", label: "PAN Card Document" },
+      { id: "picture", label: "Profile Photo" },
+      { id: "aadhaarNo", label: "Aadhaar Number" },
+      { id: "panNo", label: "PAN Number" },
+    ],
+  },
+  {
+    category: "Bank Section",
+    items: [
+      { id: "passbookFile", label: "Bank Passbook Document" },
+      { id: "accountNumber", label: "Bank Account Number" },
+      { id: "ifscCode", label: "IFSC Code" },
+      { id: "bankName", label: "Bank Name" },
+      { id: "branch", label: "Branch Name" },
+      { id: "accountHolder", label: "Account Holder Name" },
+    ],
+  },
+  {
+    category: "Personal & Contact Section",
+    items: [
+      { id: "phone", label: "Phone Number" },
+      { id: "emergencyContact", label: "Emergency Contact" },
+      { id: "address", label: "Residential Address" },
+      { id: "dob", label: "Date of Birth" },
+      { id: "bloodGroup", label: "Blood Group" },
+      { id: "gender", label: "Gender" },
+    ],
+  },
+  {
+    category: "Family Section",
+    items: [
+      { id: "fatherName", label: "Father's Name & Occupation" },
+      { id: "motherName", label: "Mother's Name & Occupation" },
+      { id: "siblings", label: "Siblings Information" },
+    ],
+  },
+  {
+    category: "Work Experience Section",
+    items: [
+      { id: "previousExperiences", label: "Work Experience Documents & Details" },
+    ],
+  },
+];
+
+const ALL_REJECTABLE_ITEMS = REJECTABLE_CATEGORIES.flatMap((c) => c.items);
+
+const getFieldFriendlyName = (fieldId) => {
+  const found = ALL_REJECTABLE_ITEMS.find((it) => it.id === fieldId);
+  if (found) return found.label;
+  const legacyMap = {
+    education: "Education Details",
+    bank: "Bank Details",
+    personal: "Personal Details",
+    family: "Family Details",
+    working: "Work Experience",
+    kyc: "KYC Documents",
+    pf: "PF Details",
+    basic: "Basic Details",
+    marksheet10: "10th Mark Sheet",
+    certificate10: "10th Mark Sheet",
+    marksheet12: "12th Mark Sheet",
+    certificate12: "12th Mark Sheet",
+    school10: "10th School Name",
+    school12: "12th School Name",
+    marks10: "10th Marks / Percentage",
+    marks12: "12th Marks / Percentage",
+    degreeCertificate: "Degree / Diploma Certificate",
+    courses: "College / Degree Details",
+    aadhaarFile: "Masked Aadhaar Card",
+    panFile: "PAN Card Document",
+    picture: "Profile Photo",
+    passbookFile: "Bank Passbook Document",
+  };
+  return legacyMap[fieldId] || fieldId;
+};
+
+const getFriendlyFieldNames = (fields) => {
+  if (!Array.isArray(fields)) return [];
+  const seen = new Set();
+  const list = [];
+  fields.forEach((f) => {
+    let canonical = f;
+    if (f === "certificate10") canonical = "marksheet10";
+    if (f === "certificate12") canonical = "marksheet12";
+    if (!seen.has(canonical)) {
+      seen.add(canonical);
+      list.push(getFieldFriendlyName(canonical));
+    }
+  });
+  return list;
+};
 
 const DetailsView = () => {
   const navigate = useNavigate();
@@ -29,6 +139,16 @@ const DetailsView = () => {
   const [allowedFields, setAllowedFields] = useState([]);
   const [showApprovalToast, setShowApprovalToast] = useState(false);
 
+  // ── Admin Profile Review States ──
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [rejectionRemark, setRejectionRemark] = useState("");
+  const [selectedRejectedFields, setSelectedRejectedFields] = useState([]);
+  const [rejectError, setRejectError] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+  const [showToast, setShowToast] = useState(false);
+
   // Salary History States
   const [salaryHistory, setSalaryHistory] = useState([]);
   const [salaryLoading, setSalaryLoading] = useState(false);
@@ -39,6 +159,100 @@ const DetailsView = () => {
 
   // ── Document View Loading State ──
   const [docLoadingId, setDocLoadingId] = useState(null);
+  const [highlightedField, setHighlightedField] = useState(null);
+
+  const handleScrollToRejectedFile = (fieldId) => {
+    setHighlightedField(fieldId);
+
+    let target =
+      document.getElementById(`doc-card-${fieldId}`) ||
+      document.getElementById(`field-item-${fieldId}`) ||
+      document.getElementById(`field-wrapper-${fieldId}`);
+
+    if (!target) {
+      if (fieldId === "certificate10" || fieldId === "marksheet10") {
+        target =
+          document.getElementById("doc-card-marksheet10") ||
+          document.getElementById("field-item-school10") ||
+          document.getElementById("section-education");
+      } else if (fieldId === "certificate12" || fieldId === "marksheet12") {
+        target =
+          document.getElementById("doc-card-marksheet12") ||
+          document.getElementById("field-item-school12") ||
+          document.getElementById("section-education");
+      } else if (fieldId === "degreeCertificate" || fieldId === "courses") {
+        target =
+          document.getElementById("doc-card-degreeCertificate") ||
+          document.getElementById("doc-card-course_0") ||
+          document.getElementById("section-courses") ||
+          document.getElementById("section-education");
+      } else if (
+        [
+          "school10",
+          "school12",
+          "marks10",
+          "marks12",
+          "education",
+        ].includes(fieldId)
+      ) {
+        target =
+          document.getElementById(`field-item-${fieldId}`) ||
+          document.getElementById("doc-card-marksheet10") ||
+          document.getElementById("section-education");
+      } else if (
+        [
+          "passbookFile",
+          "accountNumber",
+          "ifscCode",
+          "bankName",
+          "branch",
+          "accountHolder",
+          "bank",
+        ].includes(fieldId)
+      ) {
+        target =
+          document.getElementById("doc-card-passbookFile") ||
+          document.getElementById(`field-item-${fieldId}`) ||
+          document.getElementById("section-bank");
+      } else if (["aadhaarFile", "panFile", "aadhaarNo", "panNo", "kyc"].includes(fieldId)) {
+        target =
+          document.getElementById(`doc-card-${fieldId}`) ||
+          document.getElementById(`field-item-${fieldId}`) ||
+          document.getElementById("doc-card-aadhaarFile") ||
+          document.getElementById("doc-card-panFile") ||
+          document.getElementById("section-documents") ||
+          document.getElementById("section-bank");
+      } else if (fieldId === "picture") {
+        target =
+          document.getElementById("doc-card-picture") ||
+          document.querySelector(".detailsview-avatar-wrap") ||
+          document.querySelector(".detailsview-header-avatar");
+      } else if (["phone", "emergencyContact", "address", "dob", "bloodGroup", "gender", "personal"].includes(fieldId)) {
+        target =
+          document.getElementById(`field-item-${fieldId}`) ||
+          document.getElementById("section-personal");
+      } else if (["fatherName", "motherName", "siblings", "family"].includes(fieldId)) {
+        target =
+          document.getElementById(`field-item-${fieldId}`) ||
+          document.getElementById("section-family") ||
+          document.getElementById("section-siblings");
+      } else if (["previousExperiences", "working"].includes(fieldId)) {
+        target =
+          document.getElementById("section-previousExperiences") ||
+          document.getElementById("section-working");
+      }
+    }
+
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.remove("rejected-file-highlight-pulse");
+      void target.offsetWidth; // force DOM reflow
+      target.classList.add("rejected-file-highlight-pulse");
+      setTimeout(() => {
+        target.classList.remove("rejected-file-highlight-pulse");
+      }, 5000);
+    }
+  };
 
   const isAdminView = useMemo(
     () => location.pathname.startsWith("/admin"),
@@ -268,7 +482,7 @@ const DetailsView = () => {
   ════════════════════════════════════════════════════════════ */
   useEffect(() => {
     const fetchSalary = async () => {
-      // 🔒 FIX: Prioritize empIdString for employees to match security check
+      //  FIX: Prioritize empIdString for employees to match security check
       const idToUse = isAdminView ? empId : employee?.empIdString;
       if (!idToUse) return;
 
@@ -419,6 +633,96 @@ const DetailsView = () => {
   /* ════════════════════════════════════════════════════════════
      HANDLERS
   ════════════════════════════════════════════════════════════ */
+  const scrollToBottomActions = () => {
+    const footerActions =
+      document.getElementById("detailsview-admin-actions") ||
+      document.querySelector(".detailsview-footer");
+    if (footerActions) {
+      footerActions.scrollIntoView({ behavior: "smooth", block: "center" });
+      footerActions.classList.add("highlight-footer-pulse");
+      setTimeout(() => {
+        footerActions.classList.remove("highlight-footer-pulse");
+      }, 2500);
+    }
+  };
+
+  const toggleRejectedField = (fieldId) => {
+    setSelectedRejectedFields((prev) =>
+      prev.includes(fieldId)
+        ? prev.filter((f) => f !== fieldId)
+        : [...prev, fieldId]
+    );
+  };
+
+  const handleApproveProfile = async () => {
+    try {
+      setReviewLoading(true);
+      const targetId = empId || employee?.empIdString || employee?.empId || employee?._id;
+      const res = await portalInstance.put(`/users/admin/review-profile/${targetId}`, {
+        action: "approve",
+      });
+      if (res.data?.success) {
+        setEmployee((prev) => ({
+          ...prev,
+          profileApprovalStatus: "approved",
+          isProfileCompleted: true,
+          rejectionRemark: "",
+          rejectedFields: [],
+        }));
+        setShowApproveModal(false);
+        setToastMsg("Employee profile approved successfully!");
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 5000);
+      }
+    } catch (err) {
+      console.error("Approve profile error:", err);
+      alert(err.response?.data?.message || "Failed to approve profile");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const handleRejectProfile = async () => {
+    if (!rejectionRemark.trim()) {
+      setRejectError(true);
+      return;
+    }
+    setRejectError(false);
+    try {
+      setReviewLoading(true);
+      const targetId = empId || employee?.empIdString || employee?.empId || employee?._id;
+      const sanitizedFields = Array.from(new Set(selectedRejectedFields.map((f) => {
+        if (f === "certificate10") return "marksheet10";
+        if (f === "certificate12") return "marksheet12";
+        return f;
+      })));
+
+      const res = await portalInstance.put(`/users/admin/review-profile/${targetId}`, {
+        action: "reject",
+        remark: rejectionRemark.trim(),
+        rejectedFields: sanitizedFields,
+      });
+      if (res.data?.success) {
+        setEmployee((prev) => ({
+          ...prev,
+          profileApprovalStatus: "rejected",
+          isProfileCompleted: false,
+          rejectionRemark: rejectionRemark.trim(),
+          rejectedFields: sanitizedFields,
+        }));
+        setShowRejectModal(false);
+        setToastMsg("Employee profile rejected. Rejection remark has been sent to the employee.");
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 5000);
+      }
+    } catch (err) {
+      console.error("Reject profile error:", err);
+      alert(err.response?.data?.message || "Failed to reject profile");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
   const toggleSection = (fields) => {
     setRequestedFields((prev) =>
       fields.every((f) => prev.includes(f))
@@ -584,7 +888,7 @@ const DetailsView = () => {
     );
   }
 
-  // 🔒 Extra safety masking (frontend fallback)
+  //  Extra safety masking (frontend fallback)
   const maskAadhaar = (val) => {
     if (!val) return "-";
     if (val.includes("XXXX")) return val; // already masked
@@ -724,10 +1028,10 @@ const DetailsView = () => {
 
             <div
               className={`profile-completion-badge ${animatedProgress >= 80
-                  ? "high"
-                  : animatedProgress >= 40
-                    ? "medium"
-                    : "low"
+                ? "high"
+                : animatedProgress >= 40
+                  ? "medium"
+                  : "low"
                 }`}
             >
               {animatedProgress !== null ? animatedProgress : 0}%
@@ -746,7 +1050,164 @@ const DetailsView = () => {
         {/* ── Details Sections ── */}
         <div className="detailsview-wrapper">
 
-          <Section title="Personal Details">
+          {/* ── Review Toast Alert ── */}
+          {showToast && (
+            <div className="profile-review-toast-alert animate-in mb-3">
+              <FaCheckCircle className="me-2" />
+              <span>{toastMsg}</span>
+            </div>
+          )}
+
+          {/* ── Admin Review Banners ── */}
+          {isAdminView && (employee.profileApprovalStatus === "pending" || (!employee.profileApprovalStatus && employee.profileCompletion >= 100 && !employee.isProfileCompleted)) && (
+            <div className="admin-review-banner pending animate-in mb-4">
+              <div className="admin-review-content">
+                <div className="admin-review-badge pending">
+                  <FaClock className="me-1" /> Profile Ready for Review & Approval
+                </div>
+                <h4 className="admin-review-title">
+                  Employee Profile Completed 100%
+                </h4>
+                <p className="admin-review-desc mb-0">
+                  {employee.name} ({employee.empIdString || employee.empId || ""}) has submitted all required documents for review and approval.
+                </p>
+              </div>
+              <div className="admin-review-actions">
+                <button
+                  type="button"
+                  className="admin-scroll-down-btn"
+                  onClick={scrollToBottomActions}
+                  title="Scroll down to Approve & Reject"
+                >
+                  <FaArrowDown className="admin-scroll-arrow-icon" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isAdminView && employee.profileApprovalStatus === "rejected" && (
+            <div className="admin-review-banner rejected animate-in mb-4">
+              <div className="admin-review-content">
+                <div className="admin-review-badge rejected">
+                  Profile Currently Rejected
+                </div>
+                <h4 className="admin-review-title">
+                  Rejection Remark Given to Employee
+                </h4>
+                <p className="admin-review-desc mb-2">
+                  <strong>Reason:</strong> "{employee.rejectionRemark}"
+                </p>
+                {employee.rejectedFields && employee.rejectedFields.length > 0 && (
+                  <div className="admin-review-items mb-0">
+                    <strong>Requested Corrections:</strong>{" "}
+                    {getFriendlyFieldNames(employee.rejectedFields).join(", ")}
+                  </div>
+                )}
+              </div>
+              <div className="admin-review-actions">
+                <Button
+                  variant="outline-danger"
+                  className="common-modal-btn btn-update me-2"
+                  onClick={() => {
+                    setRejectionRemark(employee.rejectionRemark || "");
+                    setSelectedRejectedFields(employee.rejectedFields || []);
+                    setShowRejectModal(true);
+                  }}
+                >
+                  Update Remark
+                </Button>
+                <Button
+                  variant="success"
+                  className="common-modal-btn btn-approve"
+                  style={{ backgroundColor: "#16a34a", color: "#ffffff", borderColor: "#16a34a" }}
+                  onClick={() => setShowApproveModal(true)}
+                >
+                  Approve Profile
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {isAdminView && employee.profileApprovalStatus === "approved" && (
+            <div className="admin-review-banner approved animate-in">
+              <div className="admin-review-badge approved">
+                <FaCheckCircle className="me-1" /> Profile Verified & Approved by Admin
+              </div>
+            </div>
+          )}
+
+          {/* ── Employee Review Banners ── */}
+          {isEmployeeView && employee.profileApprovalStatus === "rejected" && (
+            <div className="employee-review-alert rejected animate-in mb-4">
+              <div className="employee-review-alert-content">
+                <h4 className="employee-review-alert-title">
+                  Profile Verification Action Required
+                </h4>
+                <div className="employee-review-alert-remark">
+                  <strong>Admin Rejection Remark:</strong> "{employee.rejectionRemark}"
+                </div>
+                {employee.rejectedFields && employee.rejectedFields.length > 0 && (
+                  <div className="employee-review-alert-corrections mt-2">
+                    <strong>Document(s) Needing Correction:</strong>
+                    <div className="rejected-items-action-list mt-2">
+                      {employee.rejectedFields.map((f, i) => (
+                        <div key={i} className="rejected-item-action-pill">
+                          <span className="rejected-item-name">{getFieldFriendlyName(f)}</span>
+                          {/* <button
+                            type="button"
+                            className="btn-view-rejected-file"
+                            onClick={() => handleScrollToRejectedFile(f)}
+                            title={`Scroll to and inspect ${getFieldFriendlyName(f)}`}
+                          >
+                            <FaEye className="me-1" /> View File
+                          </button> */}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <p className="employee-review-alert-hint mt-2 mb-0">
+                  Please update or re-upload only the required document/field and resubmit your profile for Admin review.
+                </p>
+              </div>
+              <div className="employee-review-alert-action">
+                {/* <Button
+                  variant="danger"
+                  className="btn-employee-resubmit-cta"
+                  onClick={() => navigate("/emp/my-details/edit")}
+                >
+                  Update & Resubmit Profile
+                </Button> */}
+              </div>
+            </div>
+          )}
+
+          {isEmployeeView && employee.profileApprovalStatus === "pending" && (
+            <div className="employee-review-alert pending animate-in mb-4">
+              <div className="employee-review-alert-icon pending">
+                <FaClock />
+              </div>
+              <div className="employee-review-alert-content">
+                <h4 className="employee-review-alert-title">
+                  Profile Submitted for Admin Review
+                </h4>
+                <p className="employee-review-alert-desc mb-0">
+                  Your profile has been completed to 100% and submitted to the Admin for review and approval. You will receive a notification once the Admin has reviewed your details and uploaded documents.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {isEmployeeView && employee.profileApprovalStatus === "approved" && (
+            <div style={{ display: "flex", justifyContent: "flex-end", width: "100%", marginBottom: "8px" }}>
+              <div className="employee-review-alert approved animate-in">
+                <FaCheckCircle className="me-2 text-success" />
+                <span>Your profile has been verified and approved by the Admin.</span>
+              </div>
+            </div>
+          )}
+
+          <Section id="section-personal" title="Personal Details">
             <Grid>
               <Item label="Employee ID" value={employee.empIdString} />
               <Item label="Name" value={employee.name} />
@@ -755,24 +1216,24 @@ const DetailsView = () => {
                 label="Status"
                 value={employee.status === "full_time" ? "Full-time" : "Intern"}
               />
-              <Item label="Gender" value={employee.gender} />
-              <Item label="Phone" value={isEmployeeView ? maskPhone(employee.phone) : employee.phone} />
-              <Item label="Emergency Contact" value={isEmployeeView ? maskEmergencyContact(employee.emergencyContact) : employee.emergencyContact} />
-              <Item label="Blood Group" value={employee.bloodGroup} />
-              <Item label="Address" value={employee.address} full />
+              <Item id="field-item-gender" label="Gender" value={employee.gender} />
+              <Item id="field-item-phone" label="Phone" value={isEmployeeView ? maskPhone(employee.phone) : employee.phone} />
+              <Item id="field-item-emergencyContact" label="Emergency Contact" value={isEmployeeView ? maskEmergencyContact(employee.emergencyContact) : employee.emergencyContact} />
+              <Item id="field-item-bloodGroup" label="Blood Group" value={employee.bloodGroup} />
+              <Item id="field-item-address" label="Address" value={employee.address} full />
             </Grid>
           </Section>
 
-          <Section title="Family Details">
+          <Section id="section-family" title="Family Details">
             <Grid>
-              <Item label="Father Name" value={employee.fatherName} />
+              <Item id="field-item-fatherName" label="Father Name" value={employee.fatherName} />
               <Item label="Father Occupation" value={employee.fatherOccupation} />
-              <Item label="Mother Name" value={employee.motherName} />
+              <Item id="field-item-motherName" label="Mother Name" value={employee.motherName} />
               <Item label="Mother Occupation" value={employee.motherOccupation} />
             </Grid>
           </Section>
 
-          <Section title="Siblings">
+          <Section id="section-siblings" title="Siblings">
             {employee.siblings?.length > 0 ? (
               employee.siblings.map((sib, i) => (
                 <Grid key={i}>
@@ -786,7 +1247,7 @@ const DetailsView = () => {
             )}
           </Section>
 
-          <Section title="Work Details">
+          <Section id="section-working" title="Work Details">
             <Grid>
               <Item label="Department" value={employee.department} />
               <Item label="Designation" value={employee.designation} />
@@ -812,7 +1273,7 @@ const DetailsView = () => {
             </Grid>
           </Section>
 
-          <Section title="Previous Experience">
+          <Section id="section-previousExperiences" title="Previous Experience">
             {employee.previousExperiences?.length > 0 ? (
               employee.previousExperiences.map((exp, i) => (
                 <Grid key={i}>
@@ -843,16 +1304,16 @@ const DetailsView = () => {
             )}
           </Section>
 
-          <Section title="Education">
+          <Section id="section-education" title="Education">
             <Grid>
-              <Item label="10th School" value={employee.school10} />
-              <Item label="10th Marks" value={employee.marks10} />
-              <Item label="12th School" value={employee.school12} />
-              <Item label="12th Marks" value={employee.marks12} />
+              <Item id="field-item-school10" label="10th School" value={employee.school10} />
+              <Item id="field-item-marks10" label="10th Marks" value={employee.marks10} />
+              <Item id="field-item-school12" label="12th School" value={employee.school12} />
+              <Item id="field-item-marks12" label="12th Marks" value={employee.marks12} />
             </Grid>
           </Section>
 
-          <Section title="Courses">
+          <Section id="section-courses" title="Courses">
             {employee.courses?.length > 0 ? (
               employee.courses.map((course, i) => (
                 <Grid key={i}>
@@ -872,10 +1333,10 @@ const DetailsView = () => {
             )}
           </Section>
 
-          <Section title="KYC & Bank Details">
+          <Section id="section-bank" title="KYC & Bank Details">
             <Grid>
-              <Item label="Aadhaar No" value={maskAadhaar(employee.aadhaarNo)} />
-              <Item label="PAN No" value={maskPAN(employee.panNo)} />
+              <Item id="field-item-aadhaarNo" label="Aadhaar No" value={maskAadhaar(employee.aadhaarNo)} />
+              <Item id="field-item-panNo" label="PAN No" value={maskPAN(employee.panNo)} />
               <Item label="PF No" value={employee.pfNo} />
               {(() => {
                 // Read bank details from the latest active bankHistory entry
@@ -886,11 +1347,11 @@ const DetailsView = () => {
                   sortedBank.find((b) => !b.toDate) || sortedBank[0];
                 return (
                   <>
-                    <Item label="Bank Name" value={latestBank?.bankName} />
-                    <Item label="Account Holder" value={latestBank?.accountHolder} />
-                    <Item label="Account Number" value={latestBank?.accountNumber} />
-                    <Item label="IFSC Code" value={latestBank?.ifscCode} />
-                    <Item label="Branch" value={latestBank?.branch} />
+                    <Item id="field-item-bankName" label="Bank Name" value={latestBank?.bankName} />
+                    <Item id="field-item-accountHolder" label="Account Holder" value={latestBank?.accountHolder} />
+                    <Item id="field-item-accountNumber" label="Account Number" value={latestBank?.accountNumber} />
+                    <Item id="field-item-ifscCode" label="IFSC Code" value={latestBank?.ifscCode} />
+                    <Item id="field-item-branch" label="Branch" value={latestBank?.branch} />
                   </>
                 );
               })()}
@@ -898,56 +1359,81 @@ const DetailsView = () => {
           </Section>
 
           {/* ── Uploaded Documents Section ── */}
-          <Section title="Upload Document">
+          <Section id="section-documents" title="Upload Document">
             <div className="doc-view-grid">
-              {uploadedDocuments.map((doc) => (
-                <div key={doc.id} className={`doc-view-card ${doc.isUploaded ? "has-doc" : "no-doc"}`}>
-                  <div className="doc-view-card-left">
-                    <div className={`doc-icon-badge ${doc.iconType}`}>
-                      <FaFileAlt />
-                    </div>
-                    <div className="doc-view-details">
-                      <span className="doc-view-title">{doc.label}</span>
-                      <span className={`doc-status-tag ${doc.isUploaded ? "uploaded" : "missing"}`}>
-                        {doc.isUploaded ? (
-                          <>
-                            <FaCheckCircle className="status-mini-icon" /> Uploaded
-                          </>
-                        ) : (
-                          <>
-                            <FaTimesCircle className="status-mini-icon" /> Not Uploaded
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  </div>
+              {uploadedDocuments.map((doc) => {
+                const isDocRejected = employee?.profileApprovalStatus === "rejected" &&
+                  (employee?.rejectedFields?.includes(doc.id) ||
+                    employee?.rejectedFields?.includes(doc.field) ||
+                    (doc.id === "marksheet10" && employee?.rejectedFields?.includes("certificate10")) ||
+                    (doc.id === "marksheet12" && employee?.rejectedFields?.includes("certificate12")) ||
+                    ((doc.id === "degreeCertificate" || doc.id.startsWith("course_")) &&
+                      (employee?.rejectedFields?.includes("degreeCertificate") || employee?.rejectedFields?.includes("courses"))));
 
-                  <div className="doc-view-card-right">
-                    {doc.isUploaded ? (
-                      <button
-                        type="button"
-                        className="btn-doc-view"
-                        onClick={() => handleViewDocument(doc)}
-                        disabled={docLoadingId === doc.id}
-                        title="View document in new tab (Expires in 3 minutes)"
-                      >
-                        {docLoadingId === doc.id ? (
-                          <>
-                            <Spinner animation="border" size="sm" className="me-1" />
-                            Loading...
-                          </>
-                        ) : (
-                          <>
-                            <FaEye className="me-1" /> View
-                          </>
-                        )}
-                      </button>
-                    ) : (
-                      <span className="doc-unavailable-text">No File</span>
-                    )}
+                const isTargetHighlighted = highlightedField === doc.id ||
+                  (doc.field && highlightedField === doc.field) ||
+                  (doc.id === "marksheet10" && highlightedField === "certificate10") ||
+                  (doc.id === "marksheet12" && highlightedField === "certificate12") ||
+                  (doc.id === "degreeCertificate" && (highlightedField === "courses" || highlightedField === "degreeCertificate")) ||
+                  (doc.id.startsWith("course_") && highlightedField === "courses");
+
+                return (
+                  <div
+                    key={doc.id}
+                    id={`doc-card-${doc.id}`}
+                    className={`doc-view-card ${doc.isUploaded ? "has-doc" : "no-doc"} ${isDocRejected ? "rejected-correction-card" : ""} ${isTargetHighlighted ? "rejected-file-highlight-pulse" : ""}`}
+                  >
+                    <div className="doc-view-card-left">
+                      <div className={`doc-icon-badge ${doc.iconType} ${isDocRejected ? "rejected-badge" : ""}`}>
+                        <FaFileAlt />
+                      </div>
+                      <div className="doc-view-details">
+                        <span className="doc-view-title">{doc.label}</span>
+                        <span className={`doc-status-tag ${isDocRejected ? "rejected" : (doc.isUploaded ? "uploaded" : "missing")}`}>
+                          {isDocRejected ? (
+                            <>
+                              <FaTimesCircle className="status-mini-icon" /> Correction Required
+                            </>
+                          ) : doc.isUploaded ? (
+                            <>
+                              <FaCheckCircle className="status-mini-icon" /> Uploaded
+                            </>
+                          ) : (
+                            <>
+                              <FaTimesCircle className="status-mini-icon" /> Not Uploaded
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="doc-view-card-right">
+                      {doc.isUploaded ? (
+                        <button
+                          type="button"
+                          className="btn-doc-view"
+                          onClick={() => handleViewDocument(doc)}
+                          disabled={docLoadingId === doc.id}
+                          title="View document in new tab (Expires in 3 minutes)"
+                        >
+                          {docLoadingId === doc.id ? (
+                            <>
+                              <Spinner animation="border" size="sm" className="me-1" />
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              <FaEye className="me-1" /> View
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <span className="doc-unavailable-text">No File</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Section>
 
@@ -1005,7 +1491,7 @@ const DetailsView = () => {
           </Section>
 
           {/* ── Footer Buttons ── */}
-          <div className="detailsview-footer">
+          <div className="detailsview-footer" id="detailsview-admin-actions">
             <Button
               variant=""
               className="common-modal-btn btn-small-cancel"
@@ -1014,17 +1500,50 @@ const DetailsView = () => {
               Back
             </Button>
 
+            {isAdminView && (employee?.profileApprovalStatus === "pending" || (!employee?.profileApprovalStatus && employee?.profileCompletion >= 100 && !employee?.isProfileCompleted)) && (
+              <>
+                <Button
+                  variant="success"
+                  className="common-modal-btn btn-approve"
+                  style={{ backgroundColor: "#16a34a", color: "#ffffff", borderColor: "#16a34a" }}
+                  onClick={() => setShowApproveModal(true)}
+                >
+                  Approve Profile
+                </Button>
+                <Button
+                  variant="danger"
+                  className="common-modal-btn btn-reject"
+                  onClick={() => {
+                    setRejectionRemark("");
+                    setSelectedRejectedFields([]);
+                    setRejectError(false);
+                    setShowRejectModal(true);
+                  }}
+                >
+                  Reject Profile
+                </Button>
+              </>
+            )}
+
             <Button
               onClick={handleEdit}
-              disabled={isEmployeeView && requestStatus === "pending"}
-              className={`${isEmployeeView && requestStatus === "pending"
-                  ? "btn-disabled"
-                  : "btn-update"
+              disabled={isEmployeeView && (requestStatus === "pending" || employee?.profileApprovalStatus === "pending")}
+              className={`${isEmployeeView && (requestStatus === "pending" || employee?.profileApprovalStatus === "pending")
+                ? "btn-disabled"
+                : "btn-update"
                 } common-modal-btn`}
             >
               {isEmployeeView && requestStatus === "pending" ? (
                 <>
-                  <FaClock className="me-2" /> Request Pending
+                  Request Pending
+                </>
+              ) : isEmployeeView && employee?.profileApprovalStatus === "pending" ? (
+                <>
+                  Pending Admin Approval
+                </>
+              ) : isEmployeeView && employee?.profileApprovalStatus === "rejected" ? (
+                <>
+                   Update & Resubmit
                 </>
               ) : isEmployeeView && requestStatus === "approved" ? (
                 <>
@@ -1240,6 +1759,146 @@ const DetailsView = () => {
             )}
           </Modal.Body>
         </Modal>
+
+        {/* ── Admin Approve Modal ── */}
+        <Modal
+          show={showApproveModal}
+          onHide={() => !reviewLoading && setShowApproveModal(false)}
+          centered
+          className="admin-profile-review-modal"
+        >
+          <Modal.Header closeButton={!reviewLoading}>
+            <Modal.Title className="common-modal-title">Approve Employee Profile</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-center py-4">
+            <div className="approve-modal-icon-wrap mb-3">
+              <FaCheckCircle style={{ fontSize: "3.5rem", color: "#10b981" }} />
+            </div>
+            <h5 className="mb-2" style={{ fontSize: "16px", fontWeight: "500" }}>Approve {employee?.name}'s Profile?</h5>
+            <p className="text-muted mb-0" style={{ fontSize: "13px"  }}>
+              Are you sure you want to approve this employee profile? All submitted details and uploaded documents will be verified and marked as approved. The employee will be notified immediately.
+            </p>
+          </Modal.Body>
+          <Modal.Footer className="admin-reject-modal-footer">
+            <button
+              type="button"
+              className="common-modal-btn btn-small-cancel"
+              onClick={() => setShowApproveModal(false)}
+              disabled={reviewLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="common-modal-btn btn-confirm-success"
+              onClick={handleApproveProfile}
+              disabled={reviewLoading}
+            >
+              {reviewLoading ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Approving...
+                </>
+              ) : (
+                "Confirm Approval"
+              )}
+            </button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* ── Admin Reject Modal ── */}
+        <Modal
+          show={showRejectModal}
+          onHide={() => !reviewLoading && setShowRejectModal(false)}
+          centered
+          scrollable
+          className="admin-profile-review-modal"
+        >
+          <Modal.Header closeButton={!reviewLoading}>
+            <Modal.Title className="common-modal-title">Reject Employee Profile</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="admin-reject-modal-body">
+            <Form.Group className="mb-3">
+              <Form.Label className="rejection-form-label">
+                Rejection Remark / Reason <span className="text-danger">*</span>
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="e.g. Masked Aadhaar document is missing. Please upload the clear Masked Aadhaar card copy."
+                value={rejectionRemark}
+                onChange={(e) => setRejectionRemark(e.target.value)}
+                isInvalid={rejectError && !rejectionRemark.trim()}
+              />
+              {rejectError && !rejectionRemark.trim() && (
+                <div className="text-danger small">
+                  Please provide a rejection remark.
+                </div>
+              )}
+            </Form.Group>
+
+            <Form.Group className="mb-0">
+              <Form.Label className="rejection-form-label mb-2">
+                Select Specific File(s) or Document(s) Needing Correction:
+              </Form.Label>
+              <div className="rejection-categories-container">
+                {REJECTABLE_CATEGORIES.map((catGroup) => (
+                  <div key={catGroup.category} className="rejection-cat-block mb-3">
+                    <div className="rejection-cat-title">
+                      {catGroup.category}
+                    </div>
+                    <div className="rejection-items-grid">
+                      {catGroup.items.map((item) => {
+                        const isSelected = selectedRejectedFields.includes(item.id);
+                        return (
+                          <div
+                            key={item.id}
+                            className={`rejection-checkbox-item ${isSelected ? "selected" : ""}`}
+                            onClick={() => toggleRejectedField(item.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              className="form-check-input me-2 mt-0"
+                              checked={isSelected}
+                              onChange={() => toggleRejectedField(item.id)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <span className="rejection-item-label">{item.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer className="admin-reject-modal-footer">
+            <button
+              type="button"
+              className="common-modal-btn btn-small-cancel"
+              onClick={() => setShowRejectModal(false)}
+              disabled={reviewLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="common-modal-btn btn-update"
+              onClick={handleRejectProfile}
+              disabled={reviewLoading}
+            >
+              {reviewLoading ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Rejecting...
+                </>
+              ) : (
+                "Submit Rejection"
+              )}
+            </button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );
@@ -1248,8 +1907,8 @@ const DetailsView = () => {
 /* ════════════════════════════════════════════════════════════
    REUSABLE SUB-COMPONENTS
 ════════════════════════════════════════════════════════════ */
-const Section = ({ title, children }) => (
-  <div className="detailsview-section with-divider">
+const Section = ({ title, id, children }) => (
+  <div id={id} className="detailsview-section with-divider">
     <h4>{title}</h4>
     {children}
   </div>
@@ -1259,8 +1918,8 @@ const Grid = ({ children }) => (
   <div className="detailsview-grid">{children}</div>
 );
 
-const Item = ({ label, value, full, className = "" }) => (
-  <div className={`detailsview-item ${full ? "full" : ""} ${className}`}>
+const Item = ({ id, label, value, full, className = "" }) => (
+  <div id={id} className={`detailsview-item ${full ? "full" : ""} ${className}`}>
     <span>{label}</span>
     <p>{value || "-"}</p>
   </div>

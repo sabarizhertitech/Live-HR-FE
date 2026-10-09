@@ -844,3 +844,542 @@
     transform: translateY(0);
   }
 }
+
+/* =====================================================
+   ADMIN & EMPLOYEE PROFILE REVIEW WORKFLOW STYLES
+===================================================== */
+.profile-review-toast-alert {
+  display: flex;
+  align-items: center;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+/* ── Admin Review Banners ── */
+.admin-review-banner {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 10px;
+  gap: 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.admin-review-banner.pending {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+  border: 1px solid #93c5fd;
+}
+
+.admin-review-banner.rejected {
+  border: 1px solid #E1E1E1;
+}
+
+.admin-review-banner.approved {
+   display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.admin-review-content {
+  flex: 1;
+  min-width: 280px;
+  padding: 10px;
+
+}
+
+.admin-review-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.admin-review-badge.pending {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-review-badge.rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.admin-review-badge.approved {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.admin-review-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.admin-review-desc{
+  font-size: 13px !important;
+  color: #868585;
+  font-weight: 500;
+}
+
+.admin-review-desc {
+  font-size: 11.5px;
+  color: #475569;
+}
+
+.admin-review-items {
+  font-size: 13px;
+  color: #991b1b;
+}
+
+.admin-review-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.admin-review-actions .btn-approve,
+.admin-review-actions .btn-admin-review-approve,
+.btn-admin-review-approve,
+.detailsview-footer .btn-approve {
+  background: #16a34a !important;
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 8px 10px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 120px !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+}
+
+.admin-review-actions .btn-approve:hover,
+.admin-review-actions .btn-admin-review-approve:hover,
+.btn-admin-review-approve:hover,
+.detailsview-footer .btn-approve:hover {
+  background: #15803d !important;
+  background-color: #15803d !important;
+  color: #ffffff !important;
+  border-color: #15803d !important;
+}
+
+.btn-admin-review-reject {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  font-weight: 600 !important;
+  padding: 9px 18px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25) !important;
+}
+
+.btn-admin-review-reject:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.btn-admin-action-approve {
+  background: #10b981 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.btn-admin-action-reject {
+  background: #ef4444 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* ── Admin Scroll Down to Actions Button ── */
+.admin-scroll-down-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #93c5fd;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+  outline: none;
+  margin-right: 8px;
+}
+
+.admin-scroll-down-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  transform: translateY(2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.admin-scroll-arrow-icon {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.admin-scroll-down-btn:hover .admin-scroll-arrow-icon {
+  transform: translateY(2px);
+}
+
+@keyframes footerActionPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(22, 163, 74, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+.highlight-footer-pulse {
+  animation: footerActionPulse 1.2s ease-in-out 2 !important;
+  border-radius: 8px;
+}
+
+/* ── Employee Review Banners ── */
+.employee-review-alert {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.employee-review-alert.rejected {
+  border: 1px solid #E1E1E1;
+  background-color: #ffe9eb;
+}
+
+.employee-review-alert.pending {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+}
+
+.employee-review-alert.approved {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  max-width: fit-content !important;
+  margin-left: auto !important;
+  align-self: flex-end !important;
+  font-weight: 500;
+  font-size: 12px !important;
+  padding: 6px 14px !important;
+  border-radius: 20px !important;
+}
+
+.employee-review-alert-icon {
+  font-size: 24px;
+  color: #ef4444;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.employee-review-alert-icon.pending {
+  color: #10b981;
+}
+
+.employee-review-alert-content {
+  flex: 1;
+  padding: 10px;
+}
+
+.employee-review-alert-title {
+  font-size: 16.5px;
+  font-weight: 600;
+  color: #d65f3b;
+  margin-bottom: 6px;
+}
+
+.employee-review-alert.pending .employee-review-alert-title {
+  color: #166534;
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.employee-review-alert-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #a8a6a6;
+}
+.employee-review-alert-remark {
+  font-size: 14px;
+  color: #868585;
+  margin-bottom: 6px;
+}
+
+.correction-pill {
+  display: inline-block;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 14px;
+}
+
+.employee-review-alert-hint {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.btn-employee-resubmit-cta {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  font-weight: 600 !important;
+  padding: 9px 18px !important;
+  border-radius: 8px !important;
+  white-space: nowrap;
+}
+
+/* ── Document Correction Highlights ── */
+.doc-view-card.rejected-correction-card {
+  border: 1px solid #5977f8  !important;
+  background: #f8fbff !important;
+
+}
+
+.doc-icon-badge.rejected-badge {
+  background: #eff6ff !important;
+  color: #5977f8 !important;
+}
+
+.doc-status-tag.rejected {
+  color: #5977f8 !important;
+  font-weight: 600 !important;
+}
+
+/* ── Admin Reject Modal ── */
+.admin-profile-review-modal .modal-dialog {
+  max-width: 500px !important;
+  width: 92% !important;
+  margin: 1.5rem auto !important;
+}
+
+.admin-profile-review-modal .modal-content {
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+  max-height: calc(100vh - 3rem) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.admin-profile-review-modal .modal-header {
+  padding: 12px 18px !important;
+  border-bottom: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.admin-profile-review-modal .modal-title,
+.admin-profile-review-modal .common-modal-title {
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  margin: 0 !important;
+}
+
+.admin-reject-modal-body {
+  padding: 14px 18px !important;
+  max-height: 55vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.rejection-form-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+
+.admin-reject-modal-body .form-control {
+  font-size: 13px !important;
+  border-radius: 8px !important;
+  border-color: #cbd5e1 !important;
+}
+
+.admin-reject-modal-footer {
+  padding: 12px 18px !important;
+  border: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+/* ── Rejection Modal Grid ── */
+.rejection-items-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  padding: 2px;
+}
+
+@media (max-width: 480px) {
+  .rejection-items-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rejection-checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 12px;
+}
+
+.rejection-checkbox-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.rejection-checkbox-item.selected {
+  background: #c0d5fd;
+  border-color: #5977f8 ;
+  color: #2a4b6f;
+  font-weight: 500;
+}
+
+.rejection-item-label {
+  user-select: none;
+}
+
+/* ── Rejection Category Blocks in Admin Modal ── */
+.rejection-categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rejection-cat-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.rejection-cat-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* ── Employee Rejected Items Action Pills & View File Button ── */
+.rejected-items-action-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rejected-item-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #E1E1E1;
+  padding: 4px 8px 4px 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+
+.rejected-item-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3A466D;
+}
+
+.btn-view-rejected-file {
+  display: inline-flex;
+  align-items: center;
+  background: #5977f8 ;
+  color: #ffffff;
+  border: 1px solid #E1E1E1;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-view-rejected-file:hover {
+  background: #5977f8 ;
+  color: #ffffff;
+  border-color: #5977f8 ;
+  transform: translateY(-1px);
+}
+
+/* ── Rejected File Highlight Pulse Animation ── */
+@keyframes identifyBlueBorderDetails {
+  0% {
+    outline: 2px solid #2563eb;
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  50% {
+    outline: 2px solid #1d4ed8;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  }
+  100% {
+    outline: 2px solid #2563eb;
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+.rejected-file-highlight-pulse {
+  border-radius: 8px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  scroll-margin: 100px;
+}

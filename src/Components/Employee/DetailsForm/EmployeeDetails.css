@@ -325,7 +325,7 @@
 .employeedetails-file-input-aligned,
 .employeedetails-detail-input[type="file"] {
   cursor: pointer;
-  padding: 0 12px 0 3px;
+  padding: 4px;
   height: 35px;
   display: flex;
   align-items: center;
@@ -334,7 +334,9 @@
 }
 
 .employeedetails-file-input-aligned::file-selector-button,
-.employeedetails-detail-input[type="file"]::file-selector-button {
+.employeedetails-detail-input[type="file"]::file-selector-button,
+.employeedetails-file-input-aligned::-webkit-file-upload-button,
+.employeedetails-detail-input[type="file"]::-webkit-file-upload-button {
   background: #4f80ff;
   color: white;
   border: none;
@@ -343,17 +345,19 @@
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  margin-right: 12px;
+  margin: auto 12px auto 0;
   transition: background 0.2s;
   height: 25px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 4px;
+  align-self: center;
 }
 
 .employeedetails-file-input-aligned::file-selector-button:hover,
-.employeedetails-detail-input[type="file"]::file-selector-button:hover {
+.employeedetails-detail-input[type="file"]::file-selector-button:hover,
+.employeedetails-file-input-aligned::-webkit-file-upload-button:hover,
+.employeedetails-detail-input[type="file"]::-webkit-file-upload-button:hover {
   background: #3f6df0;
 }
 
@@ -996,78 +1000,6 @@
   }
 }
 
-/* ================= DARK MODE SUPPORT ================= */
-@media (prefers-color-scheme: dark) {
-  .employeedetails-page {
-    background: #1a1a1a;
-  }
-
-  .employeedetails-form-card {
-    background: #2d2d2d;
-    border-color: #404040;
-  }
-
-  .employeedetails-detail-input {
-    background-color: #3a3a3a;
-    border-color: #555;
-    color: #e5e5e5;
-  }
-
-  .employeedetails-detail-input:hover {
-    background-color: #444;
-    border-color: #666;
-  }
-
-  .employeedetails-detail-input:focus {
-    background-color: #444;
-    border-color: #4f80ff;
-  }
-
-  .employeedetails-input-locked {
-    background-color: #3a3a3a;
-    color: #999;
-  }
-
-  .employeedetails-section-title {
-    color: #e5e5e5;
-  }
-
-  .employeedetails-detail-label {
-    color: #999;
-  }
-
-  .employeedetails-profile-name {
-    color: #e5e5e5;
-  }
-
-  .employeedetails-profile-designation {
-    color: #a8a8a8;
-  }
-
-  .employeedetails-file-preview {
-    background-color: #3a3a3a;
-    border-color: #555;
-  }
-
-  .employeedetails-document-preview {
-    background: #2d2d2d;
-    border-color: #555;
-  }
-
-  .employeedetails-education-group {
-    background: #2a2a2a;
-    border-color: #444;
-  }
-
-  .employeedetails-education-group-label {
-    background: #2a2a2a;
-  }
-
-  .employeedetails-education-divider {
-    background: linear-gradient(to right, transparent, #444, transparent);
-  }
-}
-
 /* ================= SCROLLBAR STYLING ================= */
 .employeedetails-content::-webkit-scrollbar {
   width: 8px;
@@ -1085,20 +1017,6 @@
 
 .employeedetails-content::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
-}
-
-@media (prefers-color-scheme: dark) {
-  .employeedetails-content::-webkit-scrollbar-track {
-    background: #2d2d2d;
-  }
-
-  .employeedetails-content::-webkit-scrollbar-thumb {
-    background: #555;
-  }
-
-  .employeedetails-content::-webkit-scrollbar-thumb:hover {
-    background: #666;
-  }
 }
 
 /* Smooth scrolling for the entire page */
@@ -2003,3 +1921,106 @@ html {
 }
 
 /* DOB and Gender — inherits standard 15px column gap, no extra override needed */
+
+/* ================= REJECTED FILE HIGHLIGHT & ACTION PILLS ================= */
+.rejected-field-pill {
+  background: #ffffff;
+  border: 1px solid #E1E1E1 !important;
+  transition: all 0.2s ease;
+}
+
+.rejected-field-pill:hover {
+  border-color: #E1E1E1 !important;
+}
+
+.btn-reject-view {
+  display: inline-flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border: 1px solid #E1E1E1;
+  border-radius: 0.25rem;
+  color: #ffffff;
+  background-color: #4f80ff;
+}
+
+.rejected-pill-label {
+  font-size: 13px;
+  color: #868585 !important;
+}
+
+.rejected-pill-label {
+  letter-spacing: 0.2px;
+}
+
+.btn-view-rejected-target {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-view-rejected-target:hover {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  transform: translateY(-1px);
+}
+
+@keyframes identifyBlueBorder {
+  0% {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  50% {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+  }
+  100% {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+.highlight-rejected-pulse-target {
+  position: relative !important;
+  z-index: 20 !important;
+  scroll-margin: 120px;
+}
+
+/* Blue border applied only to input/dropdown/file box (not the label or outer container) */
+.highlight-rejected-pulse-target .custom-dropdown-trigger,
+.highlight-rejected-pulse-target .employeedetails-detail-input,
+.highlight-rejected-pulse-target input:not([type="hidden"]),
+.highlight-rejected-pulse-target select,
+.highlight-rejected-pulse-target textarea,
+.highlight-rejected-pulse-target .employeedetails-file-upload-container,
+.highlight-rejected-pulse-target.custom-dropdown-trigger,
+.highlight-rejected-pulse-target.employeedetails-detail-input,
+.highlight-rejected-pulse-target.employeedetails-file-upload-container {
+  /* border: 2px solid #2563eb !important; */
+  /* box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important; */
+  outline: none !important;
+  /* animation: identifyBlueBorder 1.2s ease-in-out 2 !important; */
+}
+
+.rejected-avatar-border {
+  border: 3px solid #ef4444 !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5) !important;
+}
+
+.rejected-file-notice-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #fca5a5;
+}

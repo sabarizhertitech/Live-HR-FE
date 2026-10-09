@@ -10,6 +10,7 @@ import ProfilePage from "./ProfilePage";
 import { useUser } from "../UserContext";
 import { toast } from "react-toastify";
 import { messaging, deleteToken } from "../../firebase";
+import { checkProfileRestriction } from "../../utils/profileCompletionRestriction";
 
 const ICON_BASE = "/ICONS";
 
@@ -445,14 +446,14 @@ function Sidebar() {
         const res = await portalInstance.get("/api/notifications");
         const allNotifs = res.data?.data || [];
         const filtered = allNotifs.filter(
-          (n) => n && (n.type === "SECURITY_APPROVED" || n.type === "SECURITY_REJECTED" || n.type === "HR_APPROVAL_APPROVED" || n.type === "HR_APPROVAL_REJECTED")
+          (n) => n && (n.type === "SECURITY_APPROVED" || n.type === "SECURITY_REJECTED" || n.type === "HR_APPROVAL_APPROVED" || n.type === "HR_APPROVAL_REJECTED" || n.type === "PROFILE_APPROVED" || n.type === "PROFILE_REJECTED")
         );
         generalNotifs = filtered
           .filter((n) => !dismissedIds.includes(n._id))
           .map((n) => ({
             id: n._id,
             uniqueKey: `general-${n._id}`,
-            type: n.type?.startsWith("HR_APPROVAL") ? "HR_APPROVAL_DECISION" : "SECURITY_DECISION",
+            type: n.type?.startsWith("PROFILE") ? "PROFILE_DECISION" : (n.type?.startsWith("HR_APPROVAL") ? "HR_APPROVAL_DECISION" : "SECURITY_DECISION"),
             title: n.title || "Notification",
             message: n.message,
             subtext: "",
@@ -599,11 +600,11 @@ function Sidebar() {
               console.error("Failed to dismiss holiday assignment notification:", err);
             }
           }
-          if (n.type === "SECURITY_DECISION") {
+          if (n.type === "SECURITY_DECISION" || n.type === "PROFILE_DECISION") {
             try {
               await portalInstance.put(`/api/notifications/${n.id}/read`);
             } catch (err) {
-              console.error("Failed to read security notification:", err);
+              console.error("Failed to read security/profile notification:", err);
             }
           }
         })
@@ -688,7 +689,7 @@ function Sidebar() {
           console.error("Failed to dismiss holiday assignment notification:", err);
         }
       }
-      if (notif.type === "SECURITY_DECISION" || notif.type === "HR_APPROVAL_DECISION") {
+      if (notif.type === "SECURITY_DECISION" || notif.type === "HR_APPROVAL_DECISION" || notif.type === "PROFILE_DECISION") {
         try {
           await portalInstance.put(`/api/notifications/${notif.id}/read`);
         } catch (err) {
@@ -696,7 +697,9 @@ function Sidebar() {
         }
       }
       setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
-      if (notif.type === "TASK") {
+      if (notif.type === "PROFILE_DECISION") {
+        navigate(notif.url || "/emp/my-details");
+      } else if (notif.type === "TASK") {
         navigate("/emp/tasks");
       } else if (notif.type === "HOLIDAY_CALENDAR" || notif.type === "HOLIDAY_CALENDAR_APPROVED") {
         navigate("/emp/holiday-requests");
@@ -822,32 +825,37 @@ function Sidebar() {
             const emp = res?.data?.data;
 
             if (emp) {
-              const userData = {
+              const fullUserData = {
+                ...stored,
                 _id: emp._id,
-                name: emp.name || "User",
-                photo: emp.photo || emp.picture || "",
-                role: emp.role,
-                designation: emp.designation,
-                email: emp.email,
-                empId: emp.employeeId || emp.empId,
-                username: emp.username,
-                phone: emp.phone,
-                department: emp.department?.name || emp.department,
+                name: emp.name || stored.name || "User",
+                photo: emp.photo || emp.picture || stored.photo || "",
+                role: emp.role || stored.role,
+                designation: emp.designation || stored.designation,
+                email: emp.email || stored.email,
+                empId: emp.employeeId || emp.empId || stored.empId,
+                username: emp.username || stored.username,
+                phone: emp.phone || stored.phone,
+                department: emp.department?.name || emp.department || stored.department,
                 doj: emp.dateOfJoining
                   ? new Date(emp.dateOfJoining).toLocaleDateString("en-IN")
-                  : "N/A",
+                  : (stored.doj || "N/A"),
+                dateJoined: emp.dateOfJoining || stored.dateJoined,
                 isHr: !!emp.isHr,
-                permissions: emp.permissions || [],
+                permissions: emp.permissions || stored.permissions || [],
+                token: stored.token,
+                profileCompletion: stored.profileCompletion,
+                isProfileCompleted: stored.isProfileCompleted,
+                isProfileRestricted: stored.isProfileRestricted,
+                daysRemainingForProfile: stored.daysRemainingForProfile,
+                profileDeadline: stored.profileDeadline,
               };
 
               roleSetByAPI.current = true;
-              setUser(userData);
-              setRole(emp.role);
+              setUser(fullUserData);
+              setRole(fullUserData.role);
 
-              sessionStorage.setItem("Erti-Portal", JSON.stringify({
-                ...stored,
-                ...userData,
-              }));
+              sessionStorage.setItem("Erti-Portal", JSON.stringify(fullUserData));
 
               setUserLoading(false);
               return;
@@ -859,6 +867,7 @@ function Sidebar() {
 
         if (stored?.name) {
           const fallbackUser = {
+            ...stored,
             name: stored.name || "User",
             photo: stored.photo || "",
             role: stored.role || "employee",
@@ -867,6 +876,7 @@ function Sidebar() {
             empId: stored.empId || "",
             isHr: !!stored.isHr,
             permissions: stored.permissions || [],
+            token: stored.token,
           };
           setUser(fallbackUser);
           setRole(stored.role || "employee");
@@ -875,8 +885,9 @@ function Sidebar() {
         }
       } catch (err) {
         console.error("User load failed:", err);
-        setUser({ name: "User", photo: "", role: "employee" });
-        setRole("employee");
+        const stored = JSON.parse(sessionStorage.getItem("Erti-Portal") || "{}");
+        setUser({ ...stored, name: stored.name || "User", photo: "", role: stored.role || "employee", token: stored.token });
+        setRole(stored.role || "employee");
       } finally {
         setUserLoading(false);
       }
@@ -1177,6 +1188,21 @@ function Sidebar() {
     }
     if (path === "/crawler") {
       window.open("/crawler", "_blank");
+      return;
+    }
+
+    const restriction = checkProfileRestriction(user);
+    if (
+      restriction.isRestricted &&
+      path !== "/emp/my-details" &&
+      path !== "/emp/my-details/edit" &&
+      path !== "/profile"
+    ) {
+      toast.warning(
+        "Profile completion is required (100%). Access to other dashboard pages is restricted until your profile is completed."
+      );
+      navigate("/emp/my-details/edit");
+      setIsMobileMenuOpen(false);
       return;
     }
     setManualNav(true);

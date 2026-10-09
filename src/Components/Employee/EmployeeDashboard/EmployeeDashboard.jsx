@@ -14,7 +14,7 @@ import {
 } from "react-bootstrap";
 import "../../../Globel/Layout.css"
 import { Icon } from "@iconify/react";
-import { FaGift, FaChevronDown, FaBirthdayCake } from "react-icons/fa";
+import { FaGift, FaChevronDown, FaBirthdayCake, FaTimes } from "react-icons/fa";
 import { FiClock } from "react-icons/fi";
 import { toast, ToastContainer } from "react-toastify";
 import Sidebar from "../../HeaderSidebar/Sidebar";
@@ -40,9 +40,9 @@ import moment from "moment";
 import CustomDropdown from "../../Common/CustomDropdown";
 import MissingProfileBanner from "./MissingProfileBanner";
 
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // HELPER FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const getUserIdFromToken = (token) => {
   try {
     const base64Url = token.split(".")[1];
@@ -70,9 +70,79 @@ const PROJECT_STATUS_OPTIONS = [
   { value: "on hold", label: "On Hold" },
 ];
 
-// ═══════════════════════════════════════════════════════════════
+const normalizeStatusKey = (s) => {
+  const str = String(s || "pending").toLowerCase().replace(/[\s_-]+/g, "");
+  if (str.includes("complete")) return "completed";
+  if (str.includes("process")) return "inprocess";
+  if (str.includes("hold")) return "hold";
+  return "pending";
+};
+
+const formatStatusLabel = (s) => {
+  const key = normalizeStatusKey(s);
+  if (key === "completed") return "Completed";
+  if (key === "inprocess") return "In Process";
+  if (key === "hold") return "On Hold";
+  return "Pending";
+};
+
+const groupTasksWithHistory = (items) => {
+  if (!Array.isArray(items) || items.length === 0) return [];
+
+  const groups = new Map();
+
+  items.forEach((item) => {
+    const rawTitle = (item.taskTitle || item.displayTitle || item.name || item.title || item.phase || "").trim();
+    const titleKey = rawTitle.toLowerCase();
+    const refKey = item.referenceId ? String(item.referenceId) : null;
+    const taskIdKey = (item.task_id && item.task_id !== "standalone")
+      ? String(item.task_id)
+      : (item.task?._id ? String(item.task._id) : null);
+
+    let groupKey = titleKey;
+    if (!groupKey && refKey) groupKey = `ref_${refKey}`;
+    if (!groupKey && taskIdKey) groupKey = `task_${taskIdKey}`;
+    if (!groupKey) groupKey = `item_${item._id || Math.random()}`;
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, []);
+    }
+    groups.get(groupKey).push(item);
+  });
+
+  const grouped = [];
+
+  groups.forEach((groupItems) => {
+    const sorted = [...groupItems].sort((a, b) => {
+      const dateA = new Date(a.date || a.completionDate || a.updateDate || a.createdAt || 0).getTime();
+      const dateB = new Date(b.date || b.completionDate || b.updateDate || b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
+
+    const latest = sorted[0];
+
+    grouped.push({
+      ...latest,
+      taskTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
+      displayTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
+      latestDate: latest.date || latest.completionDate || latest.updateDate || latest.createdAt,
+      latestStatus: latest.status || latest.phaseStatus || "Pending",
+      history: sorted,
+    });
+  });
+
+  grouped.sort((a, b) => {
+    const dateA = new Date(a.latestDate || 0).getTime();
+    const dateB = new Date(b.latestDate || 0).getTime();
+    return dateB - dateA;
+  });
+
+  return grouped;
+};
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const TIME_OPTIONS = [];
 for (let i = 0; i < 24; i++) {
   for (let j = 0; j < 60; j += 30) {
@@ -88,7 +158,7 @@ const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ── DASHBOARD STATES ──────────────────────────────────────────
+  // â”€â”€ DASHBOARD STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [employee, setEmployee] = useState(null);
   const [loginTime, setLoginTime] = useState(null);
   const [profileCompletion, setProfileCompletion] = useState(0);
@@ -102,7 +172,7 @@ const EmployeeDashboard = () => {
   const [language, setLanguage] = useState("tamil");
   const [kuralDotIndex, setKuralDotIndex] = useState(0);
 
-  // ── BIRTHDAY & WISH STATES ────────────────────────────────────
+  // â”€â”€ BIRTHDAY & WISH STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [showBirthdayAnimation, setShowBirthdayAnimation] = useState(false);
   const [todayBirthdays, setTodayBirthdays] = useState([]);
   const [sentWishes, setSentWishes] = useState([]);
@@ -115,7 +185,7 @@ const EmployeeDashboard = () => {
   const [replyingWishId, setReplyingWishId] = useState(null);
   const [receivedWishesPage, setReceivedWishesPage] = useState(1);
 
-  // ── ATTENDANCE STATES ─────────────────────────────────────────
+  // â”€â”€ ATTENDANCE STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [todayAttendance, setTodayAttendance] = useState(null);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [checkInLoading, setCheckInLoading] = useState(false);
@@ -143,14 +213,14 @@ const EmployeeDashboard = () => {
   const [isCheckoutIP, setIsCheckoutIP] = useState(false);
   // ===== IP VALIDATION END =====
 
-  // ── NON-WORKING DAY STATES ───────────────────────────────────
+  // â”€â”€ NON-WORKING DAY STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [isNonWorkingDay, setIsNonWorkingDay] = useState(false);
   const [nonWorkingReason, setNonWorkingReason] = useState("");
   const [monthlyData, setMonthlyData] = useState(null);
   const [govHolidays, setGovHolidays] = useState(new Set());
   const [loading, setLoading] = useState(false);
 
-  // ── ATTENDANCE DERIVED STATE ──
+  // â”€â”€ ATTENDANCE DERIVED STATE â”€â”€
   const hasCheckedIn =
     !!todayAttendance?.checkIn1 ||
     !!todayAttendance?.checkIn2 ||
@@ -188,16 +258,16 @@ const EmployeeDashboard = () => {
       todayAttendance?.checkIn2
     );
 
-  // ── NOTIFICATION STATES ───────────────────────────────────────
+  // â”€â”€ NOTIFICATION STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [notifications, setNotifications] = useState([]);
   const [dueTasksAlerts, setDueTasksAlerts] = useState([]);
   const [pendingAssignments, setPendingAssignments] = useState([]);
 
-  // ── SPECIAL DAYS ──────────────────────────────────────────────
+  // â”€â”€ SPECIAL DAYS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [todaySpecialDays, setTodaySpecialDays] = useState([]);
   const [specialDaysAll, setSpecialDaysAll] = useState([]);
 
-  // ── PENDING TASKS CARD + MODAL STATES ────────────────────────
+  // â”€â”€ PENDING TASKS CARD + MODAL STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [pendingTasks, setPendingTasks] = useState([]);
   const [pendingTasksLoading, setPendingTasksLoading] = useState(false);
   const [projectDetails, setProjectDetails] = useState([]);
@@ -213,11 +283,11 @@ const EmployeeDashboard = () => {
   const [projectCurrentPage, setProjectCurrentPage] = useState(1);
   const projectItemsPerPage = 10;
 
-  // ── QUICK ACTION POPUP STATES ──────────────────────────────
+  // â”€â”€ QUICK ACTION POPUP STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [showAssignPopup, setShowAssignPopup] = useState(false);
   const [showCreatPopup, setShowCreatPopup] = useState(false);
 
-  // ── TO-DO STATES ──────────────────────────────────────────────
+  // â”€â”€ TO-DO STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [showTodoModal, setShowTodoModal] = useState(false);
   const [todoTitle, setTodoTitle] = useState("");
   const [todoDescription, setTodoDescription] = useState("");
@@ -231,7 +301,7 @@ const EmployeeDashboard = () => {
   const [upcomingPage, setUpcomingPage] = useState(1);
   const ITEMS_PER_PAGE = 7;
 
-  // ✅ EDIT MODAL STATES
+  // âœ… EDIT MODAL STATES
   const [editStatus, setEditStatus] = useState("pending");
   const [showEditStatusDropdown, setShowEditStatusDropdown] = useState(false);
   const editStatusRef = useRef(null);
@@ -246,7 +316,7 @@ const EmployeeDashboard = () => {
 
   const [lateReason, setLateReason] = useState("");
 
-  // ── CUSTOM DATE DROPDOWN STATE ────────────────────────────────
+
   const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
   const [showProjectStatusDropdown, setShowProjectStatusDropdown] = useState(false);
 
@@ -258,7 +328,7 @@ const EmployeeDashboard = () => {
     { label: "Custom", value: "custom" },
   ];
 
-  // ── DROPDOWN CLICK OUTSIDE LISTENERS ─────────────────────────
+
   const filterDropdownRef = useRef(null);
   const dateDropdownRef = useRef(null);
   const projectStatusRef = useRef(null);
@@ -303,7 +373,6 @@ const EmployeeDashboard = () => {
     };
   }, []);
 
-  // ── LOCK BODY SCROLL WHEN POPUP IS OPEN ─────────────────────
   useEffect(() => {
     if (showAssignPopup || showCreatPopup) {
       document.body.style.overflow = "hidden";
@@ -317,18 +386,15 @@ const EmployeeDashboard = () => {
 
   const todayStr = new Date().toDateString();
 
-  // ── SESSION DATA ──────────────────────────────────────────────
   const sessionRaw = sessionStorage.getItem("Erti-Portal");
   const sessionData = sessionRaw ? JSON.parse(sessionRaw) : {};
   const token = sessionData?.token;
   const loggedInUserId =
     sessionData?.user?._id || (token ? getUserIdFromToken(token) : null);
 
-  // ═══════════════════════════════════════════════════════════════
-  // ATTENDANCE HELPERS
-  // ═══════════════════════════════════════════════════════════════
+
   const formatAttendanceTime = (iso) => {
-    if (!iso) return "—";
+    if (!iso) return "â€”";
     return new Date(iso).toLocaleTimeString("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -337,7 +403,7 @@ const EmployeeDashboard = () => {
   };
 
   const formatWorkingHours = (minutes) => {
-    if (!minutes || minutes <= 0) return "—";
+    if (!minutes || minutes <= 0) return "â€”";
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${String(m).padStart(2, "0")}m`;
@@ -350,9 +416,6 @@ const EmployeeDashboard = () => {
     return `${String(h).padStart(2, "0")}h:${String(m).padStart(2, "0")}m:${String(s).padStart(2, "0")}s`;
   };
 
-  // ═══════════════════════════════════════════════════════════════
-  // LIVE TIMER — From File 1 (advanced: supports work sessions + re-check-in)
-  // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
     let intervalId;
 
@@ -407,9 +470,7 @@ const EmployeeDashboard = () => {
     };
   }, [todayAttendance]);
 
-  // ═══════════════════════════════════════════════════════════════
-  // PASSWORD EXPIRY
-  // ═══════════════════════════════════════════════════════════════
+
   useEffect(() => {
     const session = JSON.parse(sessionStorage.getItem("Erti-Portal") || "{}");
     const alreadyDismissed =
@@ -420,17 +481,13 @@ const EmployeeDashboard = () => {
     }
   }, []);
 
-  // ═══════════════════════════════════════════════════════════════
-  // LOGIN TIME
-  // ═══════════════════════════════════════════════════════════════
+
   useEffect(() => {
     const storedLoginTime = sessionStorage.getItem("loginTime");
     if (storedLoginTime) setLoginTime(new Date(storedLoginTime));
   }, []);
 
-  // ═══════════════════════════════════════════════════════════════
-  // ATTENDANCE CORE LOGIC
-  // ═══════════════════════════════════════════════════════════════
+
   const checkNonWorkingDay = useCallback((data) => {
     if (!data?.calendarDays) return { status: false, reason: "" };
 
@@ -539,9 +596,9 @@ const EmployeeDashboard = () => {
     initAttendance();
   }, [initAttendance]);
 
-  // ════════════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // HIGH-FIDELITY EXCEL EXPORTS (XML Based)
-  // ════════════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const exportToExcel = (data, filename, type = "projects") => {
     if (!data || data.length === 0) {
       toast.info("No data available to export");
@@ -687,9 +744,9 @@ const EmployeeDashboard = () => {
     toast.success("Excel Exported!");
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // FETCH EMPLOYEE DETAILS + PROFILE COMPLETION
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -754,8 +811,8 @@ const EmployeeDashboard = () => {
     const empsList = Array.isArray(empOrEmps)
       ? empOrEmps
       : empOrEmps
-      ? [empOrEmps]
-      : otherEmps;
+        ? [empOrEmps]
+        : otherEmps;
     setTargetEmpsForWish(empsList);
     setWishMessage(
       "Wishing you a very Happy Birthday! May your year ahead be filled with success, happiness, and great health!"
@@ -809,9 +866,9 @@ const EmployeeDashboard = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // BIRTHDAY CHECK
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   useEffect(() => {
     if (!employee?.dob) return;
     const today = new Date();
@@ -828,9 +885,9 @@ const EmployeeDashboard = () => {
     }
   }, [employee]);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // FETCH PENDING TASKS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const fetchPendingTasks = useCallback(async () => {
     setPendingTasksLoading(true);
     try {
@@ -884,9 +941,9 @@ const EmployeeDashboard = () => {
     fetchPendingTasks();
   }, [fetchPendingTasks]);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // FETCH PROJECT DETAILS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const fetchProjectDetails = useCallback(async () => {
     try {
       setProjectDetailsLoading(true);
@@ -971,9 +1028,9 @@ const EmployeeDashboard = () => {
     fetchProjectDetails();
   }, [fetchProjectDetails]);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // SPECIAL DAYS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const fetchTodaySpecialDays = useCallback(async () => {
     try {
       const today = new Date();
@@ -1050,9 +1107,9 @@ const EmployeeDashboard = () => {
     return () => clearInterval(specialInterval);
   }, [fetchTodaySpecialDays]);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // TO-DO FETCH
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const fetchTodos = async () => {
     setTodoLoading(true);
     try {
@@ -1086,9 +1143,9 @@ const EmployeeDashboard = () => {
     }
   }, [todoStatusFilter, todoDateFilter, todoCustomFromDate, todoCustomToDate]);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // HOLIDAY ASSIGNMENTS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const fetchHolidayAssignments = useCallback(async () => {
     if (!token) return;
     try {
@@ -1108,9 +1165,9 @@ const EmployeeDashboard = () => {
     fetchHolidayAssignments();
   }, [fetchHolidayAssignments]);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // NOTIFICATIONS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const fetchNotifications = useCallback(async () => {
     if (!token || !loggedInUserId) return;
     try {
@@ -1161,11 +1218,11 @@ const EmployeeDashboard = () => {
               "Admin",
             description:
               (task.taskTitle
-                ? task.taskTitle + (task.taskDetails ? " — " : "")
+                ? task.taskTitle + (task.taskDetails ? " â€” " : "")
                 : "") + (task.taskDetails || "No details provided."),
           }));
 
-        // ── Due Date Notifications & Alerts for Active Tasks ──
+        // â”€â”€ Due Date Notifications & Alerts for Active Tasks â”€â”€
         const nowTime = new Date().getTime();
         const upcomingDueTasks = allTasks.filter((task) => {
           if (!task.dueDate) return false;
@@ -1263,7 +1320,7 @@ const EmployeeDashboard = () => {
         console.log("Leaves fetch error:", err);
       }
 
-      // ── Calendar Notifications (Pending + Approved for this user) ──
+      // â”€â”€ Calendar Notifications (Pending + Approved for this user) â”€â”€
       const myAssignments = pendingAssignments.filter((a) => {
         const assignedId = a.assignedTo?._id || a.assignedTo;
         const isMe = String(assignedId) === String(loggedInUserId);
@@ -1285,9 +1342,8 @@ const EmployeeDashboard = () => {
           type: "HOLIDAY_CALENDAR",
           title: "Holiday Calendar Assigned",
           message: `Please fill the Holiday Calendar for ${assignment.year}`,
-          subtext: `Status: ${
-            assignment.status === "pending" ? "Not Started" : "In Progress"
-          }`,
+          subtext: `Status: ${assignment.status === "pending" ? "Not Started" : "In Progress"
+            }`,
           timestamp: assignment.assignedDate,
         }));
 
@@ -1338,15 +1394,15 @@ const EmployeeDashboard = () => {
     fetchKural();
   }, []);
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // NOTIFICATION HANDLERS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const handleDismiss = async (e, id) => {
     e.stopPropagation();
-    
+
     // Find notification to check type
     const notif = notifications.find(n => n.id === id);
-    
+
     // Backend Sync for Leaves
     if (notif && (notif.type === "APPROVED" || notif.type === "CANCEL")) {
       try {
@@ -1440,9 +1496,9 @@ const EmployeeDashboard = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // ATTENDANCE HANDLERS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const handleDashboardCheckIn = async (reason = "", ip = "") => {
     if (checkInLoading || isCurrentlyCheckedIn || hasCheckedOut) return;
     setCheckInLoading(true);
@@ -1638,9 +1694,9 @@ const EmployeeDashboard = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // TO-DO HANDLERS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const handleOpenConfirm = (todo) => {
     setSelectedTodo(todo);
     setShowConfirmModal(true);
@@ -1724,9 +1780,9 @@ const EmployeeDashboard = () => {
     setTodoDate("");
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // TASK HANDLERS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const handleTaskClick = (taskId) => {
     setSelectedTaskId(taskId);
   };
@@ -1758,9 +1814,9 @@ const EmployeeDashboard = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // FORMATTING HELPERS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const formattedDate =
     loginTime?.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -1782,7 +1838,7 @@ const EmployeeDashboard = () => {
   };
 
   const formatTaskCardDate = (dateStr) => {
-    if (!dateStr) return { month: "—", day: "—" };
+    if (!dateStr) return { month: "â€”", day: "â€”" };
     const d = new Date(dateStr);
     return {
       month: d.toLocaleString("en-US", { month: "short" }),
@@ -1808,9 +1864,9 @@ const EmployeeDashboard = () => {
     return d > today;
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // NOTIFICATION HELPERS
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const getNotifBorderClass = (type) => {
     switch (type) {
       case "TASK": return "border-task";
@@ -1831,9 +1887,9 @@ const EmployeeDashboard = () => {
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // TO-DO FILTERED DATA
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const pendingToday = todos.filter(
     (t) => isToday(t.date) && t.status?.toLowerCase() !== "completed"
   );
@@ -1852,7 +1908,7 @@ const EmployeeDashboard = () => {
     upcomingPage * ITEMS_PER_PAGE
   );
 
-  // ─── PAGINATION COMPONENT ────────────────────────────────────
+  // â”€â”€â”€ PAGINATION COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const TodoPagination = ({ currentPage, totalPages, onPageChange }) => {
     const pages = Array.from(
       { length: Math.max(1, totalPages) },
@@ -1889,9 +1945,9 @@ const EmployeeDashboard = () => {
 
   // (Derived state declarations moved to component mount level for scope sharing)
 
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // RENDER
-  // ═══════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   return (
     <>
       <Sidebar />
@@ -1948,7 +2004,7 @@ const EmployeeDashboard = () => {
                       ) : (
                         <>
                           <h2 className="employee-dashboard-title">
-                            {kural.transliteration1 || kural.couplet || kural.Translation || "—"}
+                            {kural.transliteration1 || kural.couplet || kural.Translation || "â€”"}
                             <br />
                             {kural.transliteration2 || ""}
                           </h2>
@@ -1970,7 +2026,7 @@ const EmployeeDashboard = () => {
                       className={`kural-language-btn ${language === "tamil" ? "active" : ""}`}
                       onClick={() => setLanguage("tamil")}
                     >
-                      தமிழ்
+                      à®¤à®®à®¿à®´à¯
                     </button>
                     <button
                       className={`kural-language-btn ${language === "english" ? "active" : ""}`}
@@ -2006,7 +2062,7 @@ const EmployeeDashboard = () => {
               </div>
             </div>
 
-            {/* ── RECEIVED BIRTHDAY WISHES PANEL (FOR BIRTHDAY EMPLOYEE) ── */}
+            {/* â”€â”€ RECEIVED BIRTHDAY WISHES PANEL (FOR BIRTHDAY EMPLOYEE) â”€â”€ */}
             {receivedWishes.length > 0 && (() => {
               const sortedWishes = [...receivedWishes].sort((a, b) => {
                 const aReplied = !!a.reply;
@@ -2027,7 +2083,7 @@ const EmployeeDashboard = () => {
                   <div className="d-flex align-items-center gap-3 mb-3">
                     <div>
                       <h4 className="m-0 emp-received-wishes-title">
-                        Happy Birthday! You Received {totalItems} Wish{totalItems > 1 ? "es" : ""} Today! 
+                        Happy Birthday! You Received {totalItems} Wish{totalItems > 1 ? "es" : ""} Today!
                       </h4>
                       <p className="m-0 text-muted emp-received-wishes-subtitle">
                         Your team members sent warm wishes for your birthday. Send them a reply!
@@ -2102,20 +2158,20 @@ const EmployeeDashboard = () => {
               );
             })()}
 
-            {/* ── EMPLOYEE BIRTHDAY CELEBRATION CARD (FOR CO-WORKERS) ── */}
+            {/* â”€â”€ EMPLOYEE BIRTHDAY CELEBRATION CARD (FOR CO-WORKERS) â”€â”€ */}
             {todayBirthdays.filter((emp) => String(emp._id) !== String(employee?._id)).length > 0 && (
               <div className="admin-birthday-card">
                 {/* Background Floating Low-Opacity Balloons */}
-                <div className="admin-birthday-card__bg-balloon b1">🎈</div>
-                <div className="admin-birthday-card__bg-balloon b2">🎈</div>
-                <div className="admin-birthday-card__bg-balloon b3">🎈</div>
-                <div className="admin-birthday-card__bg-balloon b4">🎈</div>
-                <div className="admin-birthday-card__bg-balloon b5">🎈</div>
+                <div className="admin-birthday-card__bg-balloon b1">ðŸŽˆ</div>
+                <div className="admin-birthday-card__bg-balloon b2">ðŸŽˆ</div>
+                <div className="admin-birthday-card__bg-balloon b3">ðŸŽˆ</div>
+                <div className="admin-birthday-card__bg-balloon b4">ðŸŽˆ</div>
+                <div className="admin-birthday-card__bg-balloon b5">ðŸŽˆ</div>
 
                 {/* Background Floating Decorative Particles */}
-                <div className="admin-birthday-card__bg-particle p1">✨</div>
-                <div className="admin-birthday-card__bg-particle p2">🌟</div>
-                <div className="admin-birthday-card__bg-particle p3">🎊</div>
+                <div className="admin-birthday-card__bg-particle p1">âœ¨</div>
+                <div className="admin-birthday-card__bg-particle p2">ðŸŒŸ</div>
+                <div className="admin-birthday-card__bg-particle p3">ðŸŽŠ</div>
 
                 <div className="admin-birthday-card__header">
                   <div className="admin-birthday-card__icon-badge">
@@ -2154,7 +2210,7 @@ const EmployeeDashboard = () => {
                                 className="admin-birthday-card__avatar"
                                 onError={(e) => { e.target.src = "/avatar.png"; }}
                               />
-                              {/* <span className="admin-birthday-card__confetti-badge">🎂</span> */}
+                              {/* <span className="admin-birthday-card__confetti-badge">ðŸŽ‚</span> */}
                             </div>
                             <div className="admin-birthday-card__emp-details">
                               <h5 className="admin-birthday-card__emp-name">{emp.name}</h5>
@@ -2433,7 +2489,7 @@ const EmployeeDashboard = () => {
                       flexShrink: 0,
                     }}
                   >
-                    ⏰
+                    â°
                   </div>
                   <div>
                     <div style={{ fontWeight: "700", color: "#9f1239", fontSize: "13.5px" }}>
@@ -2704,7 +2760,7 @@ const EmployeeDashboard = () => {
                       </table>
                     </div>
 
-                    {/* Pagination: only render when items exceed page size — from File 2 */}
+                    {/* Pagination: only render when items exceed page size â€” from File 2 */}
                     {projectDetails.filter(
                       (p) =>
                         projectStatusFilter === "all" ||
@@ -2809,7 +2865,7 @@ const EmployeeDashboard = () => {
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} centered className="employee-todo-detail-modal">
         <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center">
           <h5 className="common-modal-title">{selectedTodo ? (selectedTodo.title || selectedTodo.description.split("\n")[0]) : "To Do Details"}</h5>
-          <button className="common-modal-close-x" onClick={() => setShowDetailModal(false)}>✕</button>
+          <button className="common-modal-close-x" onClick={() => setShowDetailModal(false)}>âœ•</button>
         </Modal.Header>
         <Modal.Body className="common-modal-body">
           {selectedTodo && (
@@ -2888,7 +2944,7 @@ const EmployeeDashboard = () => {
           <div className="todo-modal-content edit-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="todo-modal-header modal-header">
               <h3 className="common-modal-title">{isEditMode ? "Update To Do List" : "To Do List"}</h3>
-              <button className="common-modal-close-x" onClick={handleCloseTodoModal}>✕</button>
+              <button className="common-modal-close-x" onClick={handleCloseTodoModal}>âœ•</button>
             </div>
             <div className="todo-modal-body common-modal-body">
               <div className="todo-form-group">
@@ -3149,7 +3205,7 @@ const EmployeeDashboard = () => {
               setPermissionData({ fromTime: "", toTime: "", reason: "", informedVia: "Mobile Call", permissionType: "" });
             }}
           >
-            ✕
+            âœ•
           </button>
         </Modal.Header>
         <Modal.Body className="p-4 pt-1">
@@ -3327,17 +3383,29 @@ const EmployeeDashboard = () => {
             <h3 className="assign-task__members-title m-0" >
               Work Details
             </h3>
-            <Button
+            <button
+              type="button"
               title="Close"
               onClick={() => {
                 setShowPhasesModal(false);
                 setProjExpandedCards({});
               }}
               className="common-modal-close-x"
-              style={{ border: "none", background: "transparent", boxShadow: "none", padding: "0", margin: "0" }}
+              aria-label="Close"
+              style={{
+                border: "none",
+                background: "transparent",
+                boxShadow: "none",
+                padding: "4px 8px",
+                margin: "0",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              ✕
-            </Button>
+              <FaTimes size={16} />
+            </button>
           </div>
           {/* Bottom Row: Project/Category info on Left, Export Excel on Right */}
           <div className="d-flex justify-content-between align-items-center w-100 mt-2 " style={{ paddingBottom: "10px" }}>
@@ -3390,20 +3458,24 @@ const EmployeeDashboard = () => {
             <div className="project-phases-container">
               {/* Duplicate header title removed as it is now in the Modal.Header */}
               <div className="project-phases-list">
-                {projectPhases.map((phase, idx) => {
+                {groupTasksWithHistory(projectPhases).map((phase, idx) => {
                   const cardKey = `phase-${idx}`;
+                  const hasMultipleUpdates = Array.isArray(phase.history) && phase.history.length > 1;
                   const isExpanded = !!projExpandedCards[cardKey];
+                  const normKey = normalizeStatusKey(phase.latestStatus);
+                  const isCompleted = normKey === "completed";
+
                   return (
                     <div
                       key={idx}
                       className="dwu-work-card"
                       style={{ cursor: "pointer" }}
-                      onClick={() =>
+                      onClick={() => {
                         setProjExpandedCards((prev) => ({
                           ...prev,
                           [cardKey]: !isExpanded,
-                        }))
-                      }
+                        }));
+                      }}
                     >
                       <div className="dwu-work-card__header" style={{ display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px" }}>
                         <div className="dwu-work-card__field dwu-field-title" style={{ flex: 1, minWidth: 0 }}>
@@ -3415,8 +3487,8 @@ const EmployeeDashboard = () => {
                         <div className="dwu-work-card__field dwu-field-date" style={{ width: "70px", flexShrink: 0, textAlign: "left" }}>
                           <span className="dwu-work-card__label dwu-label-hide-mobile">Date</span>
                           <span className="dwu-work-card__value">
-                            {phase.date
-                              ? new Date(phase.date).toLocaleDateString("en-GB", {
+                            {phase.latestDate
+                              ? new Date(phase.latestDate).toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "short",
                               })
@@ -3426,8 +3498,9 @@ const EmployeeDashboard = () => {
 
                         <div className="dwu-work-card__field dwu-field-status" style={{ width: "95px", flexShrink: 0, textAlign: "left" }}>
                           <span className="dwu-work-card__label dwu-label-hide-mobile">Status</span>
-                          <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${(phase.status || "pending").toLowerCase().replace(/\s+/g, "")}`}>
-                            {phase.status || "Pending"}
+                          <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${normKey}`} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                            {formatStatusLabel(phase.latestStatus)}
+                            {isCompleted && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
                           </span>
                         </div>
                         <div
@@ -3439,13 +3512,13 @@ const EmployeeDashboard = () => {
                             justifyContent: "flex-start",
                             alignItems: "start"
                           }}
-                        >    <FaChevronDown
+                        >
+                          <FaChevronDown
                             className="project-task-card-chevron"
                             style={{
                               transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
                               fontSize: "12px",
                               color: "#94a3b8",
-
                               transition: "transform 0.25s ease"
                             }}
                           />
@@ -3453,22 +3526,116 @@ const EmployeeDashboard = () => {
                       </div>
 
                       {isExpanded && (
-                        <div className="dwu-work-card__section_phase">
-                          <span className="dwu-work-card__label mt-0 d-block mb-1">
-                            Description
-                          </span>
-                          <p
-                            className="dwu-work-card__text"
-                            style={{
-                              wordBreak: "break-word",
-                              overflowWrap: "anywhere",
-                              whiteSpace: "pre-wrap",
-                              margin: 0,
-                              paddingRight: "8px"
-                            }}
-                          >
-                            {phase.note || phase.description || phase.name || "—"}
-                          </p>
+                        <div className="dwu-work-card__section_phase" style={{ paddingTop: "8px", borderTop: "1px dashed #e2e8f0" }} onClick={(e) => e.stopPropagation()}>
+                          {hasMultipleUpdates ? (
+                            /* ── Status History (multiple updates) ── */
+                            <div className="dwu-task-history-section">
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                                <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569" }}>
+                                  Status History ({phase.history.length})
+                                </span>
+                                <span style={{ fontSize: "11px", color: "#94a3b8" }}>
+                                  Latest First
+                                </span>
+                              </div>
+
+                              <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "#f8fafc" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                                  <thead>
+                                    <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: "600" }}>
+                                      <th style={{ padding: "6px 10px", textAlign: "left", width: "85px" }}>Date</th>
+                                      <th style={{ padding: "6px 10px", textAlign: "left", width: "115px" }}>Status</th>
+                                      <th style={{ padding: "6px 10px", textAlign: "left" }}>Work Summary</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {phase.history.map((h, hIdx) => {
+                                      const hStatusRaw = h.status || h.phaseStatus || "Pending";
+                                      const hKey = normalizeStatusKey(hStatusRaw);
+                                      const hLocked = hKey === "completed";
+                                      const dateVal = h.date || h.completionDate || h.updateDate || h.createdAt;
+                                      const dateStr = dateVal
+                                        ? new Date(dateVal).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
+                                        : "—";
+
+                                      return (
+                                        <tr
+                                          key={hIdx}
+                                          style={{
+                                            borderBottom: hIdx === phase.history.length - 1 ? "none" : "1px solid #e2e8f0",
+                                            background: hIdx % 2 === 0 ? "#ffffff" : "#f8fafc"
+                                          }}
+                                        >
+                                          <td style={{ padding: "7px 10px", verticalAlign: "top", fontWeight: "500", color: "#334155" }}>
+                                            {dateStr}
+                                          </td>
+                                          <td style={{ padding: "7px 10px", verticalAlign: "top" }}>
+                                            <span
+                                              className={`dwu-admin__statusBadge dwu-admin__statusBadge--${hKey}`}
+                                              style={{
+                                                display: "inline-flex",
+                                                alignItems: "center",
+                                                gap: "4px",
+                                                padding: "2px 8px",
+                                                fontSize: "11px",
+                                                whiteSpace: "nowrap"
+                                              }}
+                                              title={hLocked ? "Completed update is final and read-only" : ""}
+                                            >
+                                              {formatStatusLabel(hStatusRaw)}
+                                              {hLocked && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
+                                            </span>
+                                          </td>
+                                          <td style={{ padding: "7px 10px", verticalAlign: "top", color: "#475569" }}>
+                                            <div style={{ wordBreak: "break-word", overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}>
+                                              {h.note || h.description || h.details || "—"}
+                                            </div>
+                                            {Array.isArray(h.pages) && h.pages.length > 0 && (
+                                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+                                                {h.pages.map((p, pI) => (
+                                                  <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                                    {p}
+                                                  </span>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          ) : (
+                            /* â”€â”€ Single update: show description & work summary â”€â”€ */
+                            <div style={{ padding: "4px 0 8px 0" }}>
+                              <span className="dwu-work-card__label mt-0 d-block mb-1">Work Summary</span>
+                              <p
+                                className="dwu-work-card__text"
+                                style={{
+                                  wordBreak: "break-word",
+                                  overflowWrap: "anywhere",
+                                  whiteSpace: "pre-wrap",
+                                  margin: 0,
+                                  paddingRight: "8px",
+                                  fontSize: "12px",
+                                  color: "#475569"
+                                }}
+                              >
+                                {phase.history?.[0]?.note || phase.history?.[0]?.description || phase.history?.[0]?.details || phase.description || phase.phase || phase.details || phase.note || "No description provided."}
+                              </p>
+                              {Array.isArray(phase.history?.[0]?.pages) && phase.history[0].pages.length > 0 && (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                                  {phase.history[0].pages.map((p, pI) => (
+                                    <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                      {p}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -3598,7 +3765,7 @@ const EmployeeDashboard = () => {
                   />
                   <div>
                     <h6 className="bday-modal__user-name">{emp.name}</h6>
-                    <small className="bday-modal__user-info">{emp.empId} • {emp.designation || "Employee"}</small>
+                    <small className="bday-modal__user-info">{emp.empId} â€¢ {emp.designation || "Employee"}</small>
                   </div>
                 </div>
               ))}

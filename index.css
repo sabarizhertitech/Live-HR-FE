@@ -157,6 +157,11 @@ img::selection {
   color: #ffffff !important;
 }
 
+.btn-approve {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
 .common-modal-btn:hover,
 .modal-footer .btn:hover {
   filter: brightness(0.95);

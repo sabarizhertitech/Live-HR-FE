@@ -202,8 +202,8 @@ const DailyWorkUpdatePage = () => {
   const handleExport = () => {
     if (updates.length === 0) return toast.info("No data to export");
     try {
-      const headers = ['S.No', 'Date', 'Employee', 'Category', 'Project', 'Type', 'Task Title', 'Work Description', 'Status'];
-      const columnWidths = [40, 90, 150, 120, 140, 140, 200, 350, 90];
+      const headers = ['S.No', 'Date', 'Employee', 'Category', 'Project', 'Pages', 'Type', 'Task Title', 'Work Description', 'Status'];
+      const columnWidths = [40, 90, 150, 120, 140, 140, 140, 200, 350, 90];
 
       const escape = (str) => String(str).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
 
@@ -279,6 +279,7 @@ const DailyWorkUpdatePage = () => {
     <Cell ss:StyleID="CellBold"><Data ss:Type="String">${escape(userObj?.name || "Unknown")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.task?.category || u.category || "—")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.task?.project || u.project || "—")}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.pages && u.pages.length > 0 ? u.pages.join(", ") : "—")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(formatWorkType(u.workType) || "—")}</Data></Cell>
     <Cell ss:StyleID="CellAccent"><Data ss:Type="String">${escape(u.title || u.task?.taskTitle || "N/A")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.description || u.note || u.phase || "—")}</Data></Cell>
@@ -416,6 +417,9 @@ const DailyWorkUpdatePage = () => {
                   <div className="dwu-work-card__field"><span className="dwu-work-card__label">Project</span><span className="dwu-work-card__value">{u.task?.project ? (u.task.project.charAt(0).toUpperCase() + u.task.project.slice(1).toLowerCase()) : (u.project ? (u.project.charAt(0).toUpperCase() + u.project.slice(1).toLowerCase()) : "—")}</span></div>
                   {u.workType && (
                     <div className="dwu-work-card__field"><span className="dwu-work-card__label">Type</span><span className="dwu-work-card__value" style={{ color: "#5977f8", fontWeight: 600 }}>{formatWorkType(u.workType)}</span></div>
+                  )}
+                  {u.pages && u.pages.length > 0 && (
+                    <div className="dwu-work-card__field"><span className="dwu-work-card__label">Pages</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.pages.join(", ")}</span></div>
                   )}
                   {/* Status hidden here on mobile as requested */}
                 </div>
@@ -640,6 +644,9 @@ const DailyWorkUpdatePage = () => {
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">Project</span><span className="dwu-work-card__value">{u.task?.project ? (u.task.project.charAt(0).toUpperCase() + u.task.project.slice(1).toLowerCase()) : (u.project ? (u.project.charAt(0).toUpperCase() + u.project.slice(1).toLowerCase()) : "—")}</span></div>
                           {u.workType && (
                             <div className="dwu-work-card__field"><span className="dwu-work-card__label">Type</span><span className="dwu-work-card__value" style={{ color: "#5977f8", fontWeight: 600 }}>{formatWorkType(u.workType)}</span></div>
+                          )}
+                          {u.pages && u.pages.length > 0 && (
+                            <div className="dwu-work-card__field"><span className="dwu-work-card__label">Pages</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.pages.join(", ")}</span></div>
                           )}
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">Status</span><span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${(u.status || u.phaseStatus || "pending").toLowerCase()}`}>{u.status || u.phaseStatus || "Pending"}</span></div>
                         </div>

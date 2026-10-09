@@ -970,10 +970,60 @@
   }
 }
 
+/* =====================================================
+   ADMIN PROFILE REVIEW - SMALL BOUNCING BUTTON
+   ===================================================== */
+
+.erti-card-review-bounce-btn {
+  position: absolute;
+  top: -78px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  z-index: 20;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  animation: cardJumpBounce 1.4s infinite ease-in-out;
+}
+
+.erti-card-review-bounce-btn:hover {
+  background: #1d4ed8;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.55);
+}
+
+@keyframes cardJumpBounce {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  30% {
+    transform: translate(-50%, -7px);
+  }
+  50% {
+    transform: translate(-50%, 0);
+  }
+  70% {
+    transform: translate(-50%, -3px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   .erti-employee-card,
   .erti-edit-btn,
+  .erti-card-review-bounce-btn,
   .erti-modal-actions button,
   .erti-card-menu,
   .erti-filter-dropdown,

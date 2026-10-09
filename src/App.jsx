@@ -51,6 +51,7 @@ import SalarySlip from "./Components/Employee/Salaryslip/Salaryslip";
 import Todolist from "./Components/Todolist/Todolist";
 import NotificationHandler from "./Components/Common/NotificationHandler";
 import { UserProvider } from "./Components/UserContext";
+import EmployeeProfileGuard from "./Auth/EmployeeProfileGuard";
 
 import AdminAuditManagement from "./pages/AdminAuditManagement";
 import EmployeeAuditManagement from "./pages/EmployeeAuditManagement";
@@ -83,10 +84,15 @@ function App() {
         <UserProvider>
           <NotificationHandler />
 
-          <Routes>
-            {/* ================= AUTH ================= */}
-            <Route path="/" element={<Login />} />
-            <Route path="/forgot" element={<Forgot />} />
+          <EmployeeProfileGuard>
+            <Routes>
+              {/* ================= ALIAS / REDIRECTS ================= */}
+              <Route path="/profile" element={<Navigate to="/emp/my-details/edit" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/emp/dashboard" replace />} />
+
+              {/* ================= AUTH ================= */}
+              <Route path="/" element={<Login />} />
+              <Route path="/forgot" element={<Forgot />} />
 
             {/* ================= ADMIN ================= */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -266,7 +272,8 @@ function App() {
             </Route>
 
 
-          </Routes>
+            </Routes>
+          </EmployeeProfileGuard>
         </UserProvider>
       </ScrollToTopWrapper>
     </Router>

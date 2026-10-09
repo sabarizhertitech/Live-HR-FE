@@ -9,7 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { Button } from "react-bootstrap";
-import { Trash2, AlertTriangle, Edit2 } from "lucide-react";
+import { Trash2, AlertTriangle, Edit2, Clock } from "lucide-react";
 import { FaPlusCircle } from "react-icons/fa";
 import closeIcon from "../../../assets/close.png";
 import "./EmployeeDailyWorkUpdate.css";
@@ -70,6 +70,13 @@ const EmployeeDailyWorkUpdate = () => {
   const [projects, setProjects] = useState([]);
   const [fullCategories, setFullCategories] = useState([]);
   const [fullProjects, setFullProjects] = useState([]);
+  const [projectPages, setProjectPages] = useState([]);
+  const [pageToDelete, setPageToDelete] = useState(null);
+  const [showPageDeleteConfirm, setShowPageDeleteConfirm] = useState(false);
+
+  // Pending Reminders for Incomplete Previous Work Updates
+  const [pendingReminders, setPendingReminders] = useState([]);
+  const [showPendingBanner, setShowPendingBanner] = useState(false);
 
   // Create Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -110,7 +117,9 @@ const EmployeeDailyWorkUpdate = () => {
     description: "",
     updateDate: new Date().toISOString().split("T")[0],
     isNewTask: true,
-    title: ""
+    title: "",
+    hasPages: false,
+    pages: []
   });
 
   const [formEntries, setFormEntries] = useState([emptyEntry()]);
@@ -122,6 +131,34 @@ const EmployeeDailyWorkUpdate = () => {
   const fromDateRef = useRef(null);
   const toDateRef = useRef(null);
   const todayStr = new Date().toISOString().split("T")[0];
+
+  const isTodayUpdate = (dateVal) => {
+    if (!dateVal) return false;
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    const todayDate = today.getDate();
+
+    if (typeof dateVal === "string" && dateVal.includes("T")) {
+      const [year, month, day] = dateVal.split("T")[0].split("-").map(Number);
+      if (year && month && day) {
+        return year === todayYear && (month - 1) === todayMonth && day === todayDate;
+      }
+    } else if (typeof dateVal === "string" && dateVal.includes("-")) {
+      const [year, month, day] = dateVal.split("-").map(Number);
+      if (year && month && day) {
+        return year === todayYear && (month - 1) === todayMonth && day === todayDate;
+      }
+    }
+
+    const targetDate = new Date(dateVal);
+    if (isNaN(targetDate.getTime())) return false;
+    return (
+      targetDate.getFullYear() === todayYear &&
+      targetDate.getMonth() === todayMonth &&
+      targetDate.getDate() === todayDate
+    );
+  };
 
   const getStatusKey = (v) => {
     const s = (v || "").toString().toLowerCase().replace(/\s+/g, "");
@@ -147,11 +184,61 @@ const EmployeeDailyWorkUpdate = () => {
         setProjects(res.data.data.projects || []);
         setFullCategories(res.data.data.fullCategories || []);
         setFullProjects(res.data.data.fullProjects || []);
+        setProjectPages(res.data.data.projectPages || []);
       }
     } catch (err) {
       console.error("META FETCH ERROR:", err);
     }
   }, []);
+
+  const fetchPendingReminders = useCallback(async () => {
+    if (!loggedInUserId) return;
+    try {
+      const params = new URLSearchParams();
+      params.append("employeeId", loggedInUserId);
+      params.append("limit", "150");
+
+      const res = await portalInstance.get(`/creat/daily-update/all?${params.toString()}`);
+      if (res.data?.success) {
+        const allList = res.data.data || [];
+
+        // Group by title to find the latest state of each task/update
+        const taskMap = new Map();
+
+        // Sort newest first by date and _id
+        const sorted = [...allList].sort((a, b) => {
+          const dateA = new Date(a.updateDate || a.createdAt || 0).getTime();
+          const dateB = new Date(b.updateDate || b.createdAt || 0).getTime();
+          if (dateA !== dateB) return dateB - dateA;
+          return String(b._id || "").localeCompare(String(a._id || ""));
+        });
+
+        sorted.forEach(item => {
+          const key = (item.title || item.task?.taskTitle || "").trim().toLowerCase();
+          if (!key) return;
+          if (!taskMap.has(key)) {
+            taskMap.set(key, item);
+          }
+        });
+
+        const activePending = [];
+        taskMap.forEach(latestItem => {
+          const isToday = isTodayUpdate(latestItem.updateDate || latestItem.createdAt);
+          const statusKey = getStatusKey(latestItem.status || latestItem.phaseStatus);
+          const isPendingStatus = ["pending", "inprocess", "hold"].includes(statusKey);
+
+          // If from a previous day and still in Pending / In Process / On Hold status
+          if (!isToday && isPendingStatus) {
+            activePending.push(latestItem);
+          }
+        });
+
+        setPendingReminders(activePending);
+      }
+    } catch (err) {
+      console.error("FETCH PENDING REMINDERS ERROR:", err);
+    }
+  }, [loggedInUserId]);
 
   const fetchUpdates = useCallback(async () => {
     try {
@@ -213,6 +300,10 @@ const EmployeeDailyWorkUpdate = () => {
   }, [fetchMeta]);
 
   useEffect(() => {
+    fetchPendingReminders();
+  }, [fetchPendingReminders]);
+
+  useEffect(() => {
     fetchUpdates();
   }, [fetchUpdates]);
 
@@ -247,7 +338,71 @@ const EmployeeDailyWorkUpdate = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // --- 5. Handlers ---
+  // --- 5. Page Helpers & Handlers ---
+  const getPagesForProject = (catName, projName) => {
+    if (!catName || !projName) return [];
+    const normCat = (catName || "").trim().toLowerCase();
+    const normProj = (projName || "").trim().toLowerCase();
+    const found = projectPages.find(
+      pp =>
+        (pp.category || "").trim().toLowerCase() === normCat &&
+        (pp.project || "").trim().toLowerCase() === normProj
+    );
+    return found?.pages || [];
+  };
+
+  const handleTogglePagesRadio = (idx) => {
+    const current = !!formEntries[idx]?.hasPages;
+    const nextVal = !current;
+    setFormEntries(prev => {
+      const updated = [...prev];
+      updated[idx] = {
+        ...updated[idx],
+        hasPages: nextVal,
+        pages: nextVal ? (updated[idx].pages || []) : []
+      };
+      return updated;
+    });
+  };
+
+  const handlePageSelect = (idx, selectedVal) => {
+    if (!selectedVal) return;
+    if (selectedVal === "Add") {
+      setActiveOtherField({ idx, type: "page" });
+      setNewOtherVal("");
+      return;
+    }
+    const currentPages = formEntries[idx]?.pages || [];
+    if (currentPages.includes(selectedVal)) {
+      toast.info(`"${selectedVal}" is already selected`);
+      return;
+    }
+    updateFormEntry(idx, "pages", [...currentPages, selectedVal]);
+  };
+
+  const handlePromptDeletePage = (entryIdx, pageName) => {
+    setPageToDelete({ entryIdx, pageName });
+    setShowPageDeleteConfirm(true);
+  };
+
+  const confirmDeletePage = () => {
+    if (!pageToDelete) return;
+    const { entryIdx, pageName } = pageToDelete;
+    setFormEntries(prev => {
+      const updated = [...prev];
+      const currentPages = updated[entryIdx]?.pages || [];
+      updated[entryIdx] = {
+        ...updated[entryIdx],
+        pages: currentPages.filter(p => p !== pageName)
+      };
+      return updated;
+    });
+    setShowPageDeleteConfirm(false);
+    setPageToDelete(null);
+    toast.success(`Page "${pageName}" removed`);
+  };
+
+  // --- 6. Form Submission Handlers ---
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
 
@@ -294,8 +449,15 @@ const EmployeeDailyWorkUpdate = () => {
       const formattedProject = entry.project ? (entry.project.charAt(0).toUpperCase() + entry.project.slice(1).toLowerCase()) : entry.project;
       const formattedWorkType = isStackEligibleCategory(entry.category) ? (entry.workType || "").trim() : "";
 
+      if (isEditing && getStatusKey(editingUpdate.status || editingUpdate.phaseStatus) === "completed") {
+        toast.warning("Completed work updates are permanently locked and cannot be edited. Please create a new work update.");
+        setCreateLoading(false);
+        return;
+      }
+
       if (isEditing && isEditingToday) {
         // In-place update for TODAY's existing record
+        const formattedPages = entry.hasPages && Array.isArray(entry.pages) ? entry.pages : [];
         const submitData = {
           ...entry,
           taskId: entry.taskId || "standalone",
@@ -308,6 +470,7 @@ const EmployeeDailyWorkUpdate = () => {
           category: formattedCategory,
           project: formattedProject,
           workType: formattedWorkType,
+          pages: formattedPages,
           taskPhaseId: editingUpdate.referenceId || editingUpdate.taskPhaseId
         };
 
@@ -325,6 +488,7 @@ const EmployeeDailyWorkUpdate = () => {
                 category: submitData.category,
                 project: submitData.project,
                 workType: submitData.workType,
+                pages: submitData.pages,
                 task: {
                   ...u?.task,
                   taskTitle: submitData.title,
@@ -340,6 +504,7 @@ const EmployeeDailyWorkUpdate = () => {
         setShowCreateModal(false);
         resetCreateForm();
         fetchUpdates();
+        fetchPendingReminders();
         return;
       }
 
@@ -349,6 +514,7 @@ const EmployeeDailyWorkUpdate = () => {
         const cat = entry.category ? entry.category.toUpperCase() : entry.category;
         const proj = entry.project ? (entry.project.charAt(0).toUpperCase() + entry.project.slice(1).toLowerCase()) : entry.project;
         const wt = isStackEligibleCategory(entry.category) ? (entry.workType || "").trim() : "";
+        const formattedPages = entry.hasPages && Array.isArray(entry.pages) ? entry.pages : [];
         const submitData = {
           ...entry,
           taskId: entry.taskId || "standalone",
@@ -361,6 +527,7 @@ const EmployeeDailyWorkUpdate = () => {
           category: cat,
           project: proj,
           workType: wt,
+          pages: formattedPages,
           taskPhaseId: editingUpdate ? (editingUpdate.referenceId || editingUpdate.taskPhaseId) : undefined
         };
         const response = await portalInstance.post("/creat/daily-update", submitData);
@@ -368,6 +535,7 @@ const EmployeeDailyWorkUpdate = () => {
           const savedEntry = response.data.data;
           const formattedEntry = {
             ...savedEntry,
+            pages: submitData.pages,
             userId: {
               _id: loggedInUserId,
               name: sessionData?.name || "Me",
@@ -427,6 +595,7 @@ const EmployeeDailyWorkUpdate = () => {
       });
       setCurrentPage(1);
       fetchUpdates();
+      fetchPendingReminders();
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to save update");
     } finally {
@@ -435,8 +604,16 @@ const EmployeeDailyWorkUpdate = () => {
   };
 
   const handleEditClick = (u) => {
+    if (getStatusKey(u.status || u.phaseStatus) === "completed") {
+      toast.warning("Completed work updates are permanently locked and cannot be edited. Please create a new work update.");
+      return;
+    }
     const isStandalone = u.task?._id === "standalone" || !u.task?._id;
     const desc = u.description || "";
+    const rawPages = Array.isArray(u.pages)
+      ? u.pages
+      : (typeof u.pages === "string" && u.pages.trim() ? [u.pages.trim()] : []);
+    const hasPages = rawPages.length > 0;
     setEditingUpdate(u);
     setIsPointByPoint(/^\s*1[\.\)]/m.test(desc));
     setFormEntries([{
@@ -444,6 +621,8 @@ const EmployeeDailyWorkUpdate = () => {
       project: u.task?.project || u.project || "",
       category: u.task?.category || u.category || "",
       workType: u.workType || "",
+      hasPages: hasPages,
+      pages: [...rawPages],
       status: u.status || "pending",
       description: desc,
       updateDate: todayStr,
@@ -470,6 +649,7 @@ const EmployeeDailyWorkUpdate = () => {
         toast.success("Update deleted");
         setUpdates(prev => prev.filter(u => u._id !== deleteTargetId));
         fetchUpdates();
+        fetchPendingReminders();
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to delete update");
@@ -627,16 +807,19 @@ const EmployeeDailyWorkUpdate = () => {
       updateFormEntry(idx, "category", "");
       updateFormEntry(idx, "project", "");
       updateFormEntry(idx, "workType", "");
+      updateFormEntry(idx, "pages", []);
     } else if (cat === "Back") {
       setActiveOtherField(null);
       updateFormEntry(idx, "category", "");
       updateFormEntry(idx, "project", "");
       updateFormEntry(idx, "workType", "");
+      updateFormEntry(idx, "pages", []);
     } else {
       setActiveOtherField(null);
       const catVal = cat ? cat.toUpperCase() : "";
       updateFormEntry(idx, "category", catVal);
       updateFormEntry(idx, "project", "");
+      updateFormEntry(idx, "pages", []);
       if (!isStackEligibleCategory(catVal)) {
         updateFormEntry(idx, "workType", "");
       }
@@ -653,11 +836,13 @@ const EmployeeDailyWorkUpdate = () => {
       setActiveOtherField({ idx, type: "project" });
       setNewOtherVal("");
       updateFormEntry(idx, "project", "");
+      updateFormEntry(idx, "pages", []);
       return;
     }
     setActiveOtherField(null);
     const formattedProj = proj ? (proj.charAt(0).toUpperCase() + proj.slice(1).toLowerCase()) : "";
     updateFormEntry(idx, "project", formattedProj);
+    updateFormEntry(idx, "pages", []);
   };
 
   const handleAddOther = async (idx, type) => {
@@ -674,7 +859,7 @@ const EmployeeDailyWorkUpdate = () => {
         setNewOtherVal("");
         return;
       }
-    } else {
+    } else if (type === "project") {
       val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
       const exists = fullProjects.some(p => p && (p.name || "").toLowerCase() === val.toLowerCase());
       if (exists) {
@@ -684,28 +869,74 @@ const EmployeeDailyWorkUpdate = () => {
         setNewOtherVal("");
         return;
       }
+    } else if (type === "page") {
+      const catName = formEntries[idx]?.category;
+      const projName = formEntries[idx]?.project;
+      if (!catName || !projName) {
+        return toast.error("Please select Category and Project first");
+      }
+      const existingProjectPages = getPagesForProject(catName, projName);
+      const exists = existingProjectPages.some(p => (p || "").toLowerCase() === val.toLowerCase());
+      if (exists) {
+        toast.info(`"${val}" is already available in the dropdown.`);
+        setActiveOtherField(null);
+        setNewOtherVal("");
+        return;
+      }
     }
 
     try {
       if (type === "category") {
         await portalInstance.post("/creat/task-meta/category", { name: val });
-      } else {
+        await fetchMeta();
+        updateFormEntry(idx, type, val);
+      } else if (type === "project") {
         const catName = formEntries[idx].category;
         const catObj = fullCategories.find(c => (c.name || "").toUpperCase() === (catName || "").toUpperCase());
         if (!catObj) return toast.error("Please select a category first");
         await portalInstance.post("/creat/task-meta/project", { name: val, categoryId: catObj._id });
-      }
-
-      await fetchMeta();
-      updateFormEntry(idx, type, val);
-      setActiveOtherField(null);
-      setNewOtherVal("");
-      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} added!`);
-    } catch (err) {
-      if (err.response?.status === 409) {
-        toast.info(`"${val}" already exists. Selected automatically.`);
         await fetchMeta();
         updateFormEntry(idx, type, val);
+      } else if (type === "page") {
+        const catName = formEntries[idx]?.category;
+        const projName = formEntries[idx]?.project;
+        const res = await portalInstance.post("/creat/task-meta/page", {
+          category: catName,
+          project: projName,
+          name: val
+        });
+        if (res.data?.success && res.data.data) {
+          const updatedPages = res.data.data.pages || [val];
+          setProjectPages(prev => {
+            const normCat = (catName || "").trim().toLowerCase();
+            const normProj = (projName || "").trim().toLowerCase();
+            const existing = prev.find(
+              pp =>
+                (pp.category || "").trim().toLowerCase() === normCat &&
+                (pp.project || "").trim().toLowerCase() === normProj
+            );
+            if (existing) {
+              return prev.map(pp =>
+                (pp.category || "").trim().toLowerCase() === normCat &&
+                  (pp.project || "").trim().toLowerCase() === normProj
+                  ? { ...pp, pages: updatedPages }
+                  : pp
+              );
+            } else {
+              return [...prev, { category: catName, project: projName, pages: updatedPages }];
+            }
+          });
+        }
+        await fetchMeta();
+      }
+
+      setActiveOtherField(null);
+      setNewOtherVal("");
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} "${val}" added!`);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        toast.info(`"${val}" already exists in the dropdown.`);
+        await fetchMeta();
         setActiveOtherField(null);
         setNewOtherVal("");
       } else {
@@ -714,11 +945,12 @@ const EmployeeDailyWorkUpdate = () => {
     }
   };
 
-
   const resetCreateForm = () => {
     setFormEntries([emptyEntry()]);
     setEditingUpdate(null);
     setIsPointByPoint(false);
+    setActiveOtherField(null);
+    setNewOtherVal("");
   };
 
   const handleExport = () => {
@@ -844,34 +1076,6 @@ const EmployeeDailyWorkUpdate = () => {
     return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   };
 
-  const isTodayUpdate = (dateVal) => {
-    if (!dateVal) return false;
-    const today = new Date();
-    const todayYear = today.getFullYear();
-    const todayMonth = today.getMonth();
-    const todayDate = today.getDate();
-
-    if (typeof dateVal === "string" && dateVal.includes("T")) {
-      const [year, month, day] = dateVal.split("T")[0].split("-").map(Number);
-      if (year && month && day) {
-        return year === todayYear && (month - 1) === todayMonth && day === todayDate;
-      }
-    } else if (typeof dateVal === "string" && dateVal.includes("-")) {
-      const [year, month, day] = dateVal.split("-").map(Number);
-      if (year && month && day) {
-        return year === todayYear && (month - 1) === todayMonth && day === todayDate;
-      }
-    }
-
-    const targetDate = new Date(dateVal);
-    if (isNaN(targetDate.getTime())) return false;
-    return (
-      targetDate.getFullYear() === todayYear &&
-      targetDate.getMonth() === todayMonth &&
-      targetDate.getDate() === todayDate
-    );
-  };
-
   const renderDescription = (desc) => {
     if (!desc || !desc.trim()) return "—";
 
@@ -910,6 +1114,32 @@ const EmployeeDailyWorkUpdate = () => {
                 <h4 className="assign-task__members-title mt-0 mb-1">My Daily Updates</h4>
               </div>
               <div className="d-flex align-items-center  mt-0 " style={{ gap: "12px" }}>
+                {/* 0. Pending Reminders Toggle Icon (Left side of Filter Icon) */}
+                <div>
+                  <div
+                    className={`dwu-pending-toggle-icon ${showPendingBanner ? "active" : ""}`}
+                    onClick={() => {
+                      if (!pendingReminders || pendingReminders.length === 0) {
+                        toast.info("No pending work reminders from previous days.");
+                        return;
+                      }
+                      setShowPendingBanner(prev => !prev);
+                    }}
+                    title={
+                      pendingReminders && pendingReminders.length > 0
+                        ? `${pendingReminders.length} Pending Work Reminder${pendingReminders.length > 1 ? "s" : ""}`
+                        : "No Pending Work Reminders"
+                    }
+                  >
+                    <Clock size={20} />
+                    {pendingReminders && pendingReminders.length > 0 && (
+                      <span className="dwu-pending-count-badge">
+                        {pendingReminders.length}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 {/* 1. Filter Button with Label */}
                 <div>
                   <div
@@ -1032,6 +1262,71 @@ const EmployeeDailyWorkUpdate = () => {
           )}
 
           <section className="dwu-emp__panel ">
+            {/* Reminder indication for Pending / In Progress / On Hold updates from previous days */}
+            {showPendingBanner && pendingReminders && pendingReminders.length > 0 && (
+              <div className="dwu-reminder-banner animate-fade-in mb-3">
+                <div className="dwu-reminder-banner__header d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center gap-2">
+                    <div>
+                      <h6 className="dwu-reminder-heading mb-0">Previous Pending Work Reminders</h6>
+                      <span className="dwu-reminder-subheading">
+                        You have {pendingReminders.length} unfinished {pendingReminders.length === 1 ? "work update" : "work updates"} from previous days. Click <strong>Edit</strong> to update details and save for today.
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="dwu-page-confirm-close-btn"
+                    onClick={() => setShowPendingBanner(false)}
+                    title="Close reminders banner"
+                    style={{ position: "static", width: "24px", height: "24px", fontSize: "13px" }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="dwu-reminder-items-grid">
+                  {pendingReminders.map((item) => (
+                    <div key={item._id} className="dwu-reminder-item-card">
+                      <div className="dwu-reminder-item-content">
+                        <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
+                          <strong className="dwu-reminder-item-title" title={item.title || item.task?.taskTitle || "N/A"}>
+                            {item.title || item.task?.taskTitle || "N/A"}
+                          </strong>
+                          <span className={`employeeTaskPage__statusBadge employeeTaskPage__badge--status-${getStatusKey(item.status || item.phaseStatus)}`}>
+                            {getStatusLabel(item.status || item.phaseStatus)}
+                          </span>
+                        </div>
+
+                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2">
+                          <div className="d-flex align-items-center gap-2 flex-wrap" style={{ fontSize: "11px", color: "#64748b" }}>
+                            {(item.task?.category || item.category) && (
+                              <span className="dwu-reminder-tag">
+                                {(item.task?.category || item.category || "").toUpperCase()}
+                                {(item.task?.project || item.project) ? ` / ${item.task?.project || item.project}` : ""}
+                              </span>
+                            )}
+                            <span style={{ color: "#94a3b8" }}>•</span>
+                            <span>{formatDate(item.updateDate || item.createdAt)}</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="dwu-reminder-edit-action-btn"
+                            onClick={() => handleEditClick(item)}
+                            title="Edit this work update and save for today"
+                          >
+                            <Edit2 size={13} />
+                            <span>Edit</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="employeeTaskPage__tableCard mt-2">
               <div className="table-responsives">
                 <div className="employeeTaskPage__table">
@@ -1137,21 +1432,30 @@ const EmployeeDailyWorkUpdate = () => {
                         </div>
                         <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--action">
                           <div className="d-flex align-items-center justify-content-center gap-2">
-                            {/* Edit icon - always shown */}
-                            <div
-                              className="dwu-row-edit-icon"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditClick(u);
-                              }}
-                              title="Edit Update"
-                              style={{ display: "flex", alignItems: "center", cursor: "pointer", color: "#5977f8", padding: "2px" }}
-                            >
-                              <Edit2 size={16} />
-                            </div>
+                            {getStatusKey(u.status || u.phaseStatus) === "completed" ? (
+                              <div
+                                className="dwu-row-edit-icon dwu-row-locked-icon"
+                                title="Completed work update is locked and cannot be edited"
+                                style={{ display: "flex", alignItems: "center", cursor: "not-allowed", color: "#94a3b8", padding: "2px", opacity: 0.8 }}
+                              >
+                                <span style={{ fontSize: "14px", lineHeight: 1 }} role="img" aria-label="Locked"></span>
+                              </div>
+                            ) : (
+                              <div
+                                className="dwu-row-edit-icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditClick(u);
+                                }}
+                                title="Edit Update"
+                                style={{ display: "flex", alignItems: "center", cursor: "pointer", color: "#5977f8", padding: "2px" }}
+                              >
+                                <Edit2 size={16} />
+                              </div>
+                            )}
 
-                            {/* Delete icon - only shown for today's updates */}
-                            {isTodayUpdate(u.updateDate || u.createdAt) && (
+                            {/* Delete icon - only shown for today's updates AND if not completed */}
+                            {isTodayUpdate(u.updateDate || u.createdAt) && getStatusKey(u.status || u.phaseStatus) !== "completed" && (
                               <div
                                 className="dwu-row-delete-icon"
                                 onClick={(e) => handleDeleteUpdate(e, u._id)}
@@ -1362,6 +1666,130 @@ const EmployeeDailyWorkUpdate = () => {
                             </div>
                           </div>
                         )}
+                        {/* Pages Radio Button & Multi-select Section */}
+                        <div className="col-12">
+                          <div className="dwu-pages-radio-wrapper" style={{ display: "flex", alignItems: "center", margin: "6px 0 2px 0" }}>
+                            <label
+                              className="dwu-pages-radio-label"
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                cursor: "pointer",
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                color: "#334155",
+                                lineHeight: "1",
+                                userSelect: "none"
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleTogglePagesRadio(idx);
+                              }}
+                            >
+                              <input
+                                type="radio"
+                                name={`pagesRadio_${idx}`}
+                                checked={!!entry.hasPages}
+                                onChange={() => { }}
+                                style={{
+                                  accentColor: "#5977f8",
+                                  width: "16px",
+                                  height: "16px",
+                                  margin: 0,
+                                  cursor: "pointer",
+                                  flexShrink: 0
+                                }}
+                              />
+                              <span style={{ display: "inline-block", lineHeight: "1", verticalAlign: "middle" }}>Pages</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {entry.hasPages && (
+                          <div className="col-12 animate-fade-in">
+                            <label className="dwu-meta-label">Select Page</label>
+                            {activeOtherField?.idx === idx && activeOtherField?.type === "page" ? (
+                              <div className="atMeta__inlineAdd animate-fade-in">
+                                <input
+                                  type="text"
+                                  className="atMeta__addInput"
+                                  placeholder="New page name..."
+                                  value={newOtherVal}
+                                  autoFocus
+                                  onChange={(e) => setNewOtherVal(e.target.value)}
+                                  onKeyDown={(e) => { if (e.key === "Enter") handleAddOther(idx, "page"); }}
+                                  disabled={!entry.project}
+                                />
+                                <button
+                                  type="button"
+                                  className="atMeta__saveBtn"
+                                  onClick={() => handleAddOther(idx, "page")}
+                                  disabled={!entry.project}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  style={{
+                                    background: "#f1f5f9",
+                                    border: "none",
+                                    padding: "4px 8px",
+                                    borderRadius: "4px",
+                                    fontSize: "11px",
+                                    color: "#475569",
+                                    marginLeft: "4px",
+                                    cursor: "pointer"
+                                  }}
+                                  onClick={() => {
+                                    setActiveOtherField(null);
+                                    setNewOtherVal("");
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <CustomDropdown
+                                options={[
+                                  ...getPagesForProject(entry.category, entry.project).filter(p => p && p.toLowerCase() !== "add").map(p => ({
+                                    value: p,
+                                    label: p
+                                  })),
+                                  { value: "Add", label: "Add" }
+                                ]}
+                                value=""
+                                placeholder={entry.project ? "Select Page" : "Select Project First"}
+                                onChange={(v) => handlePageSelect(idx, v)}
+                                disabled={!entry.project}
+                              />
+                            )}
+
+                            {/* Selected pages separate cards */}
+                            {Array.isArray(entry.pages) && entry.pages.length > 0 && (
+                              <div className="dwu-selected-pages-container">
+                                {entry.pages.map((pName) => (
+                                  <div key={pName} className="dwu-page-card">
+                                    <span className="dwu-page-card-name">{pName}</span>
+                                    <button
+                                      type="button"
+                                      className="dwu-page-card-delete-btn"
+                                      title={`Remove ${pName}`}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handlePromptDeletePage(idx, pName);
+                                      }}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         <div className="col-md-8 ">
                           <label className="dwu-meta-label">Task Title</label>
                           <input
@@ -1457,6 +1885,42 @@ const EmployeeDailyWorkUpdate = () => {
               <button className="hrms-common-btn-cancel " onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
               <button className="hrms-common-btn-delete" onClick={confirmDelete}>
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPageDeleteConfirm && (
+        <div className="dwu-page-confirm-overlay" onClick={() => setShowPageDeleteConfirm(false)}>
+          <div className="dwu-page-confirm-modal animate-fade-in" onClick={e => e.stopPropagation()}>
+            <button
+              type="button"
+              className="dwu-page-confirm-close-btn"
+              onClick={() => setShowPageDeleteConfirm(false)}
+              title="Close"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <h3 className="dwu-page-confirm-title">Remove Selected Page?</h3>
+            <p className="dwu-page-confirm-text">
+              Are you sure you want to remove <strong>"{pageToDelete?.pageName}"</strong> from this work update?
+            </p>
+            <div className="dwu-page-confirm-actions">
+              <button
+                type="button"
+                className="hrms-common-btn-cancel"
+                onClick={() => setShowPageDeleteConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="hrms-common-btn-delete"
+                onClick={confirmDeletePage}
+              >
+                Remove
               </button>
             </div>
           </div>

@@ -3001,6 +3001,7 @@ const ManageEmployee = () => {
         {/* APPROVAL BANNER FOR EMPLOYEE MODULE */}
         <ApprovalBanner moduleName="EMPLOYEE" onRefresh={fetchEmployees} />
 
+
         {/* TOP BAR */}
         <div className="erti-topbar">
           <div />
@@ -3053,12 +3054,38 @@ const ManageEmployee = () => {
             const isEmailCopied = copiedEmails.has(emp.email);
             const currentHrEmployee = employees.find((e) => e.isHr);
 
+            const isProfileReviewNeeded =
+              (Number(emp.profileCompletion) >= 100 || emp.profileApprovalStatus === "pending") &&
+              emp.profileApprovalStatus !== "approved" &&
+              !emp.isProfileCompleted;
+
             return (
-              <div className="erti-employee-card" key={employeeId || index}>
+              <div
+                className="erti-employee-card"
+                key={employeeId || index}
+              >
                 <div className={`erti-card-top ${getStatusClass(emp.status)}`}>
-                  <div className={`erti-profile-completion ${getProfileClass(emp.profileCompletion || 0)}`}>
+                  <div
+                    className={`erti-profile-completion ${getProfileClass(emp.profileCompletion || 0)}`}
+                    title={`${emp.profileCompletion || 0}% Completed`}
+                  >
                     {emp.profileCompletion || 0}%
                   </div>
+
+                  {/* Small blue jumping/bouncing button shown in the employee profile image top */}
+                  {isProfileReviewNeeded && (
+                    <button
+                      type="button"
+                      className="erti-card-review-bounce-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewProfile(emp);
+                      }}
+                      title="Profile 100% Completed — Click to review profile"
+                    >
+                      Review Profile
+                    </button>
+                  )}
 
                   <button className="erti-more-btn"
                     onClick={(e) => { e.stopPropagation(); toggleMenu(index); }}>
@@ -3125,6 +3152,7 @@ const ManageEmployee = () => {
                   </p>
                   <p><span>Department</span><span>{emp.department || "-"}</span></p>
                   <p><span>Date Joined</span><span>{formatDate(emp.dateJoined)}</span></p>
+
                   <button className="erti-edit-btn" onClick={() => handleEditEmployee(emp)}>
                     Edit Employee
                   </button>

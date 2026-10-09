@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { portalInstance } from "../../../Services/instance";
 import axios from "axios";
@@ -10,6 +10,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Icon } from "@iconify/react";
 import { useUser } from "../../UserContext";
+import { FaTimesCircle, FaCheckCircle, FaExclamationCircle, FaEye } from "react-icons/fa";
 
 /* ================= STATUS CLASS ================= */
 const getStatusClass = (status = "") =>
@@ -17,11 +18,105 @@ const getStatusClass = (status = "") =>
     ? status.toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-")
     : "";
 
+const REJECTABLE_CATEGORIES = [
+  {
+    category: "Education Section",
+    items: [
+      { id: "marksheet10", label: "10th Mark Sheet" },
+      { id: "marksheet12", label: "12th Mark Sheet" },
+      { id: "degreeCertificate", label: "Degree / Diploma Certificate" },
+      { id: "school10", label: "10th School Name" },
+      { id: "school12", label: "12th School Name" },
+      { id: "marks10", label: "10th Marks / Percentage" },
+      { id: "marks12", label: "12th Marks / Percentage" },
+      { id: "courses", label: "College / Degree Details" },
+    ],
+  },
+  {
+    category: "KYC & Identity Section",
+    items: [
+      { id: "aadhaarFile", label: "Masked Aadhaar Card" },
+      { id: "panFile", label: "PAN Card Document" },
+      { id: "picture", label: "Profile Photo" },
+      { id: "aadhaarNo", label: "Aadhaar Number" },
+      { id: "panNo", label: "PAN Number" },
+    ],
+  },
+  {
+    category: "Bank Section",
+    items: [
+      { id: "passbookFile", label: "Bank Passbook Document" },
+      { id: "accountNumber", label: "Bank Account Number" },
+      { id: "ifscCode", label: "IFSC Code" },
+      { id: "bankName", label: "Bank Name" },
+      { id: "branch", label: "Branch Name" },
+      { id: "accountHolder", label: "Account Holder Name" },
+    ],
+  },
+  {
+    category: "Personal & Contact Section",
+    items: [
+      { id: "phone", label: "Phone Number" },
+      { id: "emergencyContact", label: "Emergency Contact" },
+      { id: "address", label: "Residential Address" },
+      { id: "dob", label: "Date of Birth" },
+      { id: "bloodGroup", label: "Blood Group" },
+      { id: "gender", label: "Gender" },
+    ],
+  },
+  {
+    category: "Family Section",
+    items: [
+      { id: "fatherName", label: "Father's Name & Occupation" },
+      { id: "motherName", label: "Mother's Name & Occupation" },
+      { id: "siblings", label: "Siblings Information" },
+    ],
+  },
+  {
+    category: "Work Experience Section",
+    items: [
+      { id: "previousExperiences", label: "Work Experience Documents & Details" },
+    ],
+  },
+];
+
+const ALL_REJECTABLE_ITEMS = REJECTABLE_CATEGORIES.flatMap((c) => c.items);
+
+const getFieldFriendlyName = (fieldId) => {
+  const found = ALL_REJECTABLE_ITEMS.find((it) => it.id === fieldId);
+  if (found) return found.label;
+  const legacyMap = {
+    education: "Education Details",
+    bank: "Bank Details",
+    personal: "Personal Details",
+    family: "Family Details",
+    working: "Work Experience",
+    kyc: "KYC Documents",
+    pf: "PF Details",
+    basic: "Basic Details",
+    marksheet10: "10th Mark Sheet",
+    certificate10: "10th Mark Sheet",
+    marksheet12: "12th Mark Sheet",
+    certificate12: "12th Mark Sheet",
+    school10: "10th School Name",
+    school12: "12th School Name",
+    marks10: "10th Marks / Percentage",
+    marks12: "12th Marks / Percentage",
+    degreeCertificate: "Degree / Diploma Certificate",
+    courses: "College / Degree Details",
+    aadhaarFile: "Masked Aadhaar Card",
+    panFile: "PAN Card Document",
+    picture: "Profile Photo",
+    passbookFile: "Bank Passbook Document",
+  };
+  return legacyMap[fieldId] || fieldId;
+};
+
 const EmployeeDetails = ({ isAdmin = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { empId } = useParams();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const isPrivileged = isAdmin || user?.role === "admin" || Boolean(user?.isHr);
 
   /* ================= STATE ================= */
@@ -156,6 +251,95 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   const [allowedFields, setAllowedFields] = useState([]);
   const [canEditProfile, setCanEditProfile] = useState(false);
   const [editMessage, setEditMessage] = useState("");
+  const [approvalStatus, setApprovalStatus] = useState(null);
+  const [rejectionRemark, setRejectionRemark] = useState("");
+  const [rejectedFields, setRejectedFields] = useState([]);
+  const [activeHighlightedRejectedField, setActiveHighlightedRejectedField] = useState(null);
+  const [updatedFields, setUpdatedFields] = useState(() => new Set());
+
+  const markFieldAsUpdated = useCallback((fieldKey) => {
+    if (!fieldKey) return;
+    setUpdatedFields((prev) => {
+      const next = new Set(prev);
+      next.add(fieldKey);
+      if (fieldKey === "marksheet10" || fieldKey === "certificate10") {
+        next.add("marksheet10");
+        next.add("certificate10");
+      }
+      if (fieldKey === "marksheet12" || fieldKey === "certificate12") {
+        next.add("marksheet12");
+        next.add("certificate12");
+      }
+      if (fieldKey === "degreeCertificate" || fieldKey === "courses") {
+        next.add("degreeCertificate");
+        next.add("courses");
+      }
+      return next;
+    });
+  }, []);
+
+  const isFieldUpdated = useCallback(
+    (f) => {
+      let canonical = f;
+      if (f === "certificate10") canonical = "marksheet10";
+      if (f === "certificate12") canonical = "marksheet12";
+
+      if (updatedFields.has(canonical) || updatedFields.has(f)) return true;
+
+      // File uploads
+      if (canonical === "marksheet10" && formData.marksheet10 instanceof File) return true;
+      if (canonical === "marksheet12" && formData.marksheet12 instanceof File) return true;
+      if (
+        (canonical === "degreeCertificate" || canonical === "courses") &&
+        formData.courses?.some((c) => c && c.certificate instanceof File)
+      ) {
+        return true;
+      }
+      if (canonical === "aadhaarFile" && formData.aadhaarFile instanceof File) return true;
+      if (canonical === "panFile" && formData.panFile instanceof File) return true;
+      if (canonical === "passbookFile" && formData.passbookFile instanceof File) return true;
+      if (canonical === "picture" && formData.picture instanceof File) return true;
+
+      // Text / selection comparison if modified
+      if (originalData && formData[canonical] !== undefined && formData[canonical] !== null) {
+        const origVal = originalData[canonical];
+        const curVal = formData[canonical];
+        if (curVal !== "" && curVal !== undefined && curVal !== null) {
+          if (origVal === undefined || origVal === null || origVal === "") {
+            return true;
+          }
+          const origNorm = String(origVal).trim().split("T")[0];
+          const curNorm = String(curVal).trim().split("T")[0];
+          if (origNorm !== curNorm) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    },
+    [updatedFields, formData, originalData]
+  );
+
+  // Normalize, deduplicate, and exclude any field already updated by employee
+  const displayRejectedFields = useMemo(() => {
+    if (!Array.isArray(rejectedFields)) return [];
+    const seen = new Set();
+    const result = [];
+    rejectedFields.forEach((f) => {
+      let canonical = f;
+      if (f === "certificate10") canonical = "marksheet10";
+      if (f === "certificate12") canonical = "marksheet12";
+      if (isFieldUpdated(canonical) || isFieldUpdated(f)) {
+        return;
+      }
+      if (!seen.has(canonical)) {
+        seen.add(canonical);
+        result.push(canonical);
+      }
+    });
+    return result;
+  }, [rejectedFields, isFieldUpdated]);
 
   const [permissionsLoaded, setPermissionsLoaded] = useState(isAdmin);
 
@@ -208,6 +392,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       ...prev,
       picture: croppedFile,
     }));
+    markFieldAsUpdated("picture");
 
     const previewUrl = URL.createObjectURL(croppedFile);
 
@@ -267,6 +452,12 @@ const EmployeeDetails = ({ isAdmin = false }) => {
         setCanEditProfile(canEdit);
         setAllowedFields(Array.isArray(fields) ? fields : []);
         setEditMessage(message);
+
+        if (response.data.profileApprovalStatus) {
+          setApprovalStatus(response.data.profileApprovalStatus);
+          setRejectionRemark(response.data.rejectionRemark || "");
+          setRejectedFields(Array.isArray(response.data.rejectedFields) ? response.data.rejectedFields : []);
+        }
 
         sessionStorage.setItem("allowedEditFields", JSON.stringify(fields));
       } else {
@@ -431,6 +622,12 @@ const EmployeeDetails = ({ isAdmin = false }) => {
           picture: null
         }));
 
+        if (emp.profileApprovalStatus) {
+          setApprovalStatus(emp.profileApprovalStatus);
+          setRejectionRemark(emp.rejectionRemark || "");
+          setRejectedFields(Array.isArray(emp.rejectedFields) ? emp.rejectedFields : []);
+        }
+
         if (!isAdmin) {
           await checkEditPermission();
         }
@@ -491,9 +688,82 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     }
   }, [permissionsLoaded, location.state]);
 
+  /* ================= SCROLL AND HIGHLIGHT REJECTED FILE ================= */
+  const scrollToTargetRejectedField = (fieldId) => {
+    setActiveHighlightedRejectedField(fieldId);
+
+    if (["school12", "marks12", "marksheet12", "certificate12"].includes(fieldId)) {
+      setEducationPath("12th");
+    }
+
+    if (fieldId === "degreeCertificate" || fieldId === "courses") {
+      setShowAddCourse(true);
+    }
+
+    setTimeout(() => {
+      let target =
+        document.getElementById(`field-wrapper-${fieldId}`) ||
+        document.getElementById(`doc-card-${fieldId}`);
+
+      if (!target) {
+        if (fieldId === "certificate10" || fieldId === "marksheet10") {
+          target = document.getElementById("field-wrapper-marksheet10") || document.getElementById("field-wrapper-school10");
+        } else if (fieldId === "certificate12" || fieldId === "marksheet12") {
+          target = document.getElementById("field-wrapper-marksheet12") || document.getElementById("field-wrapper-school12");
+        } else if (fieldId === "degreeCertificate" || fieldId === "courses") {
+          target =
+            document.getElementById("field-wrapper-degreeCertificate") ||
+            document.getElementById("field-wrapper-courses") ||
+            document.querySelector(".employeedetails-courses-section");
+        } else if (fieldId === "education") {
+          target =
+            document.getElementById("field-wrapper-marksheet10") ||
+            document.getElementById("field-wrapper-school10") ||
+            document.querySelector(".employeedetails-education-group");
+        } else if (fieldId === "kyc") {
+          target =
+            document.getElementById("field-wrapper-aadhaarFile") ||
+            document.getElementById("field-wrapper-panFile") ||
+            document.getElementById("field-wrapper-aadhaarNo");
+        } else if (fieldId === "bank") {
+          target =
+            document.getElementById("field-wrapper-passbookFile") ||
+            document.getElementById("field-wrapper-accountNumber");
+        } else if (fieldId === "picture") {
+          target =
+            document.getElementById("field-wrapper-picture") ||
+            document.querySelector(".employeedetails-profile-avatar-wrapper");
+        }
+      }
+
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        target.classList.remove("highlight-rejected-pulse-target");
+        void target.offsetWidth; // force DOM reflow
+        target.classList.add("highlight-rejected-pulse-target");
+
+        const inputEl = target.querySelector(
+          "input:not([type='hidden']), select, textarea, .custom-dropdown-trigger, .custom-dropdown, .employeedetails-detail-input, button:not(.employeedetails-visibility-toggle)"
+        );
+        if (inputEl && typeof inputEl.focus === "function") {
+          try {
+            inputEl.focus({ preventScroll: true });
+          } catch (e) {}
+        }
+
+        setTimeout(() => {
+          target.classList.remove("highlight-rejected-pulse-target");
+        }, 5000);
+      }
+    }, 150);
+  };
+
   /* ================= HANDLERS ================= */
-  const handleChange = (key, value) =>
+  const handleChange = (key, value) => {
+    markFieldAsUpdated(key);
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleFileChange = (key, file) => {
     if (!file) {
@@ -511,11 +781,19 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    markFieldAsUpdated(key);
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "image/webp",
+      "application/pdf",
+    ];
     const maxSize = 2 * 1024 * 1024;
 
     if (!allowedTypes.includes(file.type)) {
-      showErrorModal("Invalid File", "Only JPG, PNG, WEBP allowed");
+      showErrorModal("Invalid File", "Only JPG, PNG, WEBP, PDF allowed");
       return;
     }
 
@@ -526,6 +804,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
     /* ✅ CROP MODAL FOR PICTURE */
     if (key === "picture") {
+      if (file.type === "application/pdf") {
+        showErrorModal("Invalid File", "Profile picture must be an image (JPG, PNG, WEBP)");
+        return;
+      }
       const imageUrl = URL.createObjectURL(file);
       setImageToCrop(imageUrl);
       setShowCropModal(true);
@@ -803,6 +1085,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       return;
     }
 
+    markFieldAsUpdated("siblings");
     setFormData((prev) => ({
       ...prev,
       siblings: [...prev.siblings, { ...newSibling, id: Date.now() }],
@@ -813,6 +1096,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handleRemoveSibling = (index) => {
+    markFieldAsUpdated("siblings");
     setFormData((prev) => ({
       ...prev,
       siblings: prev.siblings.filter((_, i) => i !== index),
@@ -841,6 +1125,9 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       return;
     }
 
+    markFieldAsUpdated("courses");
+    markFieldAsUpdated("degreeCertificate");
+
     const courseToAdd = { ...newCourse, id: Date.now(), certificate: null };
 
     setFormData((prev) => ({
@@ -866,6 +1153,8 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handleRemoveCourse = (index) => {
+    markFieldAsUpdated("courses");
+    markFieldAsUpdated("degreeCertificate");
     setFormData((prev) => ({
       ...prev,
       courses: prev.courses.filter((_, i) => i !== index),
@@ -873,6 +1162,8 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handleCourseChange = (index, field, value) => {
+    markFieldAsUpdated("courses");
+    markFieldAsUpdated("degreeCertificate");
     setFormData((prev) => {
       const updatedCourses = [...prev.courses];
       updatedCourses[index] = { ...updatedCourses[index], [field]: value };
@@ -913,6 +1204,11 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handleCourseFileChange = (index, file) => {
+    if (file) {
+      markFieldAsUpdated("degreeCertificate");
+      markFieldAsUpdated("courses");
+    }
+
     setFormData((prev) => {
       const updatedCourses = [...prev.courses];
       updatedCourses[index] = { ...updatedCourses[index], certificate: file };
@@ -932,6 +1228,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handleAddPreviousExperience = () => {
+    markFieldAsUpdated("previousExperiences");
     setFormData((prev) => ({
       ...prev,
       previousExperiences: [
@@ -952,6 +1249,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handlePreviousExperienceChange = (index, field, value) => {
+    markFieldAsUpdated("previousExperiences");
     setFormData((prev) => {
       const updatedExperiences = [...prev.previousExperiences];
       updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
@@ -960,6 +1258,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const handleRemovePreviousExperience = (index) => {
+    markFieldAsUpdated("previousExperiences");
     setFormData((prev) => ({
       ...prev,
       previousExperiences: prev.previousExperiences.filter((_, i) => i !== index),
@@ -969,6 +1268,24 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   /* ================= PERMISSION CHECK ================= */
   const adminBlockedFields = []; // Admin/HR can edit all details
 
+  const isFieldRejected = (field) => {
+    if (approvalStatus !== "rejected") return false;
+    if (!rejectedFields || rejectedFields.length === 0) return true;
+    if (rejectedFields.includes(field)) return true;
+    if (field === "marksheet10" && (rejectedFields.includes("certificate10") || rejectedFields.includes("marksheet10"))) return true;
+    if (field === "certificate10" && (rejectedFields.includes("marksheet10") || rejectedFields.includes("certificate10"))) return true;
+    if (field === "marksheet12" && (rejectedFields.includes("certificate12") || rejectedFields.includes("marksheet12"))) return true;
+    if (field === "certificate12" && (rejectedFields.includes("marksheet12") || rejectedFields.includes("certificate12"))) return true;
+    if ((field === "degreeCertificate" || field === "courses") && (rejectedFields.includes("degreeCertificate") || rejectedFields.includes("courses"))) return true;
+    if (rejectedFields.includes("kyc") && ["aadhaarNo", "panNo", "aadhaarFile", "panFile"].includes(field)) return true;
+    if (rejectedFields.includes("bank") && ["bankName", "accountHolder", "accountNumber", "ifscCode", "branch", "passbookFile"].includes(field)) return true;
+    if (rejectedFields.includes("education") && ["school10", "marks10", "marksheet10", "certificate10", "school12", "marks12", "marksheet12", "certificate12", "educationPath", "courses", "degreeCertificate"].includes(field)) return true;
+    if (rejectedFields.includes("personal") && ["dob", "gender", "phone", "emergencyContact", "bloodGroup", "address"].includes(field)) return true;
+    if (rejectedFields.includes("family") && ["fatherName", "motherName", "fatherOccupation", "motherOccupation", "siblings"].includes(field)) return true;
+    if (rejectedFields.includes("working") && ["previousExperiences", "department", "designation", "experience"].includes(field)) return true;
+    return false;
+  };
+
   const canEditField = (field) => {
     if (isPrivileged) {
       return true;
@@ -977,6 +1294,19 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     // Salary editing is strictly restricted to Admin and HR
     if (field === "salary") {
       return false;
+    }
+
+    if (approvalStatus === "rejected") {
+      if (["salary", "status", "employmentStatus"].includes(field)) {
+        return false;
+      }
+      if (rejectedFields.length > 0 && !rejectedFields.includes("ALL")) {
+        if (!field) {
+          return canEditProfile;
+        }
+        return isFieldRejected(field);
+      }
+      return true;
     }
 
     if (formData.isProfileCompleted === false) {
@@ -1023,6 +1353,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     if (!permissionsLoaded) return [];
 
     if (isPrivileged) return Object.keys(sectionFieldMap);
+
+    if (approvalStatus === "rejected") {
+      return Object.keys(sectionFieldMap);
+    }
 
     if (formData.isProfileCompleted === false) {
       return Object.keys(sectionFieldMap);
@@ -1435,9 +1769,31 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       if (response.data.success) {
         await fetchEmployee();
 
+        const updatedCompletion = response.data.profileCompletion ?? effectiveCompletion;
+        const reached100 = updatedCompletion >= 100;
+        try {
+          const sessionRaw = sessionStorage.getItem("Erti-Portal");
+          if (sessionRaw) {
+            const parsed = JSON.parse(sessionRaw);
+            parsed.profileCompletion = updatedCompletion;
+            if (reached100) {
+              parsed.isProfileCompleted = true;
+              parsed.isProfileRestricted = false;
+            }
+            sessionStorage.setItem("Erti-Portal", JSON.stringify(parsed));
+            if (setUser) setUser(parsed);
+          }
+        } catch (e) {
+          console.error("Session sync error:", e);
+        }
+
+        const successMsg = response.data.message || (approvalStatus === "rejected"
+          ? "Profile re-submitted for Admin review and approval successfully!"
+          : "Your changes have been saved successfully.");
+
         showSuccessModal(
-          "Profile Updated",
-          "Your changes have been saved successfully.",
+          approvalStatus === "rejected" ? "Resubmitted for Review" : "Profile Updated",
+          successMsg,
           !isAdmin
         );
       } else {
@@ -1476,9 +1832,15 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     const previewUrl = getFilePreview(field);
     if (!previewUrl) return null;
 
+    const fileObj = formData[field];
+    const isPdf =
+      (fileObj instanceof File && fileObj.type === "application/pdf") ||
+      /\.pdf/i.test(previewUrl.split("?")[0]);
+
     const isImage =
-      previewUrl.startsWith("blob:") ||
-      /\.(jpeg|jpg|gif|png)/i.test(previewUrl.split("?")[0]);
+      !isPdf &&
+      (previewUrl.startsWith("blob:") ||
+        /\.(jpeg|jpg|gif|png|webp)/i.test(previewUrl.split("?")[0]));
 
     return (
       <div className="employeedetails-file-preview-container">
@@ -1516,9 +1878,11 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     if (!course) return null;
 
     let previewUrl = null;
+    let isPdf = false;
 
     if (course.certificate instanceof File) {
       previewUrl = URL.createObjectURL(course.certificate);
+      isPdf = course.certificate.type === "application/pdf";
     } else if (filePreviews[`course_${course.id}_certificate`]) {
       previewUrl = filePreviews[`course_${course.id}_certificate`];
     } else if (filePreviews[`course_${course._id}_certificate`]) {
@@ -1529,9 +1893,14 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
     if (!previewUrl) return null;
 
+    if (!isPdf && /\.pdf/i.test(previewUrl.split("?")[0])) {
+      isPdf = true;
+    }
+
     const isImage =
-      previewUrl.startsWith("blob:") ||
-      /\.(jpeg|jpg|gif|png)/i.test(previewUrl.split("?")[0]);
+      !isPdf &&
+      (previewUrl.startsWith("blob:") ||
+        /\.(jpeg|jpg|gif|png|webp)/i.test(previewUrl.split("?")[0]));
 
     return (
       <div className="employeedetails-file-preview-container">
@@ -1589,7 +1958,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       <div className="employeedetails-content">
         {/* PROFILE HEADER */}
         <div className={`employeedetails-profile-header ${getStatusClass(formData.status)}`}>
-          <div className="employeedetails-profile-avatar-wrapper">
+          <div
+            id="field-wrapper-picture"
+            className={`employeedetails-profile-avatar-wrapper ${isFieldRejected("picture") ? "rejected-avatar-border" : ""}`}
+          >
             <img
               src={getFilePreview("picture") || "/avatar.png"}
               alt="profile"
@@ -1679,13 +2051,59 @@ const EmployeeDetails = ({ isAdmin = false }) => {
         ) : (
           <div className="employeedetails-form-card">
 
-            {!isAdmin && canEditProfile && !allowedFields.includes("ALL") && formData.isProfileCompleted !== false && (
+            {!isAdmin && approvalStatus === "rejected" && (
+              displayRejectedFields && displayRejectedFields.length > 0 ? (
+                <div className="employee-rejection-form-banner mb-4 p-3 rounded" style={{ border: "1px solid #E1E1E1" , background: "#ffe9eb" }}>
+                  <div className="d-flex align-items-start gap-3">
+                    <div className="flex-grow-1">
+                      <h5 className="text-danger fw-bold mb-1" style={{ fontSize: "16px" }}>
+                        Admin Profile Review Remark
+                      </h5>
+                      <p className="text-dark" style={{ fontSize: "14px" }}>
+                        <strong>Reason for Rejection:</strong> "{rejectionRemark}"
+                      </p>
+                      <div className="mb-2">
+                        <strong className="text-secondary small">Required Correction:</strong>{" "}
+                        <div className="d-flex flex-wrap gap-2 mt-2">
+                          {displayRejectedFields.map((f, i) => (
+                            <div key={i} className="rejected-field-pill d-inline-flex align-items-center gap-2 px-3 py-1 rounded border">
+                              <span className="rejected-pill-label fw-semibold text-danger">
+                                {getFieldFriendlyName(f)}
+                              </span>
+                              <button
+                                type="button"
+                                className="btn-reject-view"
+                                style={{ fontSize: "12px", height: "26px", fontWeight: "500", borderRadius: "14px" }}
+                                onClick={() => scrollToTargetRejectedField(f)}
+                                title={`Scroll to and inspect ${getFieldFriendlyName(f)}`}
+                              >
+                                <FaEye className="me-1" /> View File
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="small text-muted mb-0">
+                        Please update or re-upload the required document/field and click <strong>"Resubmit for Admin Review"</strong> below.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="d-flex align-items-center gap-2 py-2 px-3 mb-4 rounded" style={{ fontSize: "13px", fontWeight: "500", background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#166534" }}>
+                  <FaCheckCircle className="text-success flex-shrink-0" />
+                  <span>All details requested by the Admin have been updated.</span>
+                </div>
+              )
+            )}
+
+            {!isAdmin && canEditProfile && !allowedFields.includes("ALL") && formData.isProfileCompleted !== false && approvalStatus !== "rejected" && (
               <div className="edit-highlight-banner">
                 You can edit: {visibleSections.join(", ").toUpperCase()}
               </div>
             )}
 
-            {!isAdmin && permissionsLoaded && !canEditProfile && formData.isProfileCompleted !== false && (
+            {!isAdmin && permissionsLoaded && !canEditProfile && formData.isProfileCompleted !== false && approvalStatus !== "rejected" && (
               <div style={{
                 background: "#fff3cd",
                 border: "1px solid #ffc107",
@@ -1896,7 +2314,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
             {/* ===== SIBLINGS ===== */}
             {visibleSections.includes("siblings") && (
               <>
-                <div className="employeedetails-siblings-section">
+                <div id="field-wrapper-siblings" className="employeedetails-siblings-section">
                   <div className="employeedetails-d-flex employeedetails-justify-content-between employeedetails-align-items-center employeedetails-mb-3">
                     <h6 className="employeedetails-section-title employeedetails-mb-0">Siblings</h6>
                     {canEditField("siblings") && (
@@ -2072,7 +2490,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                   </div>
 
                   {formData.previousExperiences.length > 0 && (
-                    <div className="employeedetails-previous-experiences employeedetails-mt-4">
+                    <div id="field-wrapper-previousExperiences" className="employeedetails-previous-experiences employeedetails-mt-4">
                       <h6
                         className="employeedetails-mb-3"
                         style={{ fontSize: "16px", color: "#4a577f", fontWeight: "500" }}
@@ -2248,13 +2666,16 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     </div>
 
                     <div id="field-wrapper-marksheet10" className="employeedetails-col-md-6 employeedetails-mb-4">
-                      <div className="employeedetails-detail-label">10th Marksheet</div>
+                      <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>10th Marksheet</span>
+                      </div>
                       <div className="employeedetails-file-upload-container">
                         <input
                           type="file"
+                          accept="image/*,.pdf"
                           onChange={(e) => handleFileChange("marksheet10", e.target.files[0])}
                           className="employeedetails-detail-input"
-                          disabled={!canEditField()} visible={canEditField()}
+                          disabled={!canEditField("marksheet10")} visible={canEditField("marksheet10")}
                         />
 
                         {filePreviews.marksheet10 && (
@@ -2359,13 +2780,16 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                         </div>
 
                         <div id="field-wrapper-marksheet12" className="employeedetails-col-md-6 employeedetails-mb-4">
-                          <div className="employeedetails-detail-label">12th Marksheet</div>
+                          <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>12th Marksheet</span>
+                          </div>
                           <div className="employeedetails-file-upload-container">
                             <input
                               type="file"
+                              accept="image/*,.pdf"
                               onChange={(e) => handleFileChange("marksheet12", e.target.files[0])}
                               className="employeedetails-detail-input"
-                              disabled={!canEditField()} visible={canEditField()}
+                              disabled={!canEditField("marksheet12")} visible={canEditField("marksheet12")}
                             />
 
                             {filePreviews.marksheet12 && (
@@ -2509,7 +2933,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           <label className="employeedetails-detail-label">Degree Certificate</label>
                           <input
                             type="file"
-                            className="employeedetails-detail-input"
+                            className="employeedetails-detail-input employeedetails-file-input-aligned"
                             onChange={(e) =>
                               setNewCourse((prev) => ({
                                 ...prev,
@@ -2619,9 +3043,11 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                 disabled={!canEditField()} visible={canEditField()}
                               />
                             </div>
-                            <div className="employeedetails-col-md-6 employeedetails-mb-3">
+                            <div id={index === 0 ? "field-wrapper-degreeCertificate" : `field-wrapper-course-certificate-${index}`} className="employeedetails-col-md-6 employeedetails-mb-3">
                               <div className="employeedetails-file-upload-container">
-                                <div className="employeedetails-detail-label">Degree Certificate</div>
+                                <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span>Degree Certificate</span>
+                                </div>
                                 <input
                                   type="file"
                                   className="employeedetails-detail-input employeedetails-file-input-aligned"
@@ -2755,9 +3181,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     <div className="employeedetails-file-upload-container">
                       <input
                         type="file"
+                        accept="image/*,.pdf"
                         onChange={(e) => handleFileChange("aadhaarFile", e.target.files[0])}
                         className="employeedetails-detail-input"
-                        disabled={!canEditField()} visible={canEditField()}
+                        disabled={!canEditField("aadhaarFile")} visible={canEditField("aadhaarFile")}
                       />
 
                       {filePreviews.aadhaarFile && (
@@ -2771,13 +3198,16 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                   </div>
 
                   <div id="field-wrapper-panFile" className="employeedetails-col-md-6 employeedetails-mb-4">
-                    <div className="employeedetails-detail-label">PAN Card</div>
+                    <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>PAN Card</span>
+                    </div>
                     <div className="employeedetails-file-upload-container">
                       <input
                         type="file"
+                        accept="image/*,.pdf"
                         onChange={(e) => handleFileChange("panFile", e.target.files[0])}
                         className="employeedetails-detail-input"
-                        disabled={!canEditField()} visible={canEditField()}
+                        disabled={!canEditField("panFile")} visible={canEditField("panFile")}
                       />
 
                       {filePreviews.panFile && (
@@ -2917,13 +3347,16 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                   )}
 
                   <div id="field-wrapper-passbookFile" className="employeedetails-col-md-6 employeedetails-mb-4">
-                    <div className="employeedetails-detail-label">Bank Passbook/Cancelled Cheque</div>
+                    <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>Bank Passbook/Cancelled Cheque</span>
+                    </div>
                     <div className="employeedetails-file-upload-container">
                       <input
                         type="file"
+                        accept="image/*,.pdf"
                         onChange={(e) => handleFileChange("passbookFile", e.target.files[0])}
                         className="employeedetails-detail-input"
-                        disabled={!canEditField()} visible={canEditField()}
+                        disabled={!canEditField("passbookFile")} visible={canEditField("passbookFile")}
                       />
 
                       {filePreviews.passbookFile && (
@@ -2972,7 +3405,11 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                 onClick={handleSave}
                 disabled={isSaving || (!isAdmin && !canEditProfile)}
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving
+                  ? "Saving..."
+                  : approvalStatus === "rejected"
+                  ? "Resubmit for Admin Review"
+                  : "Save Changes"}
               </button>
             </div>
           </div>

@@ -400,8 +400,8 @@ input.dwu-admin__filterInput:focus {
 
 /* Match colors from AdminTaskPage */
 .dwu-admin__statusBadge--pending {
-  background-color: #f3f4f6;
-  color: #dddddd;
+  background-color: #fdffd2;
+  color: #b6b933;
 }
 
 .dwu-admin__statusBadge--inprocess {

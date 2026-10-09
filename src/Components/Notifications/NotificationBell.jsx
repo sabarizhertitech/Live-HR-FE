@@ -74,9 +74,12 @@ const NotificationBell = () => {
       case "PROFILE_EDIT_REQUEST": return "📝";
       case "PROFILE_EDIT_APPROVED": return "✅";
       case "PROFILE_EDIT_REJECTED": return "❌";
+      case "PROFILE_COMPLETION_REQUEST": return "📋";
+      case "PROFILE_APPROVED": return "✅";
+      case "PROFILE_REJECTED": return "⚠️";
       case "SECURITY_REQUEST": return "🛡️";
       case "SECURITY_APPROVED": return "🔓";
-      case "SECURITY_REJECTED": return "🔒";
+      case "SECURITY_REJECTED": return "";
       case "LEAVE_REQUEST":
       case "WFH_REQUEST": return "✈️";
       case "LEAVE_APPROVED":
@@ -96,6 +99,9 @@ const NotificationBell = () => {
       case "PROFILE_EDIT_REQUEST": return "#3b82f6";
       case "PROFILE_EDIT_APPROVED": return "#22c55e";
       case "PROFILE_EDIT_REJECTED": return "#ef4444";
+      case "PROFILE_COMPLETION_REQUEST": return "#6366f1";
+      case "PROFILE_APPROVED": return "#10b981";
+      case "PROFILE_REJECTED": return "#ef4444";
       case "SECURITY_REQUEST": return "#6366f1";
       case "SECURITY_APPROVED": return "#22c55e";
       case "SECURITY_REJECTED": return "#ef4444";

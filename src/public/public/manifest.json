@@ -1,7 +1,0 @@
-{
-  "name": "HR Portal",
-  "short_name": "HR Portal",
-  "start_url": ".",
-  "display": "standalone",
-  "gcm_sender_id": "103953800507"
-}

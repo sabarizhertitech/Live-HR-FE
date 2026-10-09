@@ -72,7 +72,7 @@ const NotificationBell = () => {
       case "PROFILE_EDIT_REJECTED": return "❌";
       case "SECURITY_REQUEST": return "🛡️";
       case "SECURITY_APPROVED": return "🔓";
-      case "SECURITY_REJECTED": return "🔒";
+      case "SECURITY_REJECTED": return "";
       case "LEAVE_REQUEST":
       case "WFH_REQUEST": return "✈️";
       case "LEAVE_APPROVED":

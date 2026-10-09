@@ -10,6 +10,7 @@ import loginem from "/login-employee-m.png";
 import loginam from "/login-a-m.png";
 import logina from "/login-a.png";
 import { useUser } from "../UserContext";
+import { checkProfileRestriction } from "../../utils/profileCompletionRestriction";
 
 function Login() {
   const { setUser } = useUser();
@@ -101,8 +102,27 @@ function Login() {
           return;
         }
 
+        const userEmpId = response.data.empId || emailOrUsername.trim();
+        const userUsername = response.data.username || emailOrUsername.trim();
+
+        const isCompleted = response.data.isProfileCompleted === true || Number(response.data.profileCompletion ?? 0) >= 100;
+
+        const restriction = checkProfileRestriction({
+          role: response.data.role,
+          profileCompletion: response.data.profileCompletion,
+          isProfileCompleted: isCompleted,
+          dateJoined: response.data.dateJoined,
+          empId: userEmpId,
+          username: userUsername,
+        });
+
+        const effectiveIsRestricted =
+          response.data.isProfileRestricted === true || restriction.isRestricted === true;
+
         const userData = {
           _id: response.data._id,
+          empId: userEmpId,
+          username: userUsername,
           name: response.data.name,
           role: response.data.role,
           token: response.data.token,
@@ -112,6 +132,12 @@ function Login() {
           passwordExpiringSoon: response.data.passwordExpiringSoon || false,
           passwordExpiresAt: response.data.passwordExpiresAt || null,
           daysRemaining: response.data.daysRemaining || null,
+          profileCompletion: response.data.profileCompletion ?? 0,
+          dateJoined: response.data.dateJoined || null,
+          isProfileCompleted: isCompleted,
+          isProfileRestricted: effectiveIsRestricted,
+          daysRemainingForProfile: restriction.daysRemaining,
+          profileDeadline: restriction.deadline,
         };
         sessionStorage.setItem("Erti-Portal", JSON.stringify(userData));
         setUser(userData); // Update context immediately
@@ -136,7 +162,15 @@ function Login() {
 
         setEmailOrUsername("");
         setPassword("");
-        navigate(role === "admin" ? "/admin/dashboard" : "/emp/dashboard");
+
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else if (effectiveIsRestricted) {
+          toast.warning("Profile completion is required (100%). Please complete your profile to access the dashboard.");
+          navigate("/emp/my-details/edit");
+        } else {
+          navigate("/emp/dashboard");
+        }
       }
 
     } catch (error) {

@@ -10,6 +10,7 @@ import {
   FiBookOpen,
   FiCheckSquare
 } from "react-icons/fi";
+import { checkProfileRestriction } from "../../../utils/profileCompletionRestriction";
 
 const MissingProfileBanner = ({ employee, profileCompletion = 0 }) => {
   const navigate = useNavigate();
@@ -21,6 +22,12 @@ const MissingProfileBanner = ({ employee, profileCompletion = 0 }) => {
   if (completion >= 100 || employee.isProfileCompleted === true) {
     return null;
   }
+
+  const restriction = checkProfileRestriction({
+    ...employee,
+    role: "employee",
+    profileCompletion: completion,
+  });
 
   // Calculate Missing Fields
   const educationPath = employee.educationPath || (employee.school12 ? "12th" : "");
@@ -160,7 +167,13 @@ const MissingProfileBanner = ({ employee, profileCompletion = 0 }) => {
               Your profile is <span className="dash-pc-status-pct">{completion}%</span> complete
             </p>
             <p className="dash-pc-hero-desc">
-              Complete the remaining details and upload documents to finish your profile.
+              {restriction.daysRemaining > 0 ? (
+                <span>
+                  <strong>7-Day Completion Period:</strong> {restriction.daysRemaining} day{restriction.daysRemaining === 1 ? "" : "s"} remaining to complete your profile to 100%. Complete the remaining details to maintain unrestricted access.
+                </span>
+              ) : (
+                "Complete the remaining details and upload documents to finish your profile."
+              )}
             </p>
           </div>
         </div>
