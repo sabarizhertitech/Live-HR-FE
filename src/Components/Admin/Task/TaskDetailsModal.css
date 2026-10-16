@@ -231,8 +231,7 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: auto;
-
-  border-top: 1px solid #f0f0f0;
+  border: none;
 }
 
 .admin-task-details-update-btn-cancel {
@@ -431,10 +430,10 @@
 
 .admin-task-details-info-stat label {
   display: block;
-  font-size: 11px;
-  color: #334155;
+  font-size: 12px;
+  color: #939292;
   margin-bottom: 6px;
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
@@ -449,9 +448,9 @@
 }
 
 .td-val-text-bold {
-  color: #0f172a;
-  font-weight: 600;
-  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .td-member-val-row {
@@ -1436,4 +1435,13 @@
   .admin-task-details-title {
     font-size: 14px !important;
   }
+}
+
+.no-docs-text {
+  font-size: 11px;
+  color: #a0aec0;
+  font-style: normal;
+  margin: 0;
+  padding: 6px 0;
+  font-weight: 500;
 }

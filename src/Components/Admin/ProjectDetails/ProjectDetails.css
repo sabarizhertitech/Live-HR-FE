@@ -95,6 +95,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -241,5 +242,110 @@
 
   .project-details-filter-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ── Work Update Detail Modal Responsive Styling ── */
+.work-update-detail-modal-custom .modal-dialog {
+  max-width: 680px !important;
+  width: 95% !important;
+  margin: 1.75rem auto !important;
+}
+
+.work-update-detail-modal-custom .modal-content {
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  height: auto !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: #ffffff !important;
+}
+
+.work-update-detail-modal-custom .modal-header {
+  padding: 16px 20px 12px 20px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.work-update-detail-modal-custom .modal-body {
+  padding: 16px 20px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+}
+
+.work-update-detail-modal-custom .modal-footer {
+  padding: 12px 20px 16px 20px !important;
+  border-top: 1px solid #f1f5f9 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+}
+
+.work-update-detail-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.work-update-detail-modal-custom .modal-footer .btn.btn-small-cancel,
+.work-update-detail-modal-custom .btn-small-cancel {
+  background: #A6A6A6 !important;
+  background-color: #A6A6A6 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.work-update-detail-modal-custom .modal-footer .btn.btn-small-cancel:hover,
+.work-update-detail-modal-custom .btn-small-cancel:hover {
+  background: #919191 !important;
+  background-color: #919191 !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 640px) {
+  .work-update-detail-modal-custom .modal-dialog {
+    max-width: calc(100% - 20px) !important;
+    margin: 10px auto !important;
+  }
+
+  .work-update-detail-modal-custom .modal-content {
+    max-height: 94vh !important;
+  }
+
+  .work-update-detail-modal-custom .modal-header {
+    padding: 12px 14px !important;
+  }
+
+  .work-update-detail-modal-custom .modal-body {
+    padding: 12px 14px !important;
+  }
+
+  .work-update-detail-modal-custom .modal-footer {
+    padding: 10px 14px 14px 14px !important;
+  }
+
+  .work-update-detail-info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .work-update-detail-info-grid>div:last-child {
+    grid-column: span 2;
   }
 }

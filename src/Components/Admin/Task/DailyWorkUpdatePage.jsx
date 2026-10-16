@@ -172,7 +172,7 @@ const DailyWorkUpdatePage = () => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (filterRef.current && !filterRef.current.contains(e.target) && !e.target.closest(".dwu-filter-toggle-btn")) {
+      if (filterRef.current && !filterRef.current.contains(e.target) && !e.target.closest(".dwu-filter-toggle-btn") && !e.target.closest(".dwu-employee-filter-icon")) {
         setShowFilterMenu(false);
       }
     };
@@ -183,7 +183,6 @@ const DailyWorkUpdatePage = () => {
   const handleApplyFilters = () => {
     setAppliedFilters({ employeeId, category, project, dateMode, fromDate, toDate });
     setEmpListPage(1);
-    setShowFilterMenu(false);
   };
 
   const handleResetFilters = () => {
@@ -196,14 +195,13 @@ const DailyWorkUpdatePage = () => {
     setAppliedFilters({ employeeId: "", category: "", project: "", dateMode: "Today", fromDate: "", toDate: "" });
     setEmpListPage(1);
     setShowFilterMenu(false);
-
   };
 
   const handleExport = () => {
     if (updates.length === 0) return toast.info("No data to export");
     try {
-      const headers = ['S.No', 'Date', 'Employee', 'Category', 'Project', 'Pages', 'Type', 'Task Title', 'Work Description', 'Status'];
-      const columnWidths = [40, 90, 150, 120, 140, 140, 140, 200, 350, 90];
+      const headers = ['S.No', 'Date', 'Employee', 'Category', 'Project', 'Pages', 'Type', 'Task Title', 'Phase Title', 'Work Description', 'Status', 'Phase Working Days', 'Working Days'];
+      const columnWidths = [40, 90, 150, 120, 140, 140, 140, 200, 160, 350, 90, 120, 140];
 
       const escape = (str) => String(str).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
 
@@ -270,8 +268,9 @@ const DailyWorkUpdatePage = () => {
    <Row ss:Height="25">
     ${headers.map(h => `<Cell ss:StyleID="Header"><Data ss:Type="String">${h}</Data></Cell>`).join('')}
    </Row>
-   ${updates.map((u, i) => {
+    ${updates.map((u, i) => {
         const userObj = u.updatedBy || u.userId;
+        const isTaskPhase = Boolean(u.task?._id && u.task._id !== "standalone" && (u.phaseId || u.taskPhaseId || u.referenceId));
         return `
    <Row ss:AutoFitHeight="1">
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${i + 1}</Data></Cell>
@@ -281,9 +280,12 @@ const DailyWorkUpdatePage = () => {
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.task?.project || u.project || "—")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.pages && u.pages.length > 0 ? u.pages.join(", ") : "—")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(formatWorkType(u.workType) || "—")}</Data></Cell>
-    <Cell ss:StyleID="CellAccent"><Data ss:Type="String">${escape(u.title || u.task?.taskTitle || "N/A")}</Data></Cell>
+    <Cell ss:StyleID="CellAccent"><Data ss:Type="String">${escape(isTaskPhase ? (u.task?.taskTitle || u.title || "N/A") : (u.title || u.task?.taskTitle || "N/A"))}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(isTaskPhase ? (u.title || u.phase || "—") : "—")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.description || u.note || u.phase || "—")}</Data></Cell>
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.status || u.phaseStatus || "Pending")}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(isTaskPhase && u.phaseWorkingDays !== undefined && u.phaseWorkingDays !== null ? String(u.phaseWorkingDays) : "—")}</Data></Cell>
+    <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(u.overallTaskWorkingDays !== undefined && u.overallTaskWorkingDays !== null ? String(u.overallTaskWorkingDays) : "1")}</Data></Cell>
    </Row>`;
       }).join('')}
   </Table>
@@ -409,7 +411,9 @@ const DailyWorkUpdatePage = () => {
             <button className="dwu-mobile-modal-close" onClick={() => setShowMobileModal(false)}>✕</button>
           </div>
           <div className="dwu-mobile-modal-body">
-            {selectedEmpData.updates.map((u, idx) => (
+            {selectedEmpData.updates.map((u, idx) => {
+              const isTaskPhase = Boolean(u.task?._id && u.task._id !== "standalone" && (u.phaseId || u.taskPhaseId || u.referenceId));
+              return (
               <div key={u._id} className="dwu-work-card mb-3">
                 <div className="dwu-work-card__header">
                   <div className="dwu-work-card__field"><span className="dwu-work-card__label">S.NO</span><span className="dwu-work-card__value">{idx + 1}</span></div>
@@ -421,6 +425,10 @@ const DailyWorkUpdatePage = () => {
                   {u.pages && u.pages.length > 0 && (
                     <div className="dwu-work-card__field"><span className="dwu-work-card__label">Pages</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.pages.join(", ")}</span></div>
                   )}
+                  {/* {isTaskPhase && (
+                    <div className="dwu-work-card__field"><span className="dwu-work-card__label">Phase Days</span><span className="dwu-work-card__value" style={{ color: "#16a34a", fontWeight: 600 }}>{u.phaseWorkingDays !== undefined && u.phaseWorkingDays !== null ? `${u.phaseWorkingDays} ${u.phaseWorkingDays === 1 ? 'day' : 'days'}` : "—"}</span></div>
+                  )} */}
+                  <div className="dwu-work-card__field"><span className="dwu-work-card__label">Working Days</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.overallTaskWorkingDays !== undefined && u.overallTaskWorkingDays !== null ? `${u.overallTaskWorkingDays} ${u.overallTaskWorkingDays === 1 ? 'day' : 'days'}` : "1 day"}</span></div>
                   {/* Status hidden here on mobile as requested */}
                 </div>
                 <div className="dwu-work-card__section">
@@ -428,8 +436,8 @@ const DailyWorkUpdatePage = () => {
                     <div style={{ flex: 1 }}>
                       <span className="dwu-work-card__section-label">Task Title</span>
                       <div className="d-flex align-items-center flex-wrap gap-2">
-                        <p className="dwu-work-card__text mb-0">{u.title || u.task?.taskTitle || "N/A"}</p>
-                        {(u.referenceId || u.taskPhaseId || (u.task?._id && u.task._id !== "standalone")) && (
+                        <p className="dwu-work-card__text mb-0">{isTaskPhase ? (u.task?.taskTitle || u.title || "N/A") : (u.title || u.task?.taskTitle || "N/A")}</p>
+                        {isTaskPhase && (
                           <span
                             style={{
                               display: "inline-flex",
@@ -456,10 +464,16 @@ const DailyWorkUpdatePage = () => {
                       {u.status || u.phaseStatus || "Pending"}
                     </span>
                   </div>
+                  {isTaskPhase && u.title && (
+                    <div className="mt-2">
+                      <span className="dwu-work-card__section-label">Phase Title</span>
+                      <p className="dwu-work-card__text mb-0" style={{ fontWeight: 600, color: "#4f46e5" }}>{u.title}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="dwu-work-card__section"><span className="dwu-work-card__section-label">Work Description</span><p className="dwu-work-card__text">{u.description || u.note || u.phase || "—"}</p></div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </div>
@@ -474,7 +488,7 @@ const DailyWorkUpdatePage = () => {
           <header className="dwu-admin__header">
             <div className="d-flex justify-content-between align-items-center flex-wrap " style={{ gap: "12px" }}>
               <div>
-                <h4 className="dwu-admin__title">Daily Work Updates</h4>
+                <h4 className="dwu-admin__title">Work Update Report</h4>
               </div>
               <div className="d-flex align-items-center gap-3 gap-sm-4">
                 {/* 1. Filter Button */}
@@ -636,7 +650,9 @@ const DailyWorkUpdatePage = () => {
                 </div>
                 {selectedEmpData ? (
                   <div className="dwu-detail-panel__body">
-                    {selectedEmpData.updates.map((u, idx) => (
+                    {selectedEmpData.updates.map((u, idx) => {
+                      const isTaskPhase = Boolean(u.task?._id && u.task._id !== "standalone" && (u.phaseId || u.taskPhaseId || u.referenceId));
+                      return (
                       <div key={u._id} className="dwu-work-card">
                         <div className="dwu-work-card__header">
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">S.NO</span><span className="dwu-work-card__value">{idx + 1}</span></div>
@@ -649,37 +665,51 @@ const DailyWorkUpdatePage = () => {
                             <div className="dwu-work-card__field"><span className="dwu-work-card__label">Pages</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.pages.join(", ")}</span></div>
                           )}
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">Status</span><span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${(u.status || u.phaseStatus || "pending").toLowerCase()}`}>{u.status || u.phaseStatus || "Pending"}</span></div>
+                          {/* {isTaskPhase && (
+                            <div className="dwu-work-card__field"><span className="dwu-work-card__label">Phase Days</span><span className="dwu-work-card__value" style={{ color: "#16a34a", fontWeight: 600 }}>{u.phaseWorkingDays !== undefined && u.phaseWorkingDays !== null ? `${u.phaseWorkingDays} ${u.phaseWorkingDays === 1 ? 'day' : 'days'}` : "—"}</span></div>
+                          )} */}
+                          <div className="dwu-work-card__field"><span className="dwu-work-card__label">Working Days</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.overallTaskWorkingDays !== undefined && u.overallTaskWorkingDays !== null ? `${u.overallTaskWorkingDays} ${u.overallTaskWorkingDays === 1 ? 'day' : 'days'}` : "1 day"}</span></div>
                         </div>
                         <div className="dwu-work-card__section">
-                          <span className="dwu-work-card__section-label">Task Title</span>
-                          <div className="d-flex align-items-center flex-wrap gap-2">
-                            <p className="dwu-work-card__text mb-0">{u.title || u.task?.taskTitle || "N/A"}</p>
-                            {(u.referenceId || u.taskPhaseId || (u.task?._id && u.task._id !== "standalone")) && (
-                              <span
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  fontSize: "10px",
-                                  fontWeight: "600",
-                                  color: "#5977f8",
-                                  background: "#eef2ff",
-                                  border: "1px solid #c7d2fe",
-                                  borderRadius: "4px",
-                                  padding: "1px 6px",
-                                  letterSpacing: "0.2px",
-                                  whiteSpace: "nowrap",
-                                  lineHeight: "14px"
-                                }}
-                                title="This update originates from a Task Phase"
-                              >
-                                Task Phase
-                              </span>
+                          <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                              <span className="dwu-work-card__section-label">Task Title</span>
+                              <div className="d-flex align-items-center flex-wrap gap-2">
+                                <p className="dwu-work-card__text mb-0">{isTaskPhase ? (u.task?.taskTitle || u.title || "N/A") : (u.title || u.task?.taskTitle || "N/A")}</p>
+                                {isTaskPhase && (
+                                  <span
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      fontSize: "10px",
+                                      fontWeight: "600",
+                                      color: "#5977f8",
+                                      background: "#eef2ff",
+                                      border: "1px solid #c7d2fe",
+                                      borderRadius: "4px",
+                                      padding: "1px 6px",
+                                      letterSpacing: "0.2px",
+                                      whiteSpace: "nowrap",
+                                      lineHeight: "14px"
+                                    }}
+                                    title="This update originates from a Task Phase"
+                                  >
+                                    Task Phase
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {isTaskPhase && u.title && (
+                              <div>
+                                <span className="dwu-work-card__section-label">Phase Title</span>
+                                <p className="dwu-work-card__text mb-0" style={{ fontWeight: 600, color: "#4f46e5" }}>{u.title}</p>
+                              </div>
                             )}
                           </div>
                         </div>
                         <div className="dwu-work-card__section"><span className="dwu-work-card__section-label">Work Description</span><p className="dwu-work-card__text">{u.description || u.note || u.phase || "—"}</p></div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 ) : (
                   <div className="dwu-admin__empty" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100% - 60px)", minHeight: "200px" }}><p>Select an employee to view updates.</p></div>

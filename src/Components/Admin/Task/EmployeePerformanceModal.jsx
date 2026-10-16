@@ -1,33 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Icon } from "@iconify/react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { portalInstance } from "../../../Services/instance";
 import CustomDropdown from "../../Common/CustomDropdown";
 import "../../Common/CustomDropdown.css";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(...registerables);
 
 const RECENT_TASKS_LIMIT_OPTIONS = [
   { value: 2, label: "2" },

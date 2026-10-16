@@ -1,0 +1,243 @@
+/* ==========================================================================
+   TaskBanner.css
+   Modern, responsive task alert and due-date reminder banner styles
+   ========================================================================== */
+
+.task-banner-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.task-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+  animation: taskBannerFadeIn 0.3s ease-out;
+  border-left-width: 5px;
+  border-left-style: solid;
+}
+
+@keyframes taskBannerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── 1. Variant: New Task Assignment (Indigo / Blue) ── */
+.task-banner--assignment {
+  background: #f0f5ff;
+  border: 1px solid #d0e1fd;
+  /* border-left-color: #5977f8; */
+}
+
+.task-banner--assignment .task-banner__icon-wrap {
+  background: #e0ecff;
+  color: #3d5bf6;
+}
+
+.task-banner--assignment .task-banner__badge {
+  background: #e0ecff;
+  color: #2748e8;
+  border: 1px solid #bfd6fe;
+}
+
+/* ── 2. Variant: Approaching Due Date (Amber / Orange) ── */
+.task-banner--approaching {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.task-banner--approaching .task-banner__icon-wrap {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.task-banner--approaching .task-banner__badge {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+/* ── 3. Variant: Past Due Date / Overdue (Rose / Red) ── */
+.task-banner--overdue {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.task-banner--overdue .task-banner__icon-wrap {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.task-banner--overdue .task-banner__badge {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+/* ── Banner Content Layout ── */
+.task-banner__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-banner__icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.task-banner__text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.task-banner__title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-banner__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.task-banner__badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.task-banner__subtitle {
+  font-size: 10px;
+  color: #283955;
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.task-banner__subtitle strong {
+  color: #283955;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.task-banner__meta-info {
+  font-size: 11.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* ── Banner Right Actions ── */
+.task-banner__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.task-banner__view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #5977f8;
+  color: #ffffff;
+  border: none;
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(89, 119, 248, 0.25);
+}
+
+.task-banner__view-btn:hover {
+  background: #4665f5;
+  box-shadow: 0 4px 10px rgba(89, 119, 248, 0.35);
+  transform: translateY(-1px);
+}
+
+.task-banner__view-btn:active {
+  transform: translateY(0);
+}
+
+.task-banner__close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  padding: 0;
+  line-height: 1;
+}
+
+.task-banner__close-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1e293b;
+}
+
+/* ── Mobile responsiveness ── */
+@media (max-width: 768px) {
+  .task-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .task-banner__right {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .task-banner__view-btn {
+    flex: 1;
+  }
+}

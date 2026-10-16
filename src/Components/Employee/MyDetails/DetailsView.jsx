@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Spinner, Modal, Form } from "react-bootstrap";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { FaPaperPlane, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaFileAlt, FaArrowDown } from "react-icons/fa";
+import { FaPaperPlane, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaFileAlt, FaArrowDown, FaExclamationTriangle, FaTrash } from "react-icons/fa";
 
+import { useUser } from "../../UserContext";
 import { portalInstance } from "../../../Services/instance";
+import { checkProfileRestriction } from "../../../utils/profileCompletionRestriction";
 import Sidebar from "../../HeaderSidebar/Sidebar";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./DetailsView.css";
 import "./EditRequest.css";
 
@@ -81,6 +85,11 @@ const getFieldFriendlyName = (fieldId) => {
     personal: "Personal Details",
     family: "Family Details",
     working: "Work Experience",
+    work: "Work Details",
+    department: "Department",
+    designation: "Designation",
+    experience: "Experience",
+    previousExperiences: "Previous Experience",
     kyc: "KYC Documents",
     pf: "PF Details",
     basic: "Basic Details",
@@ -157,9 +166,155 @@ const DetailsView = () => {
   const [animatedProgress, setAnimatedProgress] = useState(null);
   const [strokeProgress, setStrokeProgress] = useState(0);
 
-  // ── Document View Loading State ──
+  // ── Document View & Delete Loading States ──
+  const { user } = useUser() || {};
   const [docLoadingId, setDocLoadingId] = useState(null);
+  const [docDeletingId, setDocDeletingId] = useState(null);
+  const [showDeleteDocModal, setShowDeleteDocModal] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
   const [highlightedField, setHighlightedField] = useState(null);
+
+  const storedUser = useMemo(() => {
+    try {
+      const raw = sessionStorage.getItem("Erti-Portal");
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }, []);
+
+  const currentUser = user || storedUser;
+  const isAdminUser = currentUser?.role === "admin" || currentUser?.role === "superadmin" || location.pathname.startsWith("/admin");
+  const isHrUser = Boolean(currentUser?.isHr);
+  // Only Admin and HR are granted access to delete uploaded employee documents
+  const canDeleteFiles = Boolean(isAdminUser || isHrUser);
+
+  const initiateDeleteDocument = (doc) => {
+    if (!canDeleteFiles) {
+      toast.error("Only Admin and HR are authorized to delete uploaded documents.");
+      return;
+    }
+    setDocToDelete(doc);
+    setShowDeleteDocModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!docToDelete) return;
+    const targetEmpId = empId || employee?.empIdString || employee?.empId || employee?._id;
+    if (!targetEmpId) {
+      toast.error("Employee ID is missing.");
+      return;
+    }
+
+    try {
+      setDocDeletingId(docToDelete.id);
+      const payload = {
+        field: docToDelete.field,
+        key: docToDelete.key || undefined,
+        courseId: docToDelete.courseId || undefined,
+        courseIdx: docToDelete.courseIdx != null ? docToDelete.courseIdx : undefined,
+        certId: docToDelete.certId || undefined,
+        certIdx: docToDelete.certIdx != null ? docToDelete.certIdx : undefined,
+      };
+
+      const res = await portalInstance.delete(`/users/employee/document/${targetEmpId}`, {
+        data: payload,
+      });
+
+      if (res.data?.success) {
+        toast.success(res.data.message || "Document deleted successfully from DB and S3.");
+
+        // Locally update employee state so UI immediately shows file as removed without page refresh
+        setEmployee((prev) => {
+          if (!prev) return prev;
+          const updated = { ...prev };
+
+          if (docToDelete.field === "marksheet10") {
+            updated.marksheet10 = null;
+            updated.marksheet10Url = null;
+          } else if (docToDelete.field === "marksheet12") {
+            updated.marksheet12 = null;
+            updated.marksheet12Url = null;
+          } else if (docToDelete.field === "aadhaarFile") {
+            updated.aadhaarFile = null;
+            updated.aadhaarFileUrl = null;
+          } else if (docToDelete.field === "panFile") {
+            updated.panFile = null;
+            updated.panFileUrl = null;
+          } else if (docToDelete.field === "passbookFile") {
+            updated.passbookFile = null;
+            updated.passbookFileUrl = null;
+          } else if (docToDelete.field === "picture") {
+            updated.picture = null;
+            updated.pictureUrl = null;
+            updated.photo = "avatar.png";
+          } else if (docToDelete.field === "degreeCertificate") {
+            updated.degreeCertificate = null;
+            updated.degreeCertificateUrl = null;
+          } else if (docToDelete.field === "ugDegreeCertificate") {
+            updated.ugDegreeCertificate = null;
+            updated.ugDegreeCertificateUrl = null;
+          } else if (docToDelete.field === "pgDegreeCertificate") {
+            updated.pgDegreeCertificate = null;
+            updated.pgDegreeCertificateUrl = null;
+          } else if (
+            docToDelete.field?.startsWith("courses.") ||
+            docToDelete.courseIdx != null ||
+            docToDelete.courseId
+          ) {
+            if (Array.isArray(updated.courses)) {
+              updated.courses = updated.courses.map((c, i) => {
+                if (
+                  (docToDelete.courseId && String(c._id) === String(docToDelete.courseId)) ||
+                  i === docToDelete.courseIdx
+                ) {
+                  return { ...c, certificate: null, certificateUrl: null };
+                }
+                return c;
+              });
+            }
+          } else if (
+            docToDelete.field?.startsWith("professionalCertifications.") ||
+            docToDelete.certIdx != null ||
+            docToDelete.certId
+          ) {
+            if (Array.isArray(updated.professionalCertifications)) {
+              updated.professionalCertifications = updated.professionalCertifications.map((c, i) => {
+                if (
+                  (docToDelete.certId && String(c._id) === String(docToDelete.certId)) ||
+                  i === docToDelete.certIdx
+                ) {
+                  return { ...c, certificate: null, certificateUrl: null };
+                }
+                return c;
+              });
+            }
+          } else if (docToDelete.field && updated[docToDelete.field] !== undefined) {
+            updated[docToDelete.field] = null;
+          }
+
+          if (res.data.profileCompletion != null) {
+            updated.profileCompletion = res.data.profileCompletion;
+            if (res.data.profileCompletion < 100) {
+              updated.isProfileCompleted = false;
+            }
+          }
+
+          return updated;
+        });
+
+        setShowDeleteDocModal(false);
+        setDocToDelete(null);
+      } else {
+        toast.error(res.data?.message || "Failed to delete document.");
+      }
+    } catch (err) {
+      console.error("Delete document error:", err);
+      toast.error(err.response?.data?.message || "Failed to delete document from database and S3.");
+    } finally {
+      setDocDeletingId(null);
+    }
+  };
 
   const handleScrollToRejectedFile = (fieldId) => {
     setHighlightedField(fieldId);
@@ -309,6 +464,8 @@ const DetailsView = () => {
           url: course.certificateUrl || null,
           isUploaded: hasCert,
           iconType: "college",
+          courseId: course._id || null,
+          courseIdx: idx,
         });
       });
     }
@@ -384,6 +541,40 @@ const DetailsView = () => {
       iconType: "bank",
     });
 
+    // 7. Profile Photo
+    const hasPhoto = Boolean(
+      employee.picture ||
+      (employee.photo && employee.photo !== "avatar.png") ||
+      (employee.pictureUrl && !employee.pictureUrl.includes("avatar.png"))
+    );
+    list.push({
+      id: "picture",
+      label: "Profile Photo",
+      field: "picture",
+      key: employee.picture || (employee.photo !== "avatar.png" ? employee.photo : null),
+      url: employee.pictureUrl || null,
+      isUploaded: hasPhoto,
+      iconType: "kyc",
+    });
+
+    // 8. Professional Certifications
+    if (Array.isArray(employee.professionalCertifications) && employee.professionalCertifications.length > 0) {
+      employee.professionalCertifications.forEach((cert, idx) => {
+        const hasCert = Boolean(cert.certificate || cert.certificateUrl);
+        list.push({
+          id: `prof_cert_${idx}`,
+          label: `Certificate: ${cert.courseName || "Additional Course"}`,
+          field: `professionalCertifications.${idx}.certificate`,
+          key: cert.certificate || null,
+          url: cert.certificateUrl || cert.certificate || null,
+          isUploaded: hasCert,
+          iconType: "college",
+          certId: cert._id || null,
+          certIdx: idx,
+        });
+      });
+    }
+
     return list;
   }, [employee]);
 
@@ -391,48 +582,53 @@ const DetailsView = () => {
      EDIT SECTIONS — Dynamic based on DB status
   ════════════════════════════════════════════════════════════ */
   const EDIT_SECTIONS = useMemo(() => {
-    const sections = {
+    return {
       personal: {
         label: "Personal Details",
-        fields: ["phone", "address", "emergencyContact"],
+        subLabel: "DOB · Gender · Phone · Emergency Contact · Blood Group · Address",
+        fields: ["dob", "gender", "phone", "emergencyContact", "bloodGroup", "address"],
       },
       family: {
-        label: "Family Details",
-        fields: ["fatherName", "motherName", "siblings"],
+        label: "Family Details (add the siblings)",
+        subLabel: "Father Details · Mother Details · Siblings",
+        fields: ["fatherName", "fatherOccupation", "motherName", "motherOccupation", "siblings"],
+      },
+      work: {
+        label: "Work Details",
+        subLabel: "Department · Designation · Status · Experience · Previous Experiences",
+        fields: ["department", "designation", "status", "experience", "salary", "previousExperiences"],
       },
       education: {
-        label: "Education & Courses",
-        fields: ["school10", "marks10", "school12", "marks12", "courses"],
+        label: "Education",
+        subLabel: "10th & 12th Standard · Marks · Marksheets · Career Gaps",
+        fields: [
+          "school10", "marks10", "marksheet10", "certificate10", "passedOutYear10",
+          "school12", "marks12", "marksheet12", "certificate12", "passedOutYear12",
+          "educationPath", "careerGaps"
+        ],
+      },
+      courses: {
+        label: "Courses",
+        subLabel: "College Courses · Degree Certificates",
+        fields: ["courses", "degreeCertificate"],
       },
       kyc: {
-        label: "KYC Details",
-        fields: ["aadhaarNo", "panNo"],
+        label: "KYC & Bank Details",
+        subLabel: "Aadhaar Card · PAN Card · Bank Details · Passbook",
+        fields: [
+          "aadhaarNo", "panNo", "aadhaarFile", "panFile",
+          "bankName", "accountHolder", "accountNumber", "ifscCode", "branch", "toDate", "passbookFile"
+        ],
       },
       documents: {
-        label: "Documents Upload",
-        subLabel: "Profile Photo · Aadhaar Card · PAN Card · 10th Marksheet · 12th Marksheet · Degree Certificates",
-        fields: ["picture", "aadhaarFile", "panFile", "marksheet10", "marksheet12", "courses"],
+        label: "Upload Document",
+        subLabel: "Profile Photo · Aadhaar Card · PAN Card · 10th Marksheet · 12th Marksheet · Degree Certificates · Bank Passbook",
+        fields: [
+          "picture", "aadhaarFile", "panFile", "marksheet10", "marksheet12",
+          "courses", "degreeCertificate", "passbookFile"
+        ],
       },
     };
-
-    // 🏦 Conditional Bank Details:
-    // Show in Request Modal ONLY if it's missing from DB (First-time addition)
-    const hasBankInDB = !!(employee?.bankHistory?.length > 0);
-
-    if (!hasBankInDB) {
-      sections.bank = {
-        label: "Bank Details",
-        fields: ["bankName", "accountHolder", "accountNumber", "ifscCode"],
-      };
-
-      // Add passbook to documents if bank info is missing
-      if (sections.documents) {
-        sections.documents.fields.push("passbookFile");
-        sections.documents.subLabel += " · Bank Passbook";
-      }
-    }
-
-    return sections;
   }, [employee]);
 
   /* ════════════════════════════════════════════════════════════
@@ -610,6 +806,15 @@ const DetailsView = () => {
     return "#FF7E33";
   }, [progress]);
 
+  const profileRestriction = useMemo(() => {
+    if (!employee) return null;
+    return checkProfileRestriction({
+      ...employee,
+      role: "employee",
+      profileCompletion: employee.profileCompletion ?? progress,
+    });
+  }, [employee, progress]);
+
   useEffect(() => {
     if (!employee || progress == null) return;
     setAnimatedProgress(progress);
@@ -676,7 +881,7 @@ const DetailsView = () => {
       }
     } catch (err) {
       console.error("Approve profile error:", err);
-      alert(err.response?.data?.message || "Failed to approve profile");
+      toast.error(err.response?.data?.message || "Failed to approve profile");
     } finally {
       setReviewLoading(false);
     }
@@ -717,7 +922,7 @@ const DetailsView = () => {
       }
     } catch (err) {
       console.error("Reject profile error:", err);
-      alert(err.response?.data?.message || "Failed to reject profile");
+      toast.error(err.response?.data?.message || "Failed to reject profile");
     } finally {
       setReviewLoading(false);
     }
@@ -733,11 +938,11 @@ const DetailsView = () => {
 
   const handleSendRequest = async () => {
     if (!requestMessage.trim()) {
-      alert("Please enter a request message");
+      toast.warning("Please enter a request message");
       return;
     }
     if (requestedFields.length === 0) {
-      alert("Please select at least one section to edit");
+      toast.warning("Please select at least one section to edit");
       return;
     }
     try {
@@ -754,7 +959,7 @@ const DetailsView = () => {
       setShowStatusModal(true);
     } catch (err) {
       console.error("Send request error:", err);
-      alert(err.response?.data?.message || "Failed to send request");
+      toast.error(err.response?.data?.message || "Failed to send request");
     } finally {
       setRequestLoading(false);
     }
@@ -858,6 +1063,9 @@ const DetailsView = () => {
               Please fill in your details to complete your profile and get
               started.
             </p>
+            <div className="mt-3 p-3 rounded" style={{ background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1e40af", maxWidth: "500px", margin: "0 auto", fontSize: "14px" }}>
+              <strong>7-Day Completion Period:</strong> You have 7 days to complete your profile 100%. Please complete all required details today to ensure uninterrupted access.
+            </div>
           </div>
           <Button
             size="lg"
@@ -957,14 +1165,14 @@ const DetailsView = () => {
         // Fallback to pre-attached signed URL
         window.open(doc.url, "_blank", "noopener,noreferrer");
       } else {
-        alert("Unable to open document. The file might not be available.");
+        toast.error("Unable to open document. The file might not be available.");
       }
     } catch (err) {
       console.error("Error viewing document:", err);
       if (doc.url) {
         window.open(doc.url, "_blank", "noopener,noreferrer");
       } else {
-        alert("Failed to load document view URL. Please try again.");
+        toast.error("Failed to load document view URL. Please try again.");
       }
     } finally {
       setDocLoadingId(null);
@@ -976,6 +1184,7 @@ const DetailsView = () => {
   ════════════════════════════════════════════════════════════ */
   return (
     <div className="dashboard-page">
+      <ToastContainer position="top-right" autoClose={3000} />
       <Sidebar />
       <div className="detailsview-page">
 
@@ -1138,11 +1347,45 @@ const DetailsView = () => {
 
           {/* ── Employee Review Banners ── */}
           {isEmployeeView && employee.profileApprovalStatus === "rejected" && (
-            <div className="employee-review-alert rejected animate-in mb-4">
+            <div className="employee-review-alert rejected animate-in mb-4" style={{ display: "flex", width: "100%" }}>
               <div className="employee-review-alert-content">
-                <h4 className="employee-review-alert-title">
-                  Profile Verification Action Required
-                </h4>
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                  <h4 className="employee-review-alert-title mb-0">
+                    Profile Verification Action Required
+                  </h4>
+                  {profileRestriction && (
+                    profileRestriction.isRestricted ? (
+                      <span className="badge bg-danger text-white px-3 py-2" style={{ fontSize: "12px", borderRadius: "12px" }}>
+                         Resubmission Deadline Passed
+                      </span>
+                    ) : profileRestriction.isLastDay ? (
+                      <span className="badge bg-warning text-dark px-3 py-2" style={{ fontSize: "12px", borderRadius: "12px", fontWeight: "700" }}>
+                        Today is your last day!
+                      </span>
+                    ) : (
+                      <span className="badge bg-primary text-white px-3 py-2" style={{ fontSize: "12px", borderRadius: "12px" }}>
+                        {profileRestriction.daysRemaining} Day{profileRestriction.daysRemaining === 1 ? "" : "s"} Remaining
+                      </span>
+                    )
+                  )}
+                </div>
+
+                {profileRestriction && (
+                  profileRestriction.isRestricted ? (
+                    <div className="p-2 mb-2 rounded" style={{ background: "#fee2e2", border: "1px solid #f87171", color: "#991b1b", fontSize: "13px" }}>
+                      <strong>Access Restricted:</strong> Your 7-day resubmission period has expired. You must complete your profile 100% and resubmit to access other pages.
+                    </div>
+                  ) : profileRestriction.isLastDay ? (
+                    <div className="p-2 mb-2 rounded" style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", fontSize: "13px" }}>
+                      <strong>Today is your last day!</strong> Please complete your profile today. If not completed today, access to other pages will be restricted until your profile is completed.
+                    </div>
+                  ) : (
+                    <div className="p-2 mb-2 rounded" style={{ background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1e40af", fontSize: "13px" }}>
+                      <strong>7-Day Resubmission Period:</strong> You have {profileRestriction.daysRemaining} day{profileRestriction.daysRemaining === 1 ? "" : "s"} remaining to update and complete your profile.
+                    </div>
+                  )
+                )}
+
                 <div className="employee-review-alert-remark">
                   <strong>Admin Rejection Remark:</strong> "{employee.rejectionRemark}"
                 </div>
@@ -1153,14 +1396,6 @@ const DetailsView = () => {
                       {employee.rejectedFields.map((f, i) => (
                         <div key={i} className="rejected-item-action-pill">
                           <span className="rejected-item-name">{getFieldFriendlyName(f)}</span>
-                          {/* <button
-                            type="button"
-                            className="btn-view-rejected-file"
-                            onClick={() => handleScrollToRejectedFile(f)}
-                            title={`Scroll to and inspect ${getFieldFriendlyName(f)}`}
-                          >
-                            <FaEye className="me-1" /> View File
-                          </button> */}
                         </div>
                       ))}
                     </div>
@@ -1170,23 +1405,122 @@ const DetailsView = () => {
                   Please update or re-upload only the required document/field and resubmit your profile for Admin review.
                 </p>
               </div>
-              <div className="employee-review-alert-action">
-                {/* <Button
+              <div className="employee-review-alert-action p-3 d-flex align-items-center">
+                <Button
                   variant="danger"
                   className="btn-employee-resubmit-cta"
                   onClick={() => navigate("/emp/my-details/edit")}
                 >
                   Update & Resubmit Profile
-                </Button> */}
+                </Button>
               </div>
             </div>
           )}
 
+          {/* ── Employee Incomplete Profile Reminder / Deadline Banner ── */}
+          {isEmployeeView &&
+            employee.profileApprovalStatus !== "rejected" &&
+            employee.profileApprovalStatus !== "pending" &&
+            employee.profileApprovalStatus !== "approved" &&
+            (employee.profileCompletion < 100 || !employee.isProfileCompleted) && (
+              <div
+                className={`employee-review-alert animate-in mb-4 ${
+                  profileRestriction?.isRestricted
+                    ? "rejected"
+                    : profileRestriction?.isLastDay
+                    ? "last-day-alert"
+                    : "incomplete"
+                }`}
+                style={{
+                  border: profileRestriction?.isRestricted
+                    ? "1px solid #f87171"
+                    : profileRestriction?.isLastDay
+                    ? "1.5px solid #f59e0b"
+                    : "1px solid #93c5fd",
+                  background: profileRestriction?.isRestricted
+                    ? "#fff1f2"
+                    : profileRestriction?.isLastDay
+                    ? "#fffbeb"
+                    : "#eff6ff",
+                  display: "flex",
+                  width: "100%",
+                }}
+              >
+                <div className="employee-review-alert-content">
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                    <h4
+                      className="employee-review-alert-title mb-0"
+                      style={{
+                        color: profileRestriction?.isRestricted
+                          ? "#b91c1c"
+                          : profileRestriction?.isLastDay
+                          ? "#b45309"
+                          : "#1d4ed8",
+                      }}
+                    >
+                      {profileRestriction?.isRestricted
+                        ? "Profile Completion Required (Access Restricted)"
+                        : profileRestriction?.isLastDay
+                        ? "Profile Completion Required — Today is your last day!"
+                        : "Profile Completion In Progress"}
+                    </h4>
+                    {profileRestriction && (
+                      profileRestriction.isRestricted ? (
+                        <span className="badge bg-danger text-white px-3 py-2" style={{ fontSize: "12px", borderRadius: "12px" }}>
+                          Access Restricted
+                        </span>
+                      ) : profileRestriction.isLastDay ? (
+                        <span className="badge bg-warning text-dark px-3 py-2" style={{ fontSize: "12px", borderRadius: "12px", fontWeight: "700" }}>
+                           Today is your last day!
+                        </span>
+                      ) : (
+                        <span className="badge bg-primary text-white px-3 py-2" style={{ fontSize: "12px", borderRadius: "12px" }}>
+                          {profileRestriction.daysRemaining} Day{profileRestriction.daysRemaining === 1 ? "" : "s"} Remaining
+                        </span>
+                      )
+                    )}
+                  </div>
+
+                  {profileRestriction?.isRestricted ? (
+                    <div className="p-2 mb-2 rounded" style={{ background: "#fee2e2", border: "1px solid #f87171", color: "#991b1b", fontSize: "13px" }}>
+                      <strong>Completion Deadline Passed:</strong> Your 7-day period has expired. You must complete your profile 100% to access other pages.
+                    </div>
+                  ) : profileRestriction?.isLastDay ? (
+                    <div className="p-2 mb-2 rounded" style={{ background: "#fef3c7", border: "1px solid #f59e0b", color: "#92400e", fontSize: "13px" }}>
+                      <strong>Today is your last day!</strong> Please complete your profile 100% today. If not completed today, access to other pages will be restricted until your profile is completed.
+                    </div>
+                  ) : (
+                    <div className="p-2 mb-2 rounded" style={{ background: "#dbeafe", border: "1px solid #bfdbfe", color: "#1e40af", fontSize: "13px" }}>
+                      <strong>7-Day Completion Period:</strong> You have {profileRestriction?.daysRemaining} day{profileRestriction?.daysRemaining === 1 ? "" : "s"} remaining to complete your profile 100%. Complete the remaining details to maintain unrestricted access.
+                    </div>
+                  )}
+
+                  <p className="employee-review-alert-hint mt-2 mb-0">
+                    Your profile is currently {progress}% complete.
+                  </p>
+                </div>
+                <div className="employee-review-alert-action p-3 d-flex align-items-center">
+                  <Button
+                    variant={profileRestriction?.isRestricted ? "danger" : profileRestriction?.isLastDay ? "warning" : "primary"}
+                    className="btn-employee-resubmit-cta"
+                    style={
+                      profileRestriction?.isLastDay
+                        ? { background: "#d97706", borderColor: "#d97706", color: "#fff" }
+                        : {}
+                    }
+                    onClick={() => navigate("/emp/my-details/edit")}
+                  >
+                    {profileRestriction?.isLastDay ? "Complete Profile Today" : "Complete Profile Now"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
           {isEmployeeView && employee.profileApprovalStatus === "pending" && (
             <div className="employee-review-alert pending animate-in mb-4">
-              <div className="employee-review-alert-icon pending">
+              {/* <div className="employee-review-alert-icon pending">
                 <FaClock />
-              </div>
+              </div> */}
               <div className="employee-review-alert-content">
                 <h4 className="employee-review-alert-title">
                   Profile Submitted for Admin Review
@@ -1320,47 +1654,87 @@ const DetailsView = () => {
 
             {/* ── Career Gap Details for Admin Review ── */}
             {(() => {
-              const gap1012 = (employee.careerGaps || []).find(
-                (g) => g && g.educationStage === "10th to 12th Standard" && Number(g.gapDuration) > 0 && g.reason
+              const validGaps = (employee.careerGaps || []).filter(
+                (g) => g && Number(g.gapDuration) > 0 && g.reason && g.reason.trim().length > 0
               );
-              if (!gap1012) return null;
-              return (
-                <div className="career-gap-review-card">
-                  <div className="career-gap-review-header">
-                    <div className="career-gap-review-title-badge">
-                      <span>Career Gap Information ({gap1012.educationStage})</span>
+              if (validGaps.length === 0) return null;
+              return validGaps.map((gap, idx) => {
+                const stage = gap.educationStage || "10th to 12th Standard";
+                const is12toUG = stage === "12th Standard to UG / Engineering";
+                const is10toDip = stage === "10th to Diploma";
+
+                return (
+                  <div key={idx} className="career-gap-review-card" style={{ marginBottom: "16px" }}>
+                    <div className="career-gap-review-header">
+                      <div className="career-gap-review-title-badge">
+                        <span>Career Gap Information ({stage})</span>
+                      </div>
+                    </div>
+                    <div className="career-gap-review-grid">
+                      <div className="career-gap-review-col">
+                        <span className="career-gap-col-label">Education Stage</span>
+                        <span className="career-gap-col-val">{stage}</span>
+                      </div>
+                      {is12toUG ? (
+                        <>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">12th Passed-Out Year</span>
+                            <span className="career-gap-col-val">{gap.passedOutYear12 || employee.passedOutYear12 || "-"}</span>
+                          </div>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">Expected UG Joining</span>
+                            <span className="career-gap-col-val">{gap.expectedUGYear || "-"}</span>
+                          </div>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">Actual UG Joining</span>
+                            <span className="career-gap-col-val">{gap.actualUGYear || "-"}</span>
+                          </div>
+                        </>
+                      ) : is10toDip ? (
+                        <>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">10th Passed-Out Year</span>
+                            <span className="career-gap-col-val">{gap.passedOutYear10 || employee.passedOutYear10 || "-"}</span>
+                          </div>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">Expected Diploma Year</span>
+                            <span className="career-gap-col-val">{gap.expectedDiplomaYear || "-"}</span>
+                          </div>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">Actual Diploma Year</span>
+                            <span className="career-gap-col-val">{gap.actualDiplomaYear || "-"}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">10th Passed-Out Year</span>
+                            <span className="career-gap-col-val">{gap.passedOutYear10 || employee.passedOutYear10 || "-"}</span>
+                          </div>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">Expected 12th Year</span>
+                            <span className="career-gap-col-val">{gap.expectedYear12 || "-"}</span>
+                          </div>
+                          <div className="career-gap-review-col">
+                            <span className="career-gap-col-label">Actual 12th Year</span>
+                            <span className="career-gap-col-val">{gap.actualYear12 || employee.passedOutYear12 || "-"}</span>
+                          </div>
+                        </>
+                      )}
+                      <div className="career-gap-review-col">
+                        <span className="career-gap-col-label">Career Gap Duration</span>
+                        <span className="career-gap-duration-pill">
+                          {gap.gapDuration} {gap.gapDuration === 1 ? "Year" : "Years"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="career-gap-review-reason-box">
+                      <span className="career-gap-col-label">Reason for Career Gap</span>
+                      <p className="career-gap-reason-text">{gap.reason}</p>
                     </div>
                   </div>
-                  <div className="career-gap-review-grid">
-                    <div className="career-gap-review-col">
-                      <span className="career-gap-col-label">Education Stage</span>
-                      <span className="career-gap-col-val">{gap1012.educationStage}</span>
-                    </div>
-                    <div className="career-gap-review-col">
-                      <span className="career-gap-col-label">10th Passed-Out Year</span>
-                      <span className="career-gap-col-val">{gap1012.passedOutYear10 || employee.passedOutYear10 || "-"}</span>
-                    </div>
-                    <div className="career-gap-review-col">
-                      <span className="career-gap-col-label">Expected 12th Year</span>
-                      <span className="career-gap-col-val">{gap1012.expectedYear12 || "-"}</span>
-                    </div>
-                    <div className="career-gap-review-col">
-                      <span className="career-gap-col-label">Actual 12th Year</span>
-                      <span className="career-gap-col-val">{gap1012.actualYear12 || employee.passedOutYear12 || "-"}</span>
-                    </div>
-                    <div className="career-gap-review-col">
-                      <span className="career-gap-col-label">Career Gap Duration</span>
-                      <span className="career-gap-duration-pill">
-                        {gap1012.gapDuration} {gap1012.gapDuration === 1 ? "Year" : "Years"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="career-gap-review-reason-box">
-                    <span className="career-gap-col-label">Reason for Career Gap</span>
-                    <p className="career-gap-reason-text">{gap1012.reason}</p>
-                  </div>
-                </div>
-              );
+                );
+              });
             })()}
           </Section>
 
@@ -1383,6 +1757,54 @@ const DetailsView = () => {
               <p>No courses added</p>
             )}
           </Section>
+
+          {employee.professionalCertifications?.length > 0 && (
+            <Section id="section-certifications" title="Additional Courses / Certifications">
+              {employee.professionalCertifications.map((cert, i) => (
+                <Grid key={i}>
+                  <Item label="Course Name" value={cert.courseName} />
+                  <Item label="Course Type" value={cert.courseType} />
+                  <Item label="Institution" value={cert.institutionName} />
+                  <Item label="Duration" value={cert.courseDuration || (cert.durationValue ? `${cert.durationValue} ${cert.durationUnit || "Months"}` : null)} />
+                  {cert.certificate && (
+                    <Item
+                      label="Certificate"
+                      value={
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <a
+                            href={cert.certificate}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#4f46e5", textDecoration: "underline" }}
+                          >
+                            View Certificate
+                          </a>
+                          {canDeleteFiles && (
+                            <button
+                              type="button"
+                              className="btn-doc-delete-mini"
+                              onClick={() => initiateDeleteDocument({
+                                id: `prof_cert_${i}`,
+                                label: `Certificate: ${cert.courseName || "Additional Course"}`,
+                                field: `professionalCertifications.${i}.certificate`,
+                                key: cert.certificate,
+                                certId: cert._id,
+                                certIdx: i,
+                              })}
+                              disabled={docDeletingId === `prof_cert_${i}`}
+                              title="Delete Certificate from DB & S3 (Admin & HR only)"
+                            >
+                              <FaTrash size={11} className="me-1" /> Delete
+                            </button>
+                          )}
+                        </div>
+                      }
+                    />
+                  )}
+                </Grid>
+              ))}
+            </Section>
+          )}
 
           <Section id="section-bank" title="KYC & Bank Details">
             <Grid>
@@ -1439,7 +1861,7 @@ const DetailsView = () => {
                         <FaFileAlt />
                       </div>
                       <div className="doc-view-details">
-                        <span className="doc-view-title">{doc.label}</span>
+                        <span className="doc-view-title" title={doc.label}>{doc.label}</span>
                         <span className={`doc-status-tag ${isDocRejected ? "rejected" : (doc.isUploaded ? "uploaded" : "missing")}`}>
                           {isDocRejected ? (
                             <>
@@ -1460,24 +1882,43 @@ const DetailsView = () => {
 
                     <div className="doc-view-card-right">
                       {doc.isUploaded ? (
-                        <button
-                          type="button"
-                          className="btn-doc-view"
-                          onClick={() => handleViewDocument(doc)}
-                          disabled={docLoadingId === doc.id}
-                          title="View document in new tab (Expires in 3 minutes)"
-                        >
-                          {docLoadingId === doc.id ? (
-                            <>
-                              <Spinner animation="border" size="sm" className="me-1" />
-                              Loading...
-                            </>
-                          ) : (
-                            <>
-                              <FaEye className="me-1" /> View
-                            </>
+                        <div className="doc-view-actions-wrap d-flex align-items-center gap-2">
+                          <button
+                            type="button"
+                            className="btn-doc-view"
+                            onClick={() => handleViewDocument(doc)}
+                            disabled={docLoadingId === doc.id || docDeletingId === doc.id}
+                            title="View document in new tab (Expires in 3 minutes)"
+                          >
+                            {docLoadingId === doc.id ? (
+                              <>
+                                <Spinner animation="border" size="sm" className="me-1" />
+                                Loading...
+                              </>
+                            ) : (
+                              <>
+                                <FaEye className="me-1" /> View
+                              </>
+                            )}
+                          </button>
+                          {canDeleteFiles && (
+                            <button
+                              type="button"
+                              className="btn-doc-delete"
+                              onClick={() => initiateDeleteDocument(doc)}
+                              disabled={docDeletingId === doc.id || docLoadingId === doc.id}
+                              title="Delete document from DB & S3 (Admin & HR only)"
+                            >
+                              {docDeletingId === doc.id ? (
+                                <Spinner animation="border" size="sm" />
+                              ) : (
+                                <>
+                                  <FaTrash className="me-1" /> Delete
+                                </>
+                              )}
+                            </button>
                           )}
-                        </button>
+                        </div>
                       ) : (
                         <span className="doc-unavailable-text">No File</span>
                       )}
@@ -1594,7 +2035,7 @@ const DetailsView = () => {
                 </>
               ) : isEmployeeView && employee?.profileApprovalStatus === "rejected" ? (
                 <>
-                   Update & Resubmit
+                  Update & Resubmit
                 </>
               ) : isEmployeeView && requestStatus === "approved" ? (
                 <>
@@ -1645,11 +2086,16 @@ const DetailsView = () => {
                   return (
                     <div
                       key={key}
-                      className={`section-selection-item ${isChecked ? 'selected' : ''}`}
+                      className={`section-selection-item ${key === 'documents' ? 'full-width' : ''} ${isChecked ? 'selected' : ''}`}
                       onClick={() => toggleSection(sec.fields)}
                       role="button"
                       tabIndex={0}
-                      style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        ...(key === "documents" ? { gridColumn: "1 / -1" } : {})
+                      }}
                     >
                       <input
                         type="checkbox"
@@ -1826,7 +2272,7 @@ const DetailsView = () => {
               <FaCheckCircle style={{ fontSize: "3.5rem", color: "#10b981" }} />
             </div>
             <h5 className="mb-2" style={{ fontSize: "16px", fontWeight: "500" }}>Approve {employee?.name}'s Profile?</h5>
-            <p className="text-muted mb-0" style={{ fontSize: "13px"  }}>
+            <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
               Are you sure you want to approve this employee profile? All submitted details and uploaded documents will be verified and marked as approved. The employee will be notified immediately.
             </p>
           </Modal.Body>
@@ -1946,6 +2392,74 @@ const DetailsView = () => {
                 </>
               ) : (
                 "Submit Rejection"
+              )}
+            </button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* ── Delete Document Confirmation Modal (Admin & HR only) ── */}
+        <Modal
+          show={showDeleteDocModal}
+          onHide={() => !docDeletingId && setShowDeleteDocModal(false)}
+          centered
+          className="admin-profile-review-modal"
+        >
+          <Modal.Header closeButton={!docDeletingId}>
+            <Modal.Title className="common-modal-title text-danger">
+              Delete Uploaded Document
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-center py-4">
+            <div className="approve-modal-icon-wrap mb-3">
+              <FaTimesCircle style={{ fontSize: "3.5rem", color: "#dc2626" }} />
+            </div>
+            <h5 className="mb-2" style={{ fontSize: "16px", fontWeight: "600", color: "#1f2937" }}>
+              Delete "{docToDelete?.label}"?
+            </h5>
+            <p className="text-muted mb-2" style={{ fontSize: "13.5px", lineHeight: "1.5" }}>
+              Are you sure you want to delete this document for <strong>{employee?.name}</strong>?
+            </p>
+            <div
+              className="p-2 rounded text-start mx-auto"
+              style={{
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                color: "#991b1b",
+                fontSize: "12.5px",
+                maxWidth: "420px",
+              }}
+            >
+              <strong>Permanent Action:</strong> This file will be permanently deleted from both the database and AWS S3 storage. Only Admin and HR are permitted to delete employee uploaded files.
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="admin-reject-modal-footer">
+            <button
+              type="button"
+              className="common-modal-btn btn-small-cancel"
+              onClick={() => {
+                setShowDeleteDocModal(false);
+                setDocToDelete(null);
+              }}
+              disabled={Boolean(docDeletingId)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="common-modal-btn btn-reject"
+              style={{ backgroundColor: "#dc2626", color: "#ffffff", borderColor: "#dc2626" }}
+              onClick={handleConfirmDelete}
+              disabled={Boolean(docDeletingId)}
+            >
+              {docDeletingId ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <FaTrash className="me-2" /> Delete Permanently
+                </>
               )}
             </button>
           </Modal.Footer>

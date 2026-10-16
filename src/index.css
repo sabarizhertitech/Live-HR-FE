@@ -112,12 +112,18 @@ img::selection {
   color: #ffffff !important;
 }
 
-.btn-small-cancel {
+.btn-small-cancel,
+.modal-footer .btn.btn-small-cancel,
+.modal-footer .btn-small-cancel {
+  background: #A6A6A6 !important;
   background-color: #A6A6A6 !important;
   color: #ffffff !important;
 }
 
-.btn-small-cancel:hover {
+.btn-small-cancel:hover,
+.modal-footer .btn.btn-small-cancel:hover,
+.modal-footer .btn-small-cancel:hover {
+  background: #919191 !important;
   background-color: #919191 !important;
   color: #ffffff !important;
 }

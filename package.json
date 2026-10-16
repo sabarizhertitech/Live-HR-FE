@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@aws-sdk/s3-request-presigner": "^3.1007.0",
+    "@babel/parser": "^7.29.8",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@iconify/react": "^6.0.2",

@@ -473,10 +473,15 @@ function Adminupdate({ taskId, onClose }) {
     setLoading(true);
 
     try {
+      const isCompleted = (formData.status || "").toLowerCase() === "completed";
+      const submitData = {
+        ...formData,
+        endDate: isCompleted ? (formData.endDate || new Date().toISOString().split("T")[0]) : ""
+      };
       const data = new FormData();
-      Object.keys(formData).forEach((key) => {
+      Object.keys(submitData).forEach((key) => {
         if (key !== "phases" && key !== "assignedMembers") {
-          data.append(key, formData[key]);
+          data.append(key, submitData[key]);
         }
       });
       data.append(
@@ -742,9 +747,16 @@ function Adminupdate({ taskId, onClose }) {
                   <CustomDropdown
                     options={statusOptions}
                     value={formData.status}
-                    onChange={(val) =>
-                      setFormData({ ...formData, status: val })
-                    }
+                    onChange={(val) => {
+                      const isCompleted = (val || "").toLowerCase() === "completed";
+                      const todayStr = new Date().toISOString().split("T")[0];
+                      setFormData((prev) => ({
+                        ...prev,
+                        status: val,
+                        endDate: isCompleted ? (prev.endDate || todayStr) : "",
+                      }));
+                      setIsDirty(true);
+                    }}
                     disabled={isStatusDisabled}
                     className="status-dropdown"
                   />
@@ -806,28 +818,15 @@ function Adminupdate({ taskId, onClose }) {
                     id="endDate"
                     placeholder="YYYY-MM-DD"
                     value={formData.endDate || ""}
-                    onChange={handleChange}
-                    className="hrms-unified-input-style custom-date"
+                    readOnly={true}
+                    disabled={true}
+                    className="hrms-unified-input-style custom-date field-disabled"
                   />
                   <img
                     src={DateIcon}
                     alt="calendar"
-                    className="date-icon cursor-pointer"
-                    onClick={() => {
-                      const el = document.getElementById("endDate_picker");
-                      if (el) {
-                        try {
-                          el.showPicker();
-                        } catch (e) {}
-                      }
-                    }}
-                  />
-                  <input
-                    id="endDate_picker"
-                    type="date"
-                    value={formData.endDate || ""}
-                    onChange={(e) => handleChange({ target: { name: "endDate", value: e.target.value } })}
-                    style={{ position: "absolute", opacity: 0, width: 0, height: 0, pointerEvents: "none" }}
+                    className="date-icon opacity-50 cursor-not-allowed"
+                    style={{ pointerEvents: "none" }}
                   />
                 </div>
               </div>

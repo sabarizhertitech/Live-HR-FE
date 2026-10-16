@@ -36,9 +36,12 @@ import TaskDetailsModal from "../Task/TaskDetailsModal";
 import AssignTask from "../../Admin/Task/AssignTask";
 import CreatTask from "../Task/AssignTask";
 import Pagination from "../Pagination/Pagination";
+import "../Pagination/Pagination.css";
 import moment from "moment";
 import CustomDropdown from "../../Common/CustomDropdown";
+import "../../Common/CustomDropdown.css";
 import MissingProfileBanner from "./MissingProfileBanner";
+import TaskBanner from "../../Banner/TaskBanner";
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // HELPER FUNCTIONS
@@ -70,6 +73,15 @@ const PROJECT_STATUS_OPTIONS = [
   { value: "on hold", label: "On Hold" },
 ];
 
+const PROJECT_PAGE_SIZE_OPTIONS = [
+  { value: 5, label: "5" },
+  { value: 6, label: "6" },
+  { value: 10, label: "10" },
+  { value: 20, label: "20" },
+  { value: 50, label: "50" },
+  { value: 100, label: "100" },
+];
+
 const normalizeStatusKey = (s) => {
   const str = String(s || "pending").toLowerCase().replace(/[\s_-]+/g, "");
   if (str.includes("complete")) return "completed";
@@ -86,7 +98,109 @@ const formatStatusLabel = (s) => {
   return "Pending";
 };
 
-const groupTasksWithHistory = (items) => {
+const isWeeklyOffDate = (d) => {
+  const day = d.getDay(); // 0 = Sunday, 6 = Saturday
+  if (day === 0) return true;
+  if (day === 6) {
+    const dayOfMonth = d.getDate();
+    const saturdayRank = Math.ceil(dayOfMonth / 7);
+    if (saturdayRank === 2 || saturdayRank === 4) return true; // 2nd & 4th Saturday
+  }
+  return false;
+};
+
+const formatYMD = (d) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const calculateWorkingDaysFromHistory = (history, currentStatus, holidaysList = [], leavesList = []) => {
+  if (!Array.isArray(history) || history.length === 0) {
+    const s = normalizeStatusKey(currentStatus);
+    return s === "completed" ? 1 : (s === "inprocess" ? 1 : 0);
+  }
+
+  const holidaysSet = new Set(holidaysList || []);
+  const leavesSet = new Set(leavesList || []);
+
+  const sorted = [...history].sort((a, b) => {
+    const timeA = new Date(a.date || a.completionDate || a.updateDate || a.createdAt || 0).getTime();
+    const timeB = new Date(b.date || b.completionDate || b.updateDate || b.createdAt || 0).getTime();
+    return timeA - timeB;
+  });
+
+  const statusByDate = {};
+  sorted.forEach((item) => {
+    const rawDate = item.date || item.completionDate || item.updateDate || item.createdAt;
+    if (!rawDate) return;
+    const dStr = new Date(rawDate).toISOString().split("T")[0];
+    statusByDate[dStr] = normalizeStatusKey(item.status || item.phaseStatus || currentStatus);
+  });
+
+  const distinctDates = Object.keys(statusByDate).sort();
+  if (distinctDates.length === 0) return 0;
+
+  const minDate = distinctDates[0];
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  let completionDate = null;
+  for (const dStr of distinctDates) {
+    if (statusByDate[dStr] === "completed") {
+      completionDate = dStr;
+      break;
+    }
+  }
+
+  const normCurrent = normalizeStatusKey(currentStatus);
+  if (!completionDate && normCurrent === "completed") {
+    completionDate = distinctDates[distinctDates.length - 1];
+    statusByDate[completionDate] = "completed";
+  }
+
+  const endDate = completionDate ? completionDate : todayStr;
+
+  let accumulatedDays = 0;
+  let runningStatus = "pending";
+
+  const [startY, startM, startD] = minDate.split("-").map(Number);
+  const [endY, endM, endD] = endDate.split("-").map(Number);
+
+  let cur = new Date(startY, startM - 1, startD, 12, 0, 0);
+  const end = new Date(endY, endM - 1, endD, 12, 0, 0);
+
+  while (cur <= end) {
+    const curStr = formatYMD(cur);
+    if (statusByDate[curStr]) {
+      runningStatus = statusByDate[curStr];
+    }
+
+    const isWeeklyOff = isWeeklyOffDate(cur);
+    const isHoliday = holidaysSet.has(curStr);
+    const isLeaveOrAbsent = leavesSet.has(curStr);
+    const isSkipDay = isWeeklyOff || isHoliday || isLeaveOrAbsent;
+
+    if (!isSkipDay) {
+      if (runningStatus === "inprocess") {
+        accumulatedDays += 1;
+      } else if (runningStatus === "completed") {
+        accumulatedDays += 1;
+        break;
+      }
+      // Pending or On Hold: add 0 days
+    }
+
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  if (normCurrent === "completed") {
+    return Math.max(1, accumulatedDays);
+  }
+  return accumulatedDays;
+};
+
+const groupTasksWithHistory = (items, holidaysList = [], leavesList = []) => {
   if (!Array.isArray(items) || items.length === 0) return [];
 
   const groups = new Map();
@@ -120,13 +234,19 @@ const groupTasksWithHistory = (items) => {
     });
 
     const latest = sorted[0];
+    const latestStatus = latest.status || latest.phaseStatus || "Pending";
+    const normKey = normalizeStatusKey(latestStatus);
+    const calculatedDays = calculateWorkingDaysFromHistory(sorted, latestStatus, holidaysList, leavesList);
 
     grouped.push({
       ...latest,
       taskTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
       displayTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
       latestDate: latest.date || latest.completionDate || latest.updateDate || latest.createdAt,
-      latestStatus: latest.status || latest.phaseStatus || "Pending",
+      latestStatus: latestStatus,
+      workingDays: calculatedDays,
+      isCompleted: normKey === "completed",
+      isInProcess: normKey === "inprocess",
       history: sorted,
     });
   });
@@ -139,6 +259,63 @@ const groupTasksWithHistory = (items) => {
 
   return grouped;
 };
+
+const getPhaseWorkingDays = (phase) => {
+  if (phase?.workingDays !== undefined && phase?.workingDays !== null && Number(phase.workingDays) > 0) {
+    return Number(phase.workingDays);
+  }
+  if (phase?.phaseWorkingDays !== undefined && phase?.phaseWorkingDays !== null && Number(phase.phaseWorkingDays) > 0) {
+    return Number(phase.phaseWorkingDays);
+  }
+  if (phase?.overallTaskWorkingDays !== undefined && phase?.overallTaskWorkingDays !== null && Number(phase.overallTaskWorkingDays) > 0) {
+    return Number(phase.overallTaskWorkingDays);
+  }
+
+  const history = Array.isArray(phase?.history) && phase.history.length > 0 ? phase.history : (phase ? [phase] : []);
+  const distinctDates = new Set();
+  history.forEach((h) => {
+    const rawStatus = (h.status || h.phaseStatus || "").toLowerCase().replace(/[-_\s]/g, "");
+    if (rawStatus !== "hold" && rawStatus !== "onhold" && rawStatus !== "pending") {
+      const dVal = h.date || h.completionDate || h.updateDate || h.createdAt;
+      if (dVal) {
+        const dObj = new Date(dVal);
+        if (!isNaN(dObj.getTime())) {
+          distinctDates.add(dObj.toISOString().split("T")[0]);
+        }
+      }
+    }
+  });
+
+  if (distinctDates.size > 0) {
+    return distinctDates.size;
+  }
+
+  return history.length > 0 ? 1 : 0;
+};
+
+const getProjectTotalWorkingDays = (items) => {
+  if (!Array.isArray(items) || items.length === 0) return 0;
+  const distinctDates = new Set();
+  items.forEach((item) => {
+    const records = Array.isArray(item?.history) && item.history.length > 0 ? item.history : [item];
+    records.forEach((h) => {
+      const rawStatus = (h?.status || h?.phaseStatus || item?.latestStatus || "").toLowerCase().replace(/[-_\s]/g, "");
+      if (rawStatus !== "hold" && rawStatus !== "onhold" && rawStatus !== "pending") {
+        const dVal = h?.date || h?.completionDate || h?.updateDate || h?.createdAt || item?.latestDate;
+        if (dVal) {
+          const dObj = new Date(dVal);
+          if (!isNaN(dObj.getTime())) {
+            distinctDates.add(dObj.toISOString().split("T")[0]);
+          }
+        }
+      }
+    });
+  });
+
+  if (distinctDates.size > 0) return distinctDates.size;
+  return items.length > 0 ? 1 : 0;
+};
+
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MAIN COMPONENT
@@ -281,7 +458,7 @@ const EmployeeDashboard = () => {
   const [phasesLoading, setPhasesLoading] = useState(false);
   const [activePhaseProject, setActivePhaseProject] = useState(null);
   const [projectCurrentPage, setProjectCurrentPage] = useState(1);
-  const projectItemsPerPage = 10;
+  const [projectItemsPerPage, setProjectItemsPerPage] = useState(6);
 
   // â”€â”€ QUICK ACTION POPUP STATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [showAssignPopup, setShowAssignPopup] = useState(false);
@@ -394,7 +571,7 @@ const EmployeeDashboard = () => {
 
 
   const formatAttendanceTime = (iso) => {
-    if (!iso) return "â€”";
+    if (!iso) return "";
     return new Date(iso).toLocaleTimeString("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -403,7 +580,7 @@ const EmployeeDashboard = () => {
   };
 
   const formatWorkingHours = (minutes) => {
-    if (!minutes || minutes <= 0) return "â€”";
+    if (!minutes || minutes <= 0) return "00:00:00";
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${String(m).padStart(2, "0")}m`;
@@ -712,8 +889,9 @@ const EmployeeDashboard = () => {
     <Cell ss:StyleID="Cell"><Data ss:Type="String">${escape(item.status || "N/A")}</Data></Cell>
    </Row>`;
           } else {
-            const formattedDate = item.date
-              ? new Date(item.date).toLocaleDateString("en-GB", {
+            const itemDate = item.latestDate || item.date || item.completionDate || item.updateDate || item.createdAt;
+            const formattedDate = itemDate && !isNaN(new Date(itemDate).getTime())
+              ? new Date(itemDate).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
@@ -967,7 +1145,8 @@ const EmployeeDashboard = () => {
         params: { projectName, category },
       });
       if (res.data.success) {
-        setProjectPhases(res.data.data || []);
+        const grouped = groupTasksWithHistory(res.data.data || [], res.data.holidays || [], res.data.leaves || []);
+        setProjectPhases(grouped);
       }
     } catch (err) {
       console.error("Phases fetch error:", err);
@@ -1218,7 +1397,7 @@ const EmployeeDashboard = () => {
               "Admin",
             description:
               (task.taskTitle
-                ? task.taskTitle + (task.taskDetails ? " â€” " : "")
+                ? task.taskTitle + (task.taskDetails ? "  " : "")
                 : "") + (task.taskDetails || "No details provided."),
           }));
 
@@ -1838,7 +2017,7 @@ const EmployeeDashboard = () => {
   };
 
   const formatTaskCardDate = (dateStr) => {
-    if (!dateStr) return { month: "â€”", day: "â€”" };
+    if (!dateStr) return { month: "", day: "" };
     const d = new Date(dateStr);
     return {
       month: d.toLocaleString("en-US", { month: "short" }),
@@ -2004,7 +2183,7 @@ const EmployeeDashboard = () => {
                       ) : (
                         <>
                           <h2 className="employee-dashboard-title">
-                            {kural.transliteration1 || kural.couplet || kural.Translation || "â€”"}
+                            {kural.transliteration1 || kural.couplet || kural.Translation || ""}
                             <br />
                             {kural.transliteration2 || ""}
                           </h2>
@@ -2210,7 +2389,7 @@ const EmployeeDashboard = () => {
                                 className="admin-birthday-card__avatar"
                                 onError={(e) => { e.target.src = "/avatar.png"; }}
                               />
-                              {/* <span className="admin-birthday-card__confetti-badge">ðŸŽ‚</span> */}
+                              {/* <span className="admin-birthday-card__confetti-badge">🎂</span> */}
                             </div>
                             <div className="admin-birthday-card__emp-details">
                               <h5 className="admin-birthday-card__emp-name">{emp.name}</h5>
@@ -2458,87 +2637,8 @@ const EmployeeDashboard = () => {
               </div>
             )}
 
-            {/* TASK DUE DATE ALERT BANNER */}
-            {dueTasksAlerts.length > 0 && (
-              <div
-                className="task-due-alert-banner mb-3"
-                style={{
-                  background: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
-                  border: "1px solid #fecdd3",
-                  borderRadius: "12px",
-                  padding: "14px 18px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  boxShadow: "0 2px 6px rgba(225, 29, 72, 0.08)",
-                  gap: "12px",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div
-                    style={{
-                      width: "38px",
-                      height: "38px",
-                      borderRadius: "10px",
-                      background: "#e11d48",
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "18px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    â°
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: "700", color: "#9f1239", fontSize: "13.5px" }}>
-                      Upcoming Task Due Date Alert
-                    </div>
-                    <div style={{ color: "#4c0519", fontSize: "12.5px", marginTop: "2px" }}>
-                      {dueTasksAlerts.length === 1 ? (
-                        <>
-                          Task <strong>"{dueTasksAlerts[0].taskTitle}"</strong> is due on{" "}
-                          <strong>
-                            {new Date(dueTasksAlerts[0].dueDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
-                          </strong>. Please complete and submit your work before the deadline.
-                        </>
-                      ) : (
-                        <>
-                          You have <strong>{dueTasksAlerts.length} tasks</strong> approaching their due date! Please complete them before the deadline.
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  style={{
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    padding: "6px 14px",
-                    borderColor: "#e11d48",
-                    color: "#e11d48",
-                    whiteSpace: "nowrap",
-                  }}
-                  onClick={() => {
-                    if (dueTasksAlerts.length === 1) {
-                      handleTaskClick(dueTasksAlerts[0]._id);
-                    } else {
-                      navigate("/emp/tasks");
-                    }
-                  }}
-                >
-                  View Task{dueTasksAlerts.length > 1 ? "s" : ""}
-                </Button>
-              </div>
-            )}
+            {/* TASK DUE DATE & REMINDER BANNER */}
+            <TaskBanner loggedInUserId={loggedInUserId} />
 
             {/* ASSIGNED TASKS + QUICK ACTIONS */}
             <Row className="mb-4 g-3">
@@ -2695,6 +2795,19 @@ const EmployeeDashboard = () => {
                         >
                           Download Excel
                         </Button>
+
+                        <div className="d-flex align-items-center gap-2">
+                          <CustomDropdown
+                            options={PROJECT_PAGE_SIZE_OPTIONS}
+                            value={projectItemsPerPage}
+                            onChange={(val) => {
+                              setProjectItemsPerPage(Number(val));
+                              setProjectCurrentPage(1);
+                            }}
+                            placeholder={String(projectItemsPerPage)}
+                            style={{ width: "80px", height: "34px" }}
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -2760,28 +2873,25 @@ const EmployeeDashboard = () => {
                       </table>
                     </div>
 
-                    {/* Pagination: only render when items exceed page size â€” from File 2 */}
-                    {projectDetails.filter(
-                      (p) =>
-                        projectStatusFilter === "all" ||
-                        p.status?.toLowerCase() === projectStatusFilter
-                    ).length > projectItemsPerPage && (
-                        <div className="">
+                    {/* Pagination */}
+                    {(() => {
+                      const filtered = projectDetails.filter(
+                        (p) =>
+                          projectStatusFilter === "all" ||
+                          p.status?.toLowerCase() === projectStatusFilter
+                      );
+                      if (filtered.length === 0) return null;
+                      return (
+                        <div className="mt-3">
                           <Pagination
-                            totalItems={
-                              projectDetails.filter(
-                                (p) =>
-                                  projectStatusFilter === "all" ||
-                                  p.status?.toLowerCase() === projectStatusFilter
-                              ).length
-                            }
+                            totalItems={filtered.length}
                             pageSize={projectItemsPerPage}
                             currentPage={projectCurrentPage}
                             onPageChange={(page) => setProjectCurrentPage(page)}
-                            noMargin={true}
                           />
                         </div>
-                      )}
+                      );
+                    })()}
                   </Card.Body>
                 </Card>
               </Col>
@@ -3233,33 +3343,38 @@ const EmployeeDashboard = () => {
                 </div>
                 {showPermissionTypeDropdown && (
                   <div className="custom-dropdown-menu" style={{ width: "100%", zIndex: 10, position: "absolute", top: "100%", left: "0", background: "#fff", border: "1px solid #e1e4e8", borderRadius: "8px", marginTop: "4px" }}>
-                    <div
-                      className={`custom-dropdown-option ${permissionData.permissionType === "MORNING" ? "selected" : ""}`}
-                      onClick={() => {
-                        setPermissionData({ ...permissionData, permissionType: "MORNING", fromTime: "10:00", toTime: "" });
-                        setShowPermissionTypeDropdown(false);
-                      }}
-                    >
-                      Morning (Late Check-In)
-                    </div>
-                    <div
-                      className={`custom-dropdown-option ${permissionData.permissionType === "AFTERNOON" ? "selected" : ""}`}
-                      onClick={() => {
-                        setPermissionData({ ...permissionData, permissionType: "AFTERNOON", fromTime: "", toTime: "" });
-                        setShowPermissionTypeDropdown(false);
-                      }}
-                    >
-                      Out & Return (Re-Check-In Allowed)
-                    </div>
-                    <div
-                      className={`custom-dropdown-option ${permissionData.permissionType === "EVENING" ? "selected" : ""}`}
-                      onClick={() => {
-                        setPermissionData({ ...permissionData, permissionType: "EVENING", fromTime: "", toTime: "18:30" });
-                        setShowPermissionTypeDropdown(false);
-                      }}
-                    >
-                      Evening (Early Check-Out)
-                    </div>
+                    {permissionType === "CHECK_IN" ? (
+                      <div
+                        className={`custom-dropdown-option ${permissionData.permissionType === "MORNING" ? "selected" : ""}`}
+                        onClick={() => {
+                          setPermissionData({ ...permissionData, permissionType: "MORNING", fromTime: "10:00", toTime: "" });
+                          setShowPermissionTypeDropdown(false);
+                        }}
+                      >
+                        Morning (Late Check-In)
+                      </div>
+                    ) : (
+                      <>
+                        <div
+                          className={`custom-dropdown-option ${permissionData.permissionType === "AFTERNOON" ? "selected" : ""}`}
+                          onClick={() => {
+                            setPermissionData({ ...permissionData, permissionType: "AFTERNOON", fromTime: "", toTime: "" });
+                            setShowPermissionTypeDropdown(false);
+                          }}
+                        >
+                          Out & Return (Re-Check-In Allowed)
+                        </div>
+                        <div
+                          className={`custom-dropdown-option ${permissionData.permissionType === "EVENING" ? "selected" : ""}`}
+                          onClick={() => {
+                            setPermissionData({ ...permissionData, permissionType: "EVENING", fromTime: "", toTime: "18:30" });
+                            setShowPermissionTypeDropdown(false);
+                          }}
+                        >
+                          Evening (Early Check-Out)
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -3323,15 +3438,17 @@ const EmployeeDashboard = () => {
               <button
                 type="button"
                 onClick={handlePermissionSubmit}
+                disabled={actionLoading}
                 className="btn-confirm-success"
                 style={{ padding: '8px 24px', fontSize: '14px', borderRadius: '6px', minWidth: '120px', border: 'none' }}
               >
-                Submit
+                {actionLoading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>
         </Modal.Body>
       </Modal>
+
       {/* TASK DETAILS MODAL */}
       {selectedTaskId && (
         <TaskDetailsModal taskId={selectedTaskId} onClose={handleCloseTaskModal} />
@@ -3355,7 +3472,6 @@ const EmployeeDashboard = () => {
       {showCreatPopup && (
         <div className="empdb-popup-backdrop">
           <div className="empdb-popup-overlay" onClick={() => setShowCreatPopup(false)}>
-            {/* Added separate inline style for width as requested */}
             <div className="empdb-popup-container" style={{ width: "92%", maxWidth: "600px" }} onClick={(e) => e.stopPropagation()}>
               <CreatTask
                 onClose={() => setShowCreatPopup(false)}
@@ -3374,96 +3490,148 @@ const EmployeeDashboard = () => {
           setProjExpandedCards({});
         }}
         centered
-        size="md"
+        size="lg"
         className="project-phases-modal-custom"
       >
         <div className="project-details-modal-header border-0 pb-0 d-flex flex-column align-items-stretch">
           {/* Top Row: Title & Close Button */}
-          <div className="d-flex justify-content-between align-items-center "  >
-            <h3 className="assign-task__members-title m-0" >
+          <div className="d-flex justify-content-between align-items-center">
+            <h3 className="assign-task__members-title m-0">
               Work Details
             </h3>
             <button
-              type="button"
-              title="Close"
+              className="common-modal-close-x"
               onClick={() => {
                 setShowPhasesModal(false);
                 setProjExpandedCards({});
               }}
-              className="common-modal-close-x"
-              aria-label="Close"
-              style={{
-                border: "none",
-                background: "transparent",
-                boxShadow: "none",
-                padding: "4px 8px",
-                margin: "0",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
             >
-              <FaTimes size={16} />
+              ✕
             </button>
           </div>
-          {/* Bottom Row: Project/Category info on Left, Export Excel on Right */}
-          <div className="d-flex justify-content-between align-items-center w-100 mt-2 " style={{ paddingBottom: "10px" }}>
-            <div className="project-details-modal-header-content d-flex align-items-center  ">
-              <div className="project-details-modal-item">
-                <span className="dwu-work-card__label">Project</span>
-                <span className="dwu-work-card__value">
-                  {activePhaseProject?.projectName || "Project Details"}
-                </span>
-              </div>
-              <div className="project-details-modal-item">
-                <span className="dwu-work-card__label">Category</span>
-                <span className="dwu-work-card__value">
-                  {activePhaseProject?.category || "General"}
-                </span>
-              </div>
-            </div>
+          {/* Bottom Row: Project/Category info & Working Days on Left, Export Excel on Right */}
+          {(() => {
+            const completedCount = projectPhases.filter(
+              (p) => p.isCompleted || normalizeStatusKey(p.latestStatus || p.status) === "completed"
+            ).length;
+            const inProcessPhases = projectPhases.filter(
+              (p) => p.isInProcess || normalizeStatusKey(p.latestStatus || p.status) === "inprocess"
+            );
+            const inProcessCount = inProcessPhases.length;
+            const inProcessDays = inProcessPhases.reduce(
+              (sum, p) => sum + (p.workingDays || 0),
+              0
+            );
+            const totalWorkingDays = projectPhases.reduce(
+              (sum, p) => sum + (p.workingDays || 0),
+              0
+            );
 
-            <Button
-              variant="outline-primary"
-              size="sm"
-              className="excel-export-btn"
-              onClick={() =>
-                exportToExcel(
-                  projectPhases,
-                  `${activePhaseProject?.projectName || "Project"}_Phases_${new Date().toISOString().split("T")[0]}`,
-                  "phases"
-                )
-              }
-            >
-              Export Excel
-            </Button>
+            return (
+              <div className="d-flex justify-content-between align-items-center w-100 mt-2" style={{ paddingBottom: "10px", flexWrap: "wrap", gap: "12px" }}>
+                <div className="project-details-modal-header-content d-flex align-items-center flex-wrap" style={{ gap: "16px" }}>
+                  <div className="project-details-modal-item">
+                    <span className="dwu-work-card__label">Project</span>
+                    <span className="dwu-work-card__value">
+                      {activePhaseProject?.projectName || "Project Details"}
+                    </span>
+                  </div>
+                  <div className="project-details-modal-item">
+                    <span className="dwu-work-card__label">Category</span>
+                    <span className="dwu-work-card__value">
+                      {activePhaseProject?.category || "General"}
+                    </span>
+                  </div>
+                  <div className="d-flex align-items-center flex-wrap" style={{ gap: "6px" }}>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "600",
+                        background: "#eff6ff",
+                        color: "#1d4ed8",
+                        padding: "3px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid #bfdbfe",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      In Process: <strong>{inProcessDays || 0} Days</strong> ({inProcessCount || 0} tasks)
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "600",
+                        background: "#ecfdf5",
+                        color: "#047857",
+                        padding: "3px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid #a7f3d0",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      Completed: <strong>{completedCount || 0} Tasks</strong>
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "600",
+                        background: "#f8fafc",
+                        color: "#475569",
+                        padding: "3px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid #e2e8f0",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      Overall: <strong>{totalWorkingDays || 0} Days</strong>
+                    </span>
+                  </div>
+                </div>
 
-          </div>
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  className="excel-export-btn"
+                  onClick={() =>
+                    exportToExcel(
+                      projectPhases,
+                      `${activePhaseProject?.projectName || "Project"}_Phases_${new Date().toISOString().split("T")[0]}`,
+                      "phases"
+                    )
+                  }
+                >
+                  Export Excel
+                </Button>
+              </div>
+            );
+          })()}
         </div>
 
-        <div className="empproject-details-modal-body ">
+        <div className="empproject-details-modal-body">
           {phasesLoading ? (
             <div className="text-center py-5">
               <Spinner animation="border" variant="primary" />
-              <p className="mt-3 text-muted" style={{ fontSize: "13px" }}>
-                Analyzing project data...
-              </p>
+              <p className="mt-2 text-muted">Loading project details...</p>
             </div>
           ) : projectPhases.length === 0 ? (
-            <div className="project-details-no-work-container">
-              <h5 className="project-details-no-work-title">No Work Recorded</h5>
+            <div className="text-center py-5 text-muted">
+              No tasks found for this project.
             </div>
           ) : (
-            <div className="project-phases-container">
-              {/* Duplicate header title removed as it is now in the Modal.Header */}
-              <div className="project-phases-list">
-                {groupTasksWithHistory(projectPhases).map((phase, idx) => {
-                  const cardKey = `phase-${idx}`;
-                  const hasMultipleUpdates = Array.isArray(phase.history) && phase.history.length > 1;
+            <div className="project-phases-list">
+              <div className="dwu-work-list" style={{ gap: "12px", display: "flex", flexDirection: "column" }}>
+                {projectPhases.map((phase, idx) => {
+                  const cardKey = phase._id || `phase-${idx}`;
                   const isExpanded = !!projExpandedCards[cardKey];
-                  const normKey = normalizeStatusKey(phase.latestStatus);
+                  const normKey = normalizeStatusKey(phase.latestStatus || phase.status);
                   const isCompleted = normKey === "completed";
+                  const hasMultipleUpdates = Array.isArray(phase.history) && phase.history.length > 1;
 
                   return (
                     <div
@@ -3477,29 +3645,50 @@ const EmployeeDashboard = () => {
                         }));
                       }}
                     >
-                      <div className="dwu-work-card__header" style={{ display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px" }}>
+                      <div className="dwu-work-card__header" style={{ display: "flex", alignItems: "center", gap: "16px", padding: "12px 16px" }}>
                         <div className="dwu-work-card__field dwu-field-title" style={{ flex: 1, minWidth: 0 }}>
                           <span className="dwu-work-card__label">Task</span>
                           <span className="dwu-work-card__value" title={phase.taskTitle || phase.name} style={{ display: "block", wordBreak: "break-word", whiteSpace: "normal" }}>
                             {phase.taskTitle || phase.name}
                           </span>
                         </div>
-                        <div className="dwu-work-card__field dwu-field-date" style={{ width: "70px", flexShrink: 0, textAlign: "left" }}>
+                        <div className="dwu-work-card__field dwu-field-date" style={{ width: "80px", flexShrink: 0, textAlign: "left" }}>
                           <span className="dwu-work-card__label dwu-label-hide-mobile">Date</span>
                           <span className="dwu-work-card__value">
-                            {phase.latestDate
-                              ? new Date(phase.latestDate).toLocaleDateString("en-GB", {
-                                day: "2-digit",
-                                month: "short",
-                              })
-                              : "—"}
+                            {(() => {
+                              const rawDate = phase.latestDate || phase.date || phase.completionDate || phase.updateDate || phase.createdAt;
+                              if (!rawDate) return "—";
+                              const d = new Date(rawDate);
+                              return isNaN(d.getTime())
+                                ? "—"
+                                : d.toLocaleDateString("en-GB", {
+                                  day: "2-digit",
+                                  month: "short",
+                                });
+                            })()}
+                          </span>
+                        </div>
+
+                        <div
+                          className="dwu-work-card__field dwu-field-working-days"
+                          style={{ width: "95px", flexShrink: 0, textAlign: "left" }}
+                        >
+                          <span className="dwu-work-card__label dwu-label-hide-mobile">Overall Days</span>
+                          <span
+                            className="dwu-work-card__value"
+                            style={{
+                              fontWeight: "600",
+                              color: isCompleted ? "#059669" : "#4f46e5",
+                            }}
+                          >
+                            {phase.workingDays || 0} {phase.workingDays === 1 ? "Day" : "Days"}
                           </span>
                         </div>
 
                         <div className="dwu-work-card__field dwu-field-status" style={{ width: "95px", flexShrink: 0, textAlign: "left" }}>
                           <span className="dwu-work-card__label dwu-label-hide-mobile">Status</span>
                           <span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${normKey}`} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                            {formatStatusLabel(phase.latestStatus)}
+                            {formatStatusLabel(phase.latestStatus || phase.status)}
                             {isCompleted && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
                           </span>
                         </div>
@@ -3510,7 +3699,7 @@ const EmployeeDashboard = () => {
                             flexShrink: 0,
                             display: "flex",
                             justifyContent: "flex-start",
-                            alignItems: "start"
+                            alignItems: "center"
                           }}
                         >
                           <FaChevronDown
@@ -3526,7 +3715,7 @@ const EmployeeDashboard = () => {
                       </div>
 
                       {isExpanded && (
-                        <div className="dwu-work-card__section_phase" style={{ paddingTop: "8px", borderTop: "1px dashed #e2e8f0" }} onClick={(e) => e.stopPropagation()}>
+                        <div className="dwu-work-card__section_phase" style={{ paddingTop: "12px", borderTop: "1px dashed #e2e8f0" }} onClick={(e) => e.stopPropagation()}>
                           {hasMultipleUpdates ? (
                             /* ── Status History (multiple updates) ── */
                             <div className="dwu-task-history-section">
@@ -3539,13 +3728,13 @@ const EmployeeDashboard = () => {
                                 </span>
                               </div>
 
-                              <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "#f8fafc" }}>
-                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                              <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", background: "#ffffff" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                                   <thead>
-                                    <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", color: "#64748b", fontWeight: "600" }}>
-                                      <th style={{ padding: "6px 10px", textAlign: "left", width: "85px" }}>Date</th>
-                                      <th style={{ padding: "6px 10px", textAlign: "left", width: "115px" }}>Status</th>
-                                      <th style={{ padding: "6px 10px", textAlign: "left" }}>Work Summary</th>
+                                    <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#475569", fontWeight: "600" }}>
+                                      <th style={{ padding: "10px 14px", textAlign: "left", width: "95px" }}>Date</th>
+                                      <th style={{ padding: "10px 14px", textAlign: "left", width: "125px" }}>Status</th>
+                                      <th style={{ padding: "10px 14px", textAlign: "left" }}>Work Summary</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -3562,21 +3751,21 @@ const EmployeeDashboard = () => {
                                         <tr
                                           key={hIdx}
                                           style={{
-                                            borderBottom: hIdx === phase.history.length - 1 ? "none" : "1px solid #e2e8f0",
-                                            background: hIdx % 2 === 0 ? "#ffffff" : "#f8fafc"
+                                            borderBottom: hIdx === phase.history.length - 1 ? "none" : "1px solid #f1f5f9",
+                                            background: hIdx % 2 === 0 ? "#ffffff" : "#fcfdfe"
                                           }}
                                         >
-                                          <td style={{ padding: "7px 10px", verticalAlign: "top", fontWeight: "500", color: "#334155" }}>
+                                          <td style={{ padding: "12px 14px", verticalAlign: "top", fontWeight: "500", color: "#334155" }}>
                                             {dateStr}
                                           </td>
-                                          <td style={{ padding: "7px 10px", verticalAlign: "top" }}>
+                                          <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                                             <span
                                               className={`dwu-admin__statusBadge dwu-admin__statusBadge--${hKey}`}
                                               style={{
                                                 display: "inline-flex",
                                                 alignItems: "center",
                                                 gap: "4px",
-                                                padding: "2px 8px",
+                                                padding: "3px 9px",
                                                 fontSize: "11px",
                                                 whiteSpace: "nowrap"
                                               }}
@@ -3586,14 +3775,14 @@ const EmployeeDashboard = () => {
                                               {hLocked && <span role="img" aria-label="locked" style={{ fontSize: "11px", lineHeight: 1 }}></span>}
                                             </span>
                                           </td>
-                                          <td style={{ padding: "7px 10px", verticalAlign: "top", color: "#475569" }}>
-                                            <div style={{ wordBreak: "break-word", overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}>
+                                          <td style={{ padding: "12px 14px", verticalAlign: "top", color: "#334155", lineHeight: "1.6" }}>
+                                            <div style={{ wordBreak: "break-word", overflowWrap: "anywhere", whiteSpace: "pre-wrap", fontSize: "13px" }}>
                                               {h.note || h.description || h.details || "—"}
                                             </div>
                                             {Array.isArray(h.pages) && h.pages.length > 0 && (
-                                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+                                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
                                                 {h.pages.map((p, pI) => (
-                                                  <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                                  <span key={pI} style={{ fontSize: "11px", background: "#e0e7ff", color: "#3730a3", padding: "2px 8px", borderRadius: "4px", fontWeight: "500" }}>
                                                     {p}
                                                   </span>
                                                 ))}
@@ -3608,8 +3797,8 @@ const EmployeeDashboard = () => {
                               </div>
                             </div>
                           ) : (
-                            /* â”€â”€ Single update: show description & work summary â”€â”€ */
-                            <div style={{ padding: "4px 0 8px 0" }}>
+                            /* ── Single update: show description & work summary ── */
+                            <div style={{ padding: "8px 6px 12px 6px" }}>
                               <span className="dwu-work-card__label mt-0 d-block mb-1">Work Summary</span>
                               <p
                                 className="dwu-work-card__text"
@@ -3619,16 +3808,17 @@ const EmployeeDashboard = () => {
                                   whiteSpace: "pre-wrap",
                                   margin: 0,
                                   paddingRight: "8px",
-                                  fontSize: "12px",
-                                  color: "#475569"
+                                  fontSize: "13px",
+                                  lineHeight: "1.6",
+                                  color: "#334155"
                                 }}
                               >
                                 {phase.history?.[0]?.note || phase.history?.[0]?.description || phase.history?.[0]?.details || phase.description || phase.phase || phase.details || phase.note || "No description provided."}
                               </p>
                               {Array.isArray(phase.history?.[0]?.pages) && phase.history[0].pages.length > 0 && (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "8px" }}>
                                   {phase.history[0].pages.map((p, pI) => (
-                                    <span key={pI} style={{ fontSize: "10px", background: "#e0e7ff", color: "#3730a3", padding: "1px 6px", borderRadius: "4px", fontWeight: "500" }}>
+                                    <span key={pI} style={{ fontSize: "11px", background: "#e0e7ff", color: "#3730a3", padding: "2px 8px", borderRadius: "4px", fontWeight: "500" }}>
                                       {p}
                                     </span>
                                   ))}

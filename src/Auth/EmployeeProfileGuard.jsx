@@ -6,6 +6,7 @@ import { checkProfileRestriction } from "../utils/profileCompletionRestriction";
 import { toast } from "react-toastify";
 
 const ALLOWED_WHEN_RESTRICTED = [
+  "/emp/my-details",
   "/emp/my-details/edit",
   "/profile",
   "/change-password",
@@ -33,6 +34,9 @@ const EmployeeProfileGuard = ({ children }) => {
         profileCompletion: stored.profileCompletion ?? user?.profileCompletion,
         dateJoined: stored.dateJoined || user?.dateJoined,
         isProfileCompleted: stored.isProfileCompleted ?? user?.isProfileCompleted,
+        profileApprovalStatus: stored.profileApprovalStatus || user?.profileApprovalStatus,
+        reviewedAt: stored.reviewedAt || user?.reviewedAt,
+        profileRejectedAt: stored.profileRejectedAt || user?.profileRejectedAt,
       };
     } catch {
       return user || null;
@@ -68,6 +72,10 @@ const EmployeeProfileGuard = ({ children }) => {
               isProfileCompleted: res.data.isProfileCompleted ?? false,
               isProfileRestricted: res.data.isProfileRestricted ?? false,
               daysRemainingForProfile: res.data.daysRemaining ?? 7,
+              isLastDayForProfile: res.data.isLastDay ?? false,
+              isRejectedForProfile: res.data.isRejected ?? false,
+              profileApprovalStatus: res.data.profileApprovalStatus ?? latestStored.profileApprovalStatus,
+              reviewedAt: res.data.reviewedAt ?? latestStored.reviewedAt,
               profileDeadline: res.data.deadline || null,
             };
             sessionStorage.setItem("Erti-Portal", JSON.stringify(updated));
@@ -89,7 +97,9 @@ const EmployeeProfileGuard = ({ children }) => {
 
     if (restriction.isRestricted) {
       const isAllowed = ALLOWED_WHEN_RESTRICTED.some((p) =>
-        location.pathname === p || location.pathname.startsWith("/emp/my-details/edit")
+        location.pathname === p ||
+        location.pathname.startsWith("/emp/my-details") ||
+        location.pathname.startsWith("/emp/my-details/edit")
       );
 
       if (!isAllowed) {
@@ -97,10 +107,12 @@ const EmployeeProfileGuard = ({ children }) => {
         if (now - lastBlockedNoticeRef.current > 4000) {
           lastBlockedNoticeRef.current = now;
           toast.warning(
-            "Access Restricted: Your 7-day completion period has passed. Complete your profile to 100% to access the dashboard."
+            restriction.isRejected
+              ? "Access Restricted: Your 7-day resubmission deadline has passed. Complete and resubmit your profile to access other pages."
+              : "Access Restricted: Your 7-day completion period has passed. Complete your profile to 100% to access other pages."
           );
         }
-        navigate("/emp/my-details/edit", { replace: true });
+        navigate("/emp/my-details", { replace: true });
       }
     }
   }, [location.pathname]);

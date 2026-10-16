@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jwtDecode } from "jwt-decode";
+import { useLocation } from "react-router-dom";
 
 import "./EmployeeTaskPage.css";
 import "../../../Globel/Layout.css";
@@ -46,6 +47,41 @@ const TASK_VIEW_OPTIONS = [
   { value: "assignedByMe", label: "Assigned by Me" },
 ];
 
+const calculateOverallTaskDays = (task) => {
+  if (!task) return 0;
+  const startRaw = task.startDate || task.createdDate || task.createdAt;
+  if (!startRaw) {
+    return (task.phases || []).reduce((sum, p) => sum + (Number(p.workingDays) || 0), 0) || 1;
+  }
+  const startDate = new Date(startRaw);
+  if (isNaN(startDate.getTime())) return 1;
+
+  const isCompleted = (task.status || "").toLowerCase() === "completed";
+  const endRaw = isCompleted
+    ? (task.endDate || task.dueDate || startRaw)
+    : (task.endDate || new Date());
+
+  const endDate = new Date(endRaw);
+  if (isNaN(endDate.getTime())) return 1;
+
+  const getLocalDateStr = (d) => {
+    const dateObj = new Date(d);
+    if (isNaN(dateObj.getTime())) return "";
+    return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+  };
+
+  const startStr = getLocalDateStr(startDate);
+  const endStr = getLocalDateStr(endDate);
+
+  if (!startStr || !endStr || startStr > endStr) return 1;
+
+  const d1 = new Date(startStr + "T00:00:00");
+  const d2 = new Date(endStr + "T00:00:00");
+  const diffTime = d2.getTime() - d1.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return Math.max(1, diffDays);
+};
+
 const EmployeeTaskPage = () => {
   const [status, setStatus] = useState("Assigned");
   const [tasks, setTasks] = useState([]);
@@ -54,6 +90,15 @@ const EmployeeTaskPage = () => {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [selectedTaskData, setSelectedTaskData] = useState(null);
   const [error, setError] = useState(null);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const navTaskId = location.state?.selectedTaskId;
+    if (navTaskId) {
+      setSelectedTaskId(navTaskId);
+    }
+  }, [location.state]);
 
   const [showAssignPopup, setShowAssignPopup] = useState(false);
   const [showCreatPopup, setShowCreatPopup] = useState(false);
@@ -767,6 +812,7 @@ const EmployeeTaskPage = () => {
                     <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center">Work Status</div>
                     <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center">Allocation</div>
                     <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center">Priority</div>
+                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center">Working Days</div>
                   </div>
 
                   {loading ? (
@@ -881,6 +927,27 @@ const EmployeeTaskPage = () => {
                           <span className={`employeeTaskPage__priorityBadge employeeTaskPage__priorityBadge--${task.priority?.toLowerCase()}`}>
                             {task.priority || "-"}
                           </span>
+                        </div>
+                        <div className="employeeTaskPage__tableCelldate" style={{ textAlign: "center" }}>
+                          {(() => {
+                            const totalDays = calculateOverallTaskDays(task);
+                            return (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#16a34a",
+                                  background: "#dcfce7",
+                                  padding: "2px 8px",
+                                  borderRadius: "10px",
+                                  border: "1px solid #bbf7d0",
+                                }}
+                              >
+                                {totalDays} {totalDays === 1 ? "day" : "days"}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     ))

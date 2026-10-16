@@ -77,6 +77,7 @@ function AssignTask({ onClose, onSuccess }) {
   const [projects, setProjects] = useState([]);
   const [fullCategories, setFullCategories] = useState([]);
   const [fullProjects, setFullProjects] = useState([]);
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   // ── Dropdown open flags ──────────────────────────────────────
   const [showCategoryDrop, setShowCategoryDrop] = useState(false);
@@ -154,7 +155,7 @@ function AssignTask({ onClose, onSuccess }) {
       return {
         ...prev,
         status: value,
-        endDate: isCompleted ? (prev.endDate || todayStr) : "",
+        endDate: isCompleted ? todayStr : "",
       };
     });
 
@@ -168,6 +169,7 @@ function AssignTask({ onClose, onSuccess }) {
 
   // Category toggle
   const handleCategoryToggle = (cat) => {
+    setShowAllProjects(false);
     if (cat === "Add") {
       setActiveOtherField("category");
     } else {
@@ -360,21 +362,21 @@ function AssignTask({ onClose, onSuccess }) {
   };
 
   const formatToNumberedPoints = (text) => {
-    if (!text || !text.trim()) return "1. ";
+    if (!text || !text.trim()) return "• ";
     const rawLines = text.split("\n");
     const cleaned = rawLines
       .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean);
 
-    if (cleaned.length === 0) return "1. ";
-    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+    if (cleaned.length === 0) return "• ";
+    return cleaned.map(line => `• ${line}`).join("\n");
   };
 
   const removeNumberedPoints = (text) => {
     if (!text) return "";
     return text
       .split("\n")
-      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean)
       .join("\n");
   };
@@ -405,10 +407,9 @@ function AssignTask({ onClose, onSuccess }) {
       const linesBefore = textBeforeCursor.split("\n");
       const currentLine = linesBefore[linesBefore.length - 1];
 
-      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+      const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*(.*)$/);
 
       if (match) {
-        const num = parseInt(match[1], 10);
         const content = match[2];
 
         if (!content.trim()) {
@@ -422,8 +423,7 @@ function AssignTask({ onClose, onSuccess }) {
           return;
         }
 
-        const nextNum = num + 1;
-        const insertion = `\n${nextNum}. `;
+        const insertion = "\n• ";
         const newText = textBeforeCursor + insertion + textAfterCursor;
         const newCursorPos = selectionStart + insertion.length;
 
@@ -432,8 +432,7 @@ function AssignTask({ onClose, onSuccess }) {
           textarea.selectionStart = textarea.selectionEnd = newCursorPos;
         }, 0);
       } else {
-        const lineCount = linesBefore.length + 1;
-        const insertion = `\n${lineCount}. `;
+        const insertion = "\n• ";
         const newText = textBeforeCursor + insertion + textAfterCursor;
         const newCursorPos = selectionStart + insertion.length;
 
@@ -465,11 +464,10 @@ function AssignTask({ onClose, onSuccess }) {
 
     const linesBefore = textBefore.split("\n");
     const currentLine = linesBefore[linesBefore.length - 1];
-    const match = currentLine.match(/^(\d+)\.\s*/);
-    let startNum = match ? parseInt(match[1], 10) : linesBefore.length;
+    const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*/);
 
     const formattedPaste = pastedLines
-      .map((line, i) => `${startNum + i}. ${line}`)
+      .map(line => `• ${line}`)
       .join("\n");
 
     const newBefore = match
@@ -493,6 +491,10 @@ function AssignTask({ onClose, onSuccess }) {
       toast.warning("Please finalize your category selection first.");
       return;
     }
+    if (projName === "See All Values") {
+      setShowAllProjects(true);
+      return;
+    }
     if (projName === "Add") {
       setActiveOtherField("project");
     } else {
@@ -501,22 +503,12 @@ function AssignTask({ onClose, onSuccess }) {
     setFormData((prev) => {
       const isSelected = prev.project === projName;
       const nextProject = isSelected ? "" : projName;
-
-      let nextCategory = prev.category;
-      if (nextProject && nextProject !== "Add") {
-        const projObj = fullProjects.find((p) => p.name === nextProject);
-        const catName = projObj?.categoryId?.name;
-        if (catName && catName !== nextCategory) {
-          nextCategory = catName;
-        }
-      }
-
-      return { ...prev, project: nextProject, category: nextCategory };
+      return { ...prev, project: nextProject };
     });
   };
 
   // Add new category
-  const handleAddCategory = async (overrideName = null) => {
+  const handleAddCategory = (overrideName = null) => {
     const name = (
       typeof overrideName === "string" ? overrideName : newCategoryVal
     ).trim();
@@ -533,41 +525,16 @@ function AssignTask({ onClose, onSuccess }) {
       setActiveOtherField(null);
       setFormData((prev) => ({ ...prev, category: name, project: "" }));
       setNewCategoryVal("");
+      setShowAllProjects(false);
       return;
     }
 
-    try {
-      await portalInstance.post("/creat/task-meta/category", { name });
-
-      const r = await portalInstance.get("/creat/task-meta");
-      if (r.data?.success) {
-        setCategories(r.data.data.categories || []);
-        setProjects(r.data.data.projects || []);
-        setFullCategories(r.data.data.fullCategories || []);
-        setFullProjects(r.data.data.fullProjects || []);
-      }
-
-      setActiveOtherField(null);
-      setFormData((prev) => ({ ...prev, category: name, project: "" }));
-      setNewCategoryVal("");
-      toast.success(`Category "${name}" added`);
-    } catch (err) {
-      if (err.response?.status === 409) {
-        toast.info(`"${name}" already exists. Selected automatically.`);
-        const r = await portalInstance.get("/creat/task-meta");
-        if (r.data?.success) {
-          setCategories(r.data.data.categories || []);
-          setProjects(r.data.data.projects || []);
-          setFullCategories(r.data.data.fullCategories || []);
-          setFullProjects(r.data.data.fullProjects || []);
-        }
-        setActiveOtherField(null);
-        setFormData((prev) => ({ ...prev, category: name, project: "" }));
-        setNewCategoryVal("");
-      } else {
-        toast.error(err.response?.data?.message || "Failed to add category");
-      }
-    }
+    // Store in local categories list only; DO NOT save category to TaskMeta module
+    setCategories((prev) => (prev.includes(name) ? prev : [...prev, name]));
+    setActiveOtherField(null);
+    setFormData((prev) => ({ ...prev, category: name, project: "" }));
+    setNewCategoryVal("");
+    setShowAllProjects(false);
   };
 
   // Add new project
@@ -599,15 +566,12 @@ function AssignTask({ onClose, onSuccess }) {
     const catObj = fullCategories.find(
       (c) => c.name.toLowerCase() === selectedCatName.toLowerCase()
     );
-    if (!catObj) {
-      toast.error("Selected category not found");
-      return;
-    }
 
     try {
       await portalInstance.post("/creat/task-meta/project", {
         name,
-        categoryId: catObj._id,
+        categoryId: catObj?._id,
+        categoryName: selectedCatName,
       });
 
       const r = await portalInstance.get("/creat/task-meta");
@@ -686,7 +650,7 @@ function AssignTask({ onClose, onSuccess }) {
     if (!formData.startDate) return toast.error("Start date is required");
     const isCompletedStatus = (formData.status || "").toLowerCase() === "completed";
     if (isCompletedStatus && !formData.endDate) {
-      return toast.error("End date is required");
+      formData.endDate = todayStr;
     }
     if (formData.startDate < todayStr)
       return toast.error("Start date cannot be in the past");
@@ -756,6 +720,7 @@ function AssignTask({ onClose, onSuccess }) {
         hasPages: false,
         pages: [],
       });
+      setShowAllProjects(false);
       setPhasePointByPoint({});
       setUploadedFiles([]);
       if (onSuccess) onSuccess();
@@ -768,6 +733,35 @@ function AssignTask({ onClose, onSuccess }) {
       setLoading(false);
     }
   };
+
+  const categoryProjects = fullProjects
+    .filter((p) => {
+      if (!p.categoryId) return false;
+      const catName =
+        typeof p.categoryId === "object"
+          ? p.categoryId.name
+          : fullCategories.find(
+            (c) => String(c._id) === String(p.categoryId)
+          )?.name;
+      return catName && (formData.category || "").toLowerCase() === catName.toLowerCase();
+    })
+    .map((p) => p.name);
+
+  const allAvailableProjects = Array.from(
+    new Set(fullProjects.map((p) => p.name).filter(Boolean))
+  );
+
+  const activeProjectList = showAllProjects ? allAvailableProjects : categoryProjects;
+
+  const projectDropdownOptions = [
+    ...activeProjectList
+      .filter((p) => p && p.toLowerCase() !== "add" && p.toLowerCase() !== "see all values")
+      .map((p) => ({ value: p, label: p })),
+    ...(!showAllProjects ? [{ value: "See All Values", label: "See All Values", keepOpen: true }] : []),
+    { value: "Add", label: "Add" },
+  ].filter(
+    (v, i, a) => a.findIndex((t) => t.value === v.value) === i
+  );
 
   // ── Render ───────────────────────────────────────────────────
   return (
@@ -892,23 +886,7 @@ function AssignTask({ onClose, onSuccess }) {
                   </div>
                 ) : (
                   <CustomDropdown
-                    options={[
-                      ...fullProjects
-                        .filter((p) => {
-                          if (!p.categoryId) return false;
-                          const catName =
-                            typeof p.categoryId === "object"
-                              ? p.categoryId.name
-                              : fullCategories.find(
-                                (c) => String(c._id) === String(p.categoryId)
-                              )?.name;
-                          return catName && formData.category === catName;
-                        })
-                        .map((p) => ({ value: p.name, label: p.name })),
-                      { value: "Add", label: "Add" },
-                    ].filter(
-                      (v, i, a) => a.findIndex((t) => t.value === v.value) === i
-                    )}
+                    options={projectDropdownOptions}
                     value={formData.project}
                     onChange={(val) => handleProjectToggle(val)}
                     disabled={
@@ -1224,36 +1202,23 @@ function AssignTask({ onClose, onSuccess }) {
               </div>
               <div className="form-group">
                 <label>End Date *</label>
-                {(() => {
-                  const isCompletedStatus = (formData.status || "").toLowerCase() === "completed";
-                  return (
-                    <div className="assign-date-wrapper position-relative">
-                      <input
-                        type="text"
-                        placeholder="YYYY-MM-DD"
-                        name="endDate"
-                        value={formData.endDate || ""}
-                        onChange={handleChange}
-                        disabled={!isCompletedStatus}
-                        className={`hrms-unified-input-style custom-date ${!isCompletedStatus ? "field-disabled" : ""}`}
-                      />
-                      <img
-                        src={DateIcon}
-                        alt="calendar"
-                        className={`date-icon ${!isCompletedStatus ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                        onClick={() => { if (isCompletedStatus && endDateRef.current) { try { endDateRef.current.showPicker(); } catch (e) { } } }}
-                      />
-                      <input
-                        ref={endDateRef}
-                        type="date"
-                        min={formData.startDate || todayStr}
-                        value={formData.endDate || ""}
-                        onChange={(e) => handleChange({ target: { name: "endDate", value: e.target.value } })}
-                        style={{ position: "absolute", opacity: 0, width: 0, height: 0, pointerEvents: "none" }}
-                      />
-                    </div>
-                  );
-                })()}
+                <div className="assign-date-wrapper position-relative">
+                  <input
+                    type="text"
+                    placeholder="YYYY-MM-DD"
+                    name="endDate"
+                    value={formData.endDate || ""}
+                    readOnly={true}
+                    disabled={true}
+                    className="hrms-unified-input-style custom-date field-disabled"
+                  />
+                  <img
+                    src={DateIcon}
+                    alt="calendar"
+                    className="date-icon opacity-50 cursor-not-allowed"
+                    style={{ pointerEvents: "none" }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -1325,7 +1290,7 @@ function AssignTask({ onClose, onSuccess }) {
                           fontSize: "13px",
                           color: "#374151"
                         }}
-                        placeholder="Phase Title (e.g. Design Phase)"
+                        placeholder="Phase Title..."
                         value={p.phaseTitle}
                         onChange={(e) =>
                           handlePhaseChange(
@@ -1373,7 +1338,7 @@ function AssignTask({ onClose, onSuccess }) {
                           userSelect: "none",
                           margin: 0
                         }}
-                        title="Format description as numbered points (1., 2., 3.)"
+                        title="Format description as bullet points (• Point)"
                       >
                         <input
                           type="radio"
@@ -1394,10 +1359,11 @@ function AssignTask({ onClose, onSuccess }) {
                     <textarea
                       className="hrms-unified-input-style hrms-common-textarea" style={{
                         fontSize: "13px",
-                        color: "#374151"
+                        color: "#e2e8f0 "
                       }}
 
-                      placeholder={phasePointByPoint[index] ? "1. Enter first point..." : "Phase Description (e.g. Completed UI mockups...)"}
+                      placeholder={phasePointByPoint[index] ? "• Enter first point..." : "Phase Description..."}
+
                       value={p.phaseDescription}
                       onChange={(e) =>
                         handlePhaseChange(

@@ -167,7 +167,15 @@ const MissingProfileBanner = ({ employee, profileCompletion = 0 }) => {
               Your profile is <span className="dash-pc-status-pct">{completion}%</span> complete
             </p>
             <p className="dash-pc-hero-desc">
-              {restriction.daysRemaining > 0 ? (
+              {restriction.isRestricted ? (
+                <span style={{ color: "#dc2626", fontWeight: "600" }}>
+                  <strong>Access Restricted:</strong> Your 7-day period has expired. You must complete your profile 100% to access other pages.
+                </span>
+              ) : restriction.isLastDay ? (
+                <span style={{ color: "#b45309", fontWeight: "600" }}>
+                  <strong>Today is your last day!</strong> Please complete your profile 100% today. If not completed today, access to other pages will be restricted until your profile is completed.
+                </span>
+              ) : restriction.daysRemaining > 0 ? (
                 <span>
                   <strong>7-Day Completion Period:</strong> {restriction.daysRemaining} day{restriction.daysRemaining === 1 ? "" : "s"} remaining to complete your profile to 100%. Complete the remaining details to maintain unrestricted access.
                 </span>

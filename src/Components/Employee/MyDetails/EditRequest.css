@@ -51,7 +51,8 @@
   align-items: center;
 }
 
-/* Center the last item if it's alone (assuming 5 or an odd number) */
+/* Center the last item if it's alone (assuming 5 or an odd number) or marked full-width */
+.section-selection-item.full-width,
 .section-selection-item:last-child:nth-child(odd) {
   grid-column: 1 / span 2;
   width: 100%;

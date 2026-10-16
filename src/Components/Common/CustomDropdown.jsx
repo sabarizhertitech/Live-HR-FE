@@ -26,9 +26,12 @@ const CustomDropdown = ({ options, value, onChange, placeholder, className, styl
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onToggle]);
 
-  const handleSelect = (val) => {
+  const handleSelect = (opt) => {
+    const val = typeof opt === "object" && opt !== null && "value" in opt ? opt.value : opt;
     onChange(val);
-    setIsOpenState(false);
+    if (!opt?.keepOpen) {
+      setIsOpenState(false);
+    }
   };
 
   const isMatch = (optVal, currentVal) =>
@@ -60,7 +63,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder, className, styl
             <div
               key={option.value}
               className={`custom-dropdown-option ${isMatch(option.value, value) ? "selected" : ""}`}
-              onClick={() => handleSelect(option.value)}
+              onClick={() => handleSelect(option)}
             >
               <span className="custom-dropdown-option-label">{option.label}</span>
               {option.onDelete && (

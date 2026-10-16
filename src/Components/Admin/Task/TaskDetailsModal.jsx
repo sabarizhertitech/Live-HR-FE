@@ -43,6 +43,41 @@ function StatusBadge({ status = "pending" }) {
   );
 }
 
+const calculateOverallTaskDays = (task) => {
+  if (!task) return 0;
+  const startRaw = task.startDate || task.createdDate || task.createdAt;
+  if (!startRaw) {
+    return (task.phases || []).reduce((sum, p) => sum + (Number(p.workingDays) || 0), 0) || 1;
+  }
+  const startDate = new Date(startRaw);
+  if (isNaN(startDate.getTime())) return 1;
+
+  const isCompleted = (task.status || "").toLowerCase() === "completed";
+  const endRaw = isCompleted
+    ? (task.endDate || task.dueDate || startRaw)
+    : (task.endDate || new Date());
+
+  const endDate = new Date(endRaw);
+  if (isNaN(endDate.getTime())) return 1;
+
+  const getLocalDateStr = (d) => {
+    const dateObj = new Date(d);
+    if (isNaN(dateObj.getTime())) return "";
+    return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+  };
+
+  const startStr = getLocalDateStr(startDate);
+  const endStr = getLocalDateStr(endDate);
+
+  if (!startStr || !endStr || startStr > endStr) return 1;
+
+  const d1 = new Date(startStr + "T00:00:00");
+  const d2 = new Date(endStr + "T00:00:00");
+  const diffTime = d2.getTime() - d1.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return Math.max(1, diffDays);
+};
+
 /* ═══════════════════════════════════════════════════════════════
    PHASE ITEM COMPONENT
 ═══════════════════════════════════════════════════════════════ */
@@ -96,6 +131,20 @@ function PhaseItem({ phaseObj, phaseNumber, dailyUpdates, assignedMembers = [] }
               👤 {phaseOwner.name}
             </span>
           )}
+          <span style={{
+            fontSize: "11px",
+            fontWeight: "600",
+            color: "#16a34a",
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: "12px",
+            padding: "1px 8px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "3px"
+          }}>
+            {phaseObj?.workingDays || 0} {(phaseObj?.workingDays === 1 ? "Working Day" : "Working Days")}
+          </span>
         </div>
         <StatusBadge status={currentStatus} />
       </div>
@@ -123,7 +172,6 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
   const [assignedMembers, setAssignedMembers] = useState(initialData?.assignedMembers || []);
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
   const [showUpdatePopup, setShowUpdatePopup] = useState(false);
   const [showOptionsDropdown, setShowOptionsDropdown] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -451,69 +499,88 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
 
               {/* RIGHT: Info */}
               <div className="admin-task-details-info-panel">
-                {/* Category, Project, Work Type & Pages */}
-                {(task?.category || task?.project || task?.workType || (task?.pages && task?.pages.length > 0)) && (
-                  <div className="admin-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "16px", flexWrap: "wrap" }}>
-                    {(task?.category || task?.project) && (
-                      <div className="admin-task-details-info-stat" style={{ flex: "1", minWidth: "140px" }}>
-                        <label className="admin-task-details-section-label">Category / Project</label>
-                        <div className="admin-task-details-value" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <span>{(task?.category || "—").toUpperCase()}</span>
-                          <span style={{ color: "#c4c4c4" }}>/</span>
-                          <span>{task?.project ? (task.project.charAt(0).toUpperCase() + task.project.slice(1).toLowerCase()) : "—"}</span>
-                        </div>
-                      </div>
-                    )}
-                    {task?.workType && (
-                      <div className="admin-task-details-info-stat" style={{ flex: "0 0 auto", minWidth: "90px" }}>
-                        <label className="admin-task-details-section-label">Work Type</label>
-                        <div className="admin-task-details-value">
-                          <span
-                            style={{
-                              fontSize: "11px",
-                              fontWeight: "600",
-                              color: "#5977f8",
-                              background: "#eef2ff",
-                              border: "1px solid #c7d2fe",
-                              borderRadius: "4px",
-                              padding: "2px 8px",
-                              display: "inline-block"
-                            }}
-                          >
-                            {task.workType}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    {task?.pages && task.pages.length > 0 && (
-                      <div className="admin-task-details-info-stat" style={{ flex: "1", minWidth: "140px" }}>
-                        <label className="admin-task-details-section-label">Pages</label>
-                        <div className="admin-task-details-value" style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                          {task.pages.map((pg, pIdx) => (
-                            <span
-                              key={pIdx}
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: "500",
-                                color: "#334155",
-                                background: "#f1f5f9",
-                                border: "1px solid #cbd5e1",
-                                borderRadius: "4px",
-                                padding: "1px 7px"
-                              }}
-                            >
-                              {pg}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                {/* ROW 1: Category / Project, Priority, Work Type */}
+                <div
+                  className="admin-task-details-info-row"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: "16px",
+                    marginBottom: "16px",
+                    alignItems: "flex-start"
+                  }}
+                >
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
+                    <label className="admin-task-details-section-label">Category / Project</label>
+                    <div className="admin-task-details-value" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span>{(task?.category || "—").toUpperCase()}</span>
+                      <span style={{ color: "#c4c4c4" }}>/</span>
+                      <span>{task?.project ? (task.project.charAt(0).toUpperCase() + task.project.slice(1).toLowerCase()) : "—"}</span>
+                    </div>
                   </div>
-                )}
 
-                {/* ROW 1: Start Date and End Date */}
-                <div className="admin-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
-                  <div className="admin-task-details-info-stat" style={{ flex: "1" }}>
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
+                    <label className="admin-task-details-section-label">Priority</label>
+                    <div className="admin-task-details-value">
+                      <span className={`td-val-priority-pill ${(task?.priority || "mid").toLowerCase()}`}>
+                        {task?.priority || "Mid"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
+                    <label className="admin-task-details-section-label">Work Type</label>
+                    <div className="admin-task-details-value" style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+                      {task?.workType ? (
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            color: "#5977f8",
+                            background: "#eef2ff",
+                            border: "1px solid #c7d2fe",
+                            borderRadius: "4px",
+                            padding: "2px 8px",
+                            display: "inline-block"
+                          }}
+                        >
+                          {task.workType}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                      {task?.pages && task.pages.length > 0 && task.pages.map((pg, pIdx) => (
+                        <span
+                          key={pIdx}
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "500",
+                            color: "#334155",
+                            background: "#f1f5f9",
+                            border: "1px solid #cbd5e1",
+                            borderRadius: "4px",
+                            padding: "1px 7px"
+                          }}
+                        >
+                          {pg}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ROW 2: Start Date, End Date, Due Date */}
+                <div
+                  className="admin-task-details-info-row"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: "16px",
+                    marginBottom: "16px",
+                    alignItems: "flex-start"
+                  }}
+                >
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
                     <label className="admin-task-details-section-label">Start Date</label>
                     {assignedMembers.length > 1 ? (
                       <div className="admin-task-details-value" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -538,7 +605,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                     )}
                   </div>
 
-                  <div className="admin-task-details-info-stat" style={{ flex: "1" }}>
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
                     <label className="admin-task-details-section-label">End Date</label>
                     {assignedMembers.length > 1 ? (
                       <div className="admin-task-details-value" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -562,20 +629,27 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* ROW 2: Priority, Status (separate per member), and Due Date on the right */}
-                <div className="admin-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
-                  <div className="admin-task-details-info-stat" style={{ flex: "0 0 100px" }}>
-                    <label className="admin-task-details-section-label">Priority</label>
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
+                    <label className="admin-task-details-section-label">Due Date</label>
                     <div className="admin-task-details-value">
-                      <span className={`td-val-priority-pill ${(task?.priority || "mid").toLowerCase()}`}>
-                        {task?.priority || "Mid"}
-                      </span>
+                      <span className="td-val-text-bold">{formatDate(task?.dueDate)}</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="admin-task-details-info-stat" style={{ flex: "1" }}>
+                {/* ROW 3: Status only */}
+                <div
+                  className="admin-task-details-info-row"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    gap: "16px",
+                    marginBottom: "16px",
+                    alignItems: "flex-start"
+                  }}
+                >
+                  <div className="admin-task-details-info-stat" style={{ minWidth: 0 }}>
                     <label className="admin-task-details-section-label">Status</label>
                     {assignedMembers.length > 1 ? (
                       <div className="admin-task-details-value" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -648,13 +722,6 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                       </div>
                     )}
                   </div>
-
-                  <div className="admin-task-details-info-stat" style={{ flex: "1" }}>
-                    <label className="admin-task-details-section-label">Due Date</label>
-                    <div className="admin-task-details-value">
-                      <span className="td-val-text-bold">{formatDate(task?.dueDate)}</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="admin-task-details-horizontal-divider"></div>
@@ -670,9 +737,28 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                 {phases.length > 0 && (
                   <div className="td-phases-section">
                     <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                      <h6 className="admin-task-details-section-label m-0">
-                        Phases
-                      </h6>
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <h6 className="admin-task-details-section-label m-0">
+                          Phases
+                        </h6>
+                        <span style={{
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "#2563eb",
+                          background: "#eff6ff",
+                          border: "1px solid #bfdbfe",
+                          borderRadius: "12px",
+                          padding: "2px 8px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px"
+                        }}>
+                          {(() => {
+                            const overallDays = calculateOverallTaskDays(task);
+                            return `Overall Task: ${overallDays} ${overallDays === 1 ? "Working Day" : "Working Days"}`;
+                          })()}
+                        </span>
+                      </div>
                       {assignedMembers.length > 1 && (
                         <div className="d-flex align-items-center gap-1 flex-wrap">
                           <button
@@ -738,7 +824,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                 <div className="admin-task-details-docs-section">
                   <label className="admin-task-details-section-label">Documents</label>
 
-                  {task?.documents && task.documents.length > 0 && (
+                  {task?.documents && task.documents.length > 0 ? (
                     <div className="hrms-common-file-list" style={{ marginBottom: '10px' }}>
                       {task.documents.map((doc, idx) => (
                         <div
@@ -754,18 +840,9 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                         </div>
                       ))}
                     </div>
+                  ) : (
+                    <p className="no-docs-text">No documents added</p>
                   )}
-
-                  <label htmlFor="uploadFile" className="hrms-common-upload-box">
-                    <img src={attachIcon} alt="Attach" className="hrms-common-attach-icon" />
-                    <span>{selectedFile ? selectedFile.name : "Add File"}</span>
-                    <input
-                      type="file"
-                      id="uploadFile"
-                      hidden
-                      onChange={(e) => setSelectedFile(e.target.files[0])}
-                    />
-                  </label>
                 </div>
               </div>
             </div>

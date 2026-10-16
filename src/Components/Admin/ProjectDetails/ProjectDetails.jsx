@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { portalInstance } from "../../../Services/instance";
 import Sidebar from "../../HeaderSidebar/Sidebar";
 import { Button, Spinner, Modal } from "react-bootstrap";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaArrowLeft } from "react-icons/fa";
 import { Icon } from "@iconify/react";
 import Pagination from "../../Employee/Pagination/Pagination";
 import CustomDropdown from "../../Common/CustomDropdown";
@@ -53,7 +53,109 @@ const formatStatusLabel = (s) => {
   return "Pending";
 };
 
-const groupTasksWithHistory = (items) => {
+const isWeeklyOffDate = (d) => {
+  const day = d.getDay(); // 0 = Sunday, 6 = Saturday
+  if (day === 0) return true;
+  if (day === 6) {
+    const dayOfMonth = d.getDate();
+    const saturdayRank = Math.ceil(dayOfMonth / 7);
+    if (saturdayRank === 2 || saturdayRank === 4) return true; // 2nd & 4th Saturday
+  }
+  return false;
+};
+
+const formatYMD = (d) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const calculateWorkingDaysFromHistory = (history, currentStatus, holidaysList = [], leavesList = []) => {
+  if (!Array.isArray(history) || history.length === 0) {
+    const s = normalizeStatusKey(currentStatus);
+    return s === "completed" ? 1 : (s === "inprocess" ? 1 : 0);
+  }
+
+  const holidaysSet = new Set(holidaysList || []);
+  const leavesSet = new Set(leavesList || []);
+
+  const sorted = [...history].sort((a, b) => {
+    const timeA = new Date(a.date || a.completionDate || a.updateDate || a.createdAt || 0).getTime();
+    const timeB = new Date(b.date || b.completionDate || b.updateDate || b.createdAt || 0).getTime();
+    return timeA - timeB;
+  });
+
+  const statusByDate = {};
+  sorted.forEach((item) => {
+    const rawDate = item.date || item.completionDate || item.updateDate || item.createdAt;
+    if (!rawDate) return;
+    const dStr = new Date(rawDate).toISOString().split("T")[0];
+    statusByDate[dStr] = normalizeStatusKey(item.status || item.phaseStatus || currentStatus);
+  });
+
+  const distinctDates = Object.keys(statusByDate).sort();
+  if (distinctDates.length === 0) return 0;
+
+  const minDate = distinctDates[0];
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  let completionDate = null;
+  for (const dStr of distinctDates) {
+    if (statusByDate[dStr] === "completed") {
+      completionDate = dStr;
+      break;
+    }
+  }
+
+  const normCurrent = normalizeStatusKey(currentStatus);
+  if (!completionDate && normCurrent === "completed") {
+    completionDate = distinctDates[distinctDates.length - 1];
+    statusByDate[completionDate] = "completed";
+  }
+
+  const endDate = completionDate ? completionDate : todayStr;
+
+  let accumulatedDays = 0;
+  let runningStatus = "pending";
+
+  const [startY, startM, startD] = minDate.split("-").map(Number);
+  const [endY, endM, endD] = endDate.split("-").map(Number);
+
+  let cur = new Date(startY, startM - 1, startD, 12, 0, 0);
+  const end = new Date(endY, endM - 1, endD, 12, 0, 0);
+
+  while (cur <= end) {
+    const curStr = formatYMD(cur);
+    if (statusByDate[curStr]) {
+      runningStatus = statusByDate[curStr];
+    }
+
+    const isWeeklyOff = isWeeklyOffDate(cur);
+    const isHoliday = holidaysSet.has(curStr);
+    const isLeaveOrAbsent = leavesSet.has(curStr);
+    const isSkipDay = isWeeklyOff || isHoliday || isLeaveOrAbsent;
+
+    if (!isSkipDay) {
+      if (runningStatus === "inprocess") {
+        accumulatedDays += 1;
+      } else if (runningStatus === "completed") {
+        accumulatedDays += 1;
+        break;
+      }
+      // Pending or On Hold: add 0 days
+    }
+
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  if (normCurrent === "completed") {
+    return Math.max(1, accumulatedDays);
+  }
+  return accumulatedDays;
+};
+
+const groupTasksWithHistory = (items, holidaysList = [], leavesByEmp = {}) => {
   if (!Array.isArray(items) || items.length === 0) return [];
 
   const groups = new Map();
@@ -87,13 +189,21 @@ const groupTasksWithHistory = (items) => {
     });
 
     const latest = sorted[0];
+    const latestStatus = latest.status || latest.phaseStatus || "Pending";
+    const normKey = normalizeStatusKey(latestStatus);
+    const empId = latest.employeeDetails?._id || latest.userId?._id || latest.userId || "";
+    const empLeaves = (leavesByEmp && leavesByEmp[String(empId)]) || [];
+    const calculatedDays = calculateWorkingDaysFromHistory(sorted, latestStatus, holidaysList, empLeaves);
 
     grouped.push({
       ...latest,
       taskTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
       displayTitle: latest.taskTitle || latest.displayTitle || latest.name || latest.title || "Untitled Task",
       latestDate: latest.date || latest.completionDate || latest.updateDate || latest.createdAt,
-      latestStatus: latest.status || latest.phaseStatus || "Pending",
+      latestStatus: latestStatus,
+      workingDays: calculatedDays,
+      isCompleted: normKey === "completed",
+      isInProcess: normKey === "inprocess",
       history: sorted,
     });
   });
@@ -138,6 +248,8 @@ const ProjectDetails = () => {
   const [selectedProjectInfo, setSelectedProjectInfo] = useState(null);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [projectUpdates, setProjectUpdates] = useState([]);
+  const [projectHolidays, setProjectHolidays] = useState([]);
+  const [projectLeaves, setProjectLeaves] = useState({});
   const [updatesLoading, setUpdatesLoading] = useState(false);
   const [projSelectedEmpId, setProjSelectedEmpId] = useState(null);
   const [projExpandedCards, setProjExpandedCards] = useState({});
@@ -145,6 +257,21 @@ const ProjectDetails = () => {
   const [selectedUpdate, setSelectedUpdate] = useState(null);
   const [showUpdateDetailModal, setShowUpdateDetailModal] = useState(false);
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth <= 1024);
+  const [projTaskStatusFilter, setProjTaskStatusFilter] = useState("all");
+
+  const handleBackFromUpdateDetail = () => {
+    setShowUpdateDetailModal(false);
+    setSelectedUpdate(null);
+  };
+
+  const handleCancelUpdateDetail = () => {
+    setShowUpdateDetailModal(false);
+    setSelectedUpdate(null);
+    setShowProjectModal(false);
+    setSelectedEmpUpdates(null);
+    setProjSelectedEmpId(null);
+    setProjExpandedCards({});
+  };
 
   // ── Pagination States ────────────────────────────────────────────
   const [currentPage, setCurrentPage] = useState(1);
@@ -218,6 +345,7 @@ const ProjectDetails = () => {
       setUpdatesLoading(true);
       setProjSelectedEmpId(null);
       setProjExpandedCards({});
+      setProjTaskStatusFilter("all");
 
       const params = { project: projectName, category: categoryName };
       if (appliedFilters.employee && appliedFilters.employee !== "All") {
@@ -228,6 +356,8 @@ const ProjectDetails = () => {
 
       if (res.data?.success) {
         setProjectUpdates(res.data.data || []);
+        setProjectHolidays(res.data.holidays || []);
+        setProjectLeaves(res.data.leavesByEmp || {});
       }
     } catch (err) {
       console.error("❌ Fetch project updates error:", err);
@@ -617,7 +747,7 @@ const ProjectDetails = () => {
 
       {/* ── PROJECT DETAILS 2-PANEL MODAL ── */}
       <Modal
-        show={showProjectModal}
+        show={showProjectModal && !showUpdateDetailModal}
         onHide={() => {
           setShowProjectModal(false);
           setProjSelectedEmpId(null);
@@ -712,8 +842,20 @@ const ProjectDetails = () => {
               }
             });
 
+            Object.values(empMap).forEach((emp) => {
+              const grouped = groupTasksWithHistory(emp.updates, projectHolidays, projectLeaves);
+              emp.groupedTasks = grouped;
+              emp.completedTasks = grouped.filter((t) => t.isCompleted);
+              emp.completedTasksCount = emp.completedTasks.length;
+              emp.inProcessTasks = grouped.filter((t) => t.isInProcess);
+              emp.inProcessTasksCount = emp.inProcessTasks.length;
+              emp.totalWorkingDays = grouped.reduce((sum, t) => sum + (t.workingDays || 0), 0);
+              emp.inProcessDays = grouped.reduce((sum, t) => sum + (t.isInProcess ? (t.workingDays || 0) : 0), 0);
+            });
+
             const empList = Object.values(empMap);
             if (empList.length > 1) {
+              const allGrouped = groupTasksWithHistory(projectUpdates, projectHolidays, projectLeaves);
               const allLatestDate = projectUpdates.reduce((max, u) => {
                 const d = new Date(u.completionDate);
                 return d > max ? d : max;
@@ -726,12 +868,29 @@ const ProjectDetails = () => {
                 latestDate: allLatestDate,
                 updates: projectUpdates,
                 isAll: true,
+                groupedTasks: allGrouped,
+                completedTasks: allGrouped.filter((t) => t.isCompleted),
+                completedTasksCount: allGrouped.filter((t) => t.isCompleted).length,
+                inProcessTasks: allGrouped.filter((t) => t.isInProcess),
+                inProcessTasksCount: allGrouped.filter((t) => t.isInProcess).length,
+                totalWorkingDays: allGrouped.reduce((sum, t) => sum + (t.workingDays || 0), 0),
+                inProcessDays: allGrouped.reduce((sum, t) => sum + (t.isInProcess ? (t.workingDays || 0) : 0), 0),
               });
             }
 
             const activeEmpId = projSelectedEmpId || empList[0]?.empId;
             const activeEmp =
-              activeEmpId === "all" ? { name: "All Employees", updates: projectUpdates } : empMap[activeEmpId];
+              activeEmpId === "all"
+                ? empList.find((e) => e.isAll) || {
+                    name: "All Employees",
+                    updates: projectUpdates,
+                    groupedTasks: groupTasksWithHistory(projectUpdates, projectHolidays, projectLeaves),
+                    completedTasksCount: 0,
+                    inProcessTasksCount: 0,
+                    totalWorkingDays: 0,
+                    inProcessDays: 0,
+                  }
+                : empMap[activeEmpId];
 
             return (
               <div className="project-details-two-panel">
@@ -751,6 +910,7 @@ const ProjectDetails = () => {
                           } else {
                             setProjSelectedEmpId(emp.empId);
                             setProjExpandedCards({});
+                            setProjTaskStatusFilter("all");
                           }
                         }}
                         className={`project-details-emp-item ${activeEmpId === emp.empId ? "active" : ""}`}
@@ -779,6 +939,42 @@ const ProjectDetails = () => {
                           <div className="project-details-emp-info">
                             <span className="project-details-emp-name">{emp.name}</span>
                             <span className="project-details-emp-designation">{emp.designation}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", flexWrap: "wrap" }}>
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  fontWeight: "600",
+                                  background: "#eff6ff",
+                                  color: "#2563eb",
+                                  padding: "1px 6px",
+                                  borderRadius: "4px",
+                                  border: "1px solid #bfdbfe",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "3px",
+                                }}
+                                title="Days in Process"
+                              >
+                                {emp.inProcessDays || 0}d in process
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  fontWeight: "600",
+                                  background: "#ecfdf5",
+                                  color: "#059669",
+                                  padding: "1px 6px",
+                                  borderRadius: "4px",
+                                  border: "1px solid #a7f3d0",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "3px",
+                                }}
+                                title="Completed Tasks"
+                              >
+                                {emp.completedTasksCount || 0} done
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -791,13 +987,144 @@ const ProjectDetails = () => {
                   <div className="project-details-right-panel">
                     {activeEmp ? (
                       <>
-                        <div className="project-details-right-header">
-                          <span className="project-details-right-header-title">
-                            {activeEmp.name} Working Status
+                        <div
+                          className="project-details-right-header"
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "8px",
+                            padding: "10px 14px",
+                          }}
+                        >
+                          <span
+                            className="project-details-right-header-title"
+                            style={{ fontSize: "12px", fontWeight: "600", color: "#1e293b" }}
+                          >
+                            {activeEmp.name} — Work & Days Breakdown
                           </span>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: "600",
+                                background: "#eff6ff",
+                                color: "#1d4ed8",
+                                padding: "3px 8px",
+                                borderRadius: "6px",
+                                border: "1px solid #bfdbfe",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
+                              In Process: <strong>{activeEmp.inProcessDays || 0} Days</strong> ({activeEmp.inProcessTasksCount || 0} tasks)
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: "600",
+                                background: "#ecfdf5",
+                                color: "#047857",
+                                padding: "3px 8px",
+                                borderRadius: "6px",
+                                border: "1px solid #a7f3d0",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
+                              Completed: <strong>{activeEmp.completedTasksCount || 0} Tasks</strong>
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: "600",
+                                background: "#f8fafc",
+                                color: "#475569",
+                                padding: "3px 8px",
+                                borderRadius: "6px",
+                                border: "1px solid #e2e8f0",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
+                              Overall: <strong>{activeEmp.totalWorkingDays || 0} Days</strong>
+                            </span>
+                          </div>
                         </div>
+
+                        {/* Filter Tabs: All Tasks, In Process, Completed */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "8px 14px",
+                            borderBottom: "1px solid #e5e7eb",
+                            background: "#fafafa",
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setProjTaskStatusFilter("all")}
+                            style={{
+                              border: "none",
+                              background: projTaskStatusFilter === "all" ? "#5977f8" : "transparent",
+                              color: projTaskStatusFilter === "all" ? "#ffffff" : "#64748b",
+                              padding: "3px 10px",
+                              borderRadius: "14px",
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              cursor: "pointer",
+                            }}
+                          >
+                            All Tasks ({(activeEmp.groupedTasks || []).length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setProjTaskStatusFilter("inprocess")}
+                            style={{
+                              border: "none",
+                              background: projTaskStatusFilter === "inprocess" ? "#2563eb" : "transparent",
+                              color: projTaskStatusFilter === "inprocess" ? "#ffffff" : "#64748b",
+                              padding: "3px 10px",
+                              borderRadius: "14px",
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              cursor: "pointer",
+                            }}
+                          >
+                            In Process ({activeEmp.inProcessTasksCount || 0})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setProjTaskStatusFilter("completed")}
+                            style={{
+                              border: "none",
+                              background: projTaskStatusFilter === "completed" ? "#059669" : "transparent",
+                              color: projTaskStatusFilter === "completed" ? "#ffffff" : "#64748b",
+                              padding: "3px 10px",
+                              borderRadius: "14px",
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Completed ({activeEmp.completedTasksCount || 0})
+                          </button>
+                        </div>
+
                         <div className="project-details-right-list">
-                          {groupTasksWithHistory(activeEmp.updates).map((u, idx) => {
+                          {(activeEmp.groupedTasks || groupTasksWithHistory(activeEmp.updates, projectHolidays, projectLeaves))
+                            .filter((t) => {
+                              if (projTaskStatusFilter === "inprocess") return t.isInProcess;
+                              if (projTaskStatusFilter === "completed") return t.isCompleted;
+                              return true;
+                            })
+                            .map((u, idx) => {
                             const cardKey = `${activeEmpId}-${idx}`;
                             const hasMultipleUpdates = Array.isArray(u.history) && u.history.length > 1;
                             const isExpanded = !!projExpandedCards[cardKey];
@@ -855,6 +1182,22 @@ const ProjectDetails = () => {
                                           month: "short",
                                         })
                                         : "—"}
+                                    </span>
+                                  </div>
+
+                                  <div
+                                    className="dwu-work-card__field dwu-field-working-days"
+                                    style={{ width: "105px", flexShrink: 0, textAlign: "left" }}
+                                  >
+                                    <span className="dwu-work-card__label dwu-label-hide-mobile">Overall Days</span>
+                                    <span
+                                      className="dwu-work-card__value"
+                                      style={{
+                                        fontWeight: "600",
+                                        color: isCompleted ? "#059669" : "#4f46e5",
+                                      }}
+                                    >
+                                      {u.workingDays || 0} {u.workingDays === 1 ? "Day" : "Days"}
                                     </span>
                                   </div>
 
@@ -1139,7 +1482,7 @@ const ProjectDetails = () => {
 
       {/* ── Employee specific updates modal for mobile/tablet screen ── */}
       <Modal
-        show={!!selectedEmpUpdates}
+        show={!!selectedEmpUpdates && !showUpdateDetailModal}
         onHide={() => setSelectedEmpUpdates(null)}
         centered
         size="md"
@@ -1147,9 +1490,22 @@ const ProjectDetails = () => {
       >
         <Modal.Header className="project-details-modal-header border-0 pb-0 d-flex flex-column align-items-stretch">
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <h4 className="assign-task__members-title m-0">
-              {selectedEmpUpdates?.name} Updates
-            </h4>
+            <div>
+              <h4 className="assign-task__members-title m-0">
+                {selectedEmpUpdates?.name} Updates
+              </h4>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", flexWrap: "wrap" }}>
+                <span style={{ fontSize: "10px", fontWeight: "600", background: "#eff6ff", color: "#1d4ed8", padding: "1px 6px", borderRadius: "4px", border: "1px solid #bfdbfe" }}>
+                  In Process: {selectedEmpUpdates?.inProcessDays || 0}d
+                </span>
+                <span style={{ fontSize: "10px", fontWeight: "600", background: "#ecfdf5", color: "#047857", padding: "1px 6px", borderRadius: "4px", border: "1px solid #a7f3d0" }}>
+                  Completed: {selectedEmpUpdates?.completedTasksCount || 0} tasks
+                </span>
+                <span style={{ fontSize: "10px", fontWeight: "600", background: "#f8fafc", color: "#475569", padding: "1px 6px", borderRadius: "4px", border: "1px solid #e2e8f0" }}>
+                  Overall: {selectedEmpUpdates?.totalWorkingDays || 0}d
+                </span>
+              </div>
+            </div>
             <button
               type="button"
               className="common-modal-close-x"
@@ -1174,7 +1530,7 @@ const ProjectDetails = () => {
         >
           {selectedEmpUpdates && (
             <div className="project-details-right-list">
-              {groupTasksWithHistory(selectedEmpUpdates.updates).map((u, idx) => {
+              {(selectedEmpUpdates.groupedTasks || groupTasksWithHistory(selectedEmpUpdates.updates, projectHolidays, projectLeaves)).map((u, idx) => {
                 const cardKey = `popup-${selectedEmpUpdates.empId}-${idx}`;
                 const hasMultipleUpdates = Array.isArray(u.history) && u.history.length > 1;
                 const isExpanded = !!projExpandedCards[cardKey];
@@ -1235,6 +1591,22 @@ const ProjectDetails = () => {
                               month: "short",
                             })
                             : "—"}
+                        </span>
+                      </div>
+
+                      <div
+                        className="dwu-work-card__field dwu-field-working-days"
+                        style={{ width: "95px", flexShrink: 0, textAlign: "left" }}
+                      >
+                        <span className="dwu-work-card__label">Overall Days</span>
+                        <span
+                          className="dwu-work-card__value"
+                          style={{
+                            fontWeight: "600",
+                            color: isCompleted ? "#059669" : "#4f46e5",
+                          }}
+                        >
+                          {u.workingDays || 0} {u.workingDays === 1 ? "Day" : "Days"}
                         </span>
                       </div>
 
@@ -1391,29 +1763,50 @@ const ProjectDetails = () => {
       {/* ── Work Update Deep-Dive Details Modal ── */}
       <Modal
         show={showUpdateDetailModal}
-        onHide={() => setShowUpdateDetailModal(false)}
+        onHide={handleBackFromUpdateDetail}
         centered
         size="lg"
-        className="project-phases-modal-custom project-phases-modal-custom-admin"
+        className="work-update-detail-modal-custom"
       >
-        <Modal.Header className="project-details-modal-header border-0 pb-0 d-flex justify-content-between align-items-center">
-          <h4 className="common-modal-title m-0">Work Update Details</h4>
+        <Modal.Header className="border-0 pb-0 d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center gap-2">
+            <span
+              onClick={handleBackFromUpdateDetail}
+              title="Back"
+              aria-label="Back"
+              style={{
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "4px",
+                color: "#1e293b",
+                fontSize: "17px",
+                transition: "transform 0.15s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateX(-2px)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "translateX(0)")}
+            >
+              <FaArrowLeft />
+            </span>
+            <h4 className="common-modal-title m-0">Work Update Details</h4>
+          </div>
           <button
             type="button"
             className="common-modal-close-x"
-            onClick={() => setShowUpdateDetailModal(false)}
+            onClick={handleCancelUpdateDetail}
             aria-label="Close"
           >
             ✕
           </button>
         </Modal.Header>
-        <Modal.Body className="project-details-modal-body px-4 py-3">
+        <Modal.Body className="px-4 py-3">
           {selectedUpdate && (
             <div className="d-flex flex-column gap-3">
-              <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 bg-light rounded-3">
+              <div className="work-update-detail-info-grid">
                 <div>
                   <span className="dwu-work-card__label d-block">Employee</span>
-                  <span className="fw-semibold text-dark">
+                  <span className="fw-semibold text-dark" style={{ wordBreak: "break-word" }}>
                     {selectedUpdate.employeeDetails?.name || "N/A"} ({selectedUpdate.employeeDetails?.empId || "—"})
                   </span>
                 </div>
@@ -1441,7 +1834,7 @@ const ProjectDetails = () => {
 
               <div>
                 <span className="dwu-work-card__label d-block mb-1">Task Title</span>
-                <p className="fw-medium text-dark m-0">
+                <p className="fw-medium text-dark m-0" style={{ wordBreak: "break-word" }}>
                   {selectedUpdate.displayTitle ||
                     selectedUpdate.task?.taskTitle ||
                     selectedUpdate.standaloneTitle ||
@@ -1454,7 +1847,7 @@ const ProjectDetails = () => {
                 <div
                   className="p-3 border rounded-3 bg-white"
                   style={{
-                    maxHeight: "300px",
+                    maxHeight: "280px",
                     overflowY: "auto",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
@@ -1473,13 +1866,13 @@ const ProjectDetails = () => {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer className="border-0 pt-0">
+        <Modal.Footer className="border-0 pt-2 pb-3 pe-4 d-flex justify-content-end align-items-center">
           <Button
             variant="light"
-            onClick={() => setShowUpdateDetailModal(false)}
+            onClick={handleCancelUpdateDetail}
             className="common-modal-btn btn-small-cancel"
           >
-            Close
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal>

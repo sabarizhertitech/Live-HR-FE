@@ -488,8 +488,7 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: auto;
-
-  border-top: 1px solid #f0f0f0;
+  border: none;
 }
 
 .admin-task-details-update-btn-cancel {
@@ -887,7 +886,7 @@
   margin: 18px 0 14px;
   border: 1px solid #e8e8ec;
   border-radius: 8px;
-  padding: 14px 16px;
+  padding: 10px 10px;
   background: #fafbfc;
 }
 
@@ -1158,4 +1157,13 @@
   color: #9e9e9e !important;
   cursor: not-allowed !important;
   border-color: #e0e0e0 !important;
+}
+
+.no-docs-text {
+  font-size: 11px;
+  color: #a0aec0;
+  font-style: normal;
+  margin: 0;
+  padding: 6px 0;
+  font-weight: 500;
 }

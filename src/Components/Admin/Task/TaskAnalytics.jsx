@@ -3,18 +3,7 @@ import Sidebar from "../../HeaderSidebar/Sidebar";
 import { portalInstance } from "../../../Services/instance";
 import { Icon } from "@iconify/react";
 import { toast } from "react-toastify";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-} from "chart.js";
+import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import EmployeePerformanceModal from "./EmployeePerformanceModal";
 import TaskDetailsModal from "../../Employee/Task/TaskDetailsModal";
@@ -25,17 +14,7 @@ import "../../Common/CustomDropdown.css";
 import "../../../Globel/Layout.css";
 import "./TaskAnalytics.css";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement
-);
+ChartJS.register(...registerables);
 
 const PERIOD_OPTIONS = [
   { label: "All Time", value: "all" },

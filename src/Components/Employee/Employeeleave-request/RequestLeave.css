@@ -819,7 +819,7 @@ body.theme4 .employeeLeaveRequest-paginationContainer button:hover:not(:disabled
     width: 100%;
   }
 
-  /* Reason dropdown and description â€” full width on mobile */
+  /* Reason dropdown and description  full width on mobile */
   .employeeLeaveRequest-formRow--reason .employeeLeaveRequest__customDropdown--reason,
   .employeeLeaveRequest-formRow--reason .employeeLeaveRequest-inputs {
     width: 100% !important;
@@ -1750,4 +1750,3 @@ body.theme4 .employeeLeaveRequest-paginationContainer button:hover:not(:disabled
   gap: 10px;
   width: 100% !important;
 }
-

@@ -1885,11 +1885,104 @@ html {
 }
 
 
+/* ===== COURSE & CERTIFICATIONS FORM GRID — FULLY RESPONSIVE (MONITOR, LAPTOP, TABLET, MOBILE) ===== */
 .employeedetails-course-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   align-items: start;
+}
+
+.employeedetails-course-grid .employeedetails-full {
+  grid-column: 1 / -1;
+}
+
+/* Monitor / Large Screens (>= 1400px) */
+@media (min-width: 1400px) {
+  .employeedetails-course-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+}
+
+/* Laptop / Desktop (992px to 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+  .employeedetails-course-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+}
+
+/* Tablet (768px to 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+  .employeedetails-course-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Mobile Devices (<= 767px) */
+@media (max-width: 767px) {
+  .employeedetails-course-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .employeedetails-course-grid .employeedetails-full {
+    grid-column: 1 / -1 !important;
+  }
+
+  .employeedetails-certifications-section {
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .employeedetails-course-card {
+    padding: 14px 12px !important;
+  }
+
+  .employeedetails-duration-control {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .employeedetails-duration-control input {
+    flex: 1 1 80px !important;
+    max-width: 100px !important;
+  }
+
+  .employeedetails-cert-section-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .employeedetails-cert-section-header button {
+    align-self: flex-start !important;
+  }
+}
+
+/* Small Mobile (<= 480px) */
+@media (max-width: 480px) {
+  .employeedetails-course-card {
+    padding: 12px 10px !important;
+  }
+
+  .employeedetails-detail-label {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .employeedetails-detail-input {
+    font-size: 13px !important;
+    padding: 4px 8px !important;
+  }
+
+  .employeedetails-cert-radios {
+    gap: 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
 }
 
 /* ================= FOCUS / SCROLL HIGHLIGHT PULSE ================= */
@@ -2275,4 +2368,17 @@ html {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.custom-cert-month-input::-webkit-calendar-picker-indicator {
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 44px;
+  height: 100%;
+  z-index: 2;
+  opacity: 0;
 }

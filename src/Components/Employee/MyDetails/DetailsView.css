@@ -253,7 +253,7 @@
 /* ================= UPLOADED DOCUMENTS COMPONENT ================= */
 .doc-view-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
   gap: 16px 24px;
 }
 
@@ -272,6 +272,8 @@
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   transition: all 0.2s ease;
+  min-height: 70px;
+  box-sizing: border-box;
 }
 
 .doc-view-card.has-doc {
@@ -296,6 +298,7 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .doc-icon-badge {
@@ -334,15 +337,20 @@
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .doc-view-title {
   font-size: 14px;
   font-weight: 500;
   color: #1e293b;
-  white-space: nowrap;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .doc-status-tag {
@@ -352,6 +360,7 @@
   font-size: 11px;
   font-weight: 500;
   width: fit-content;
+  white-space: nowrap;
 }
 
 .doc-status-tag.uploaded {
@@ -387,6 +396,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-doc-view:hover:not(:disabled) {
@@ -396,6 +407,61 @@
 
 .btn-doc-view:disabled {
   opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-doc-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-doc-delete:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-doc-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-doc-delete-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-doc-delete-mini:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.btn-doc-delete-mini:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -470,34 +536,78 @@
   }
 }
 
-/* ================= RESPONSIVE (MOBILE & TABLET) ================= */
-@media (max-width: 992px) {
+/* ================= RESPONSIVE SYSTEM (MONITOR, LAPTOP, TABLET, MOBILE) ================= */
+
+/* ── 1. Monitor / Large Screens (min-width: 1400px) ── */
+@media (min-width: 1400px) {
   .detailsview-page {
-    left: 15px;
+    left: 270px;
+    right: 20px;
+  }
+  .detailsview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px 48px;
+  }
+  .doc-view-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 24px;
+  }
+}
+
+/* ── 2. Laptop / Desktop (1024px to 1399px) ── */
+@media (max-width: 1399px) and (min-width: 1024px) {
+  .detailsview-page {
+    left: 250px;
     right: 15px;
-    top: 84px;
-    padding: 15px;
+  }
+  .detailsview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+  }
+  .doc-view-grid {
+    grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+    gap: 16px 20px;
+  }
+  .doc-view-card {
+    padding: 12px 16px;
+  }
+}
+
+/* ── 3. Tablet (768px to 1023px) ── */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .detailsview-page {
+    left: 15px !important;
+    right: 15px !important;
+    top: 80px !important;
+    padding: 15px !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
 
+  .detailsview-header {
+    flex-direction: row !important;
+    height: auto !important;
+    padding: 24px !important;
+    gap: 20px !important;
+    align-items: center !important;
+    text-align: left !important;
+  }
+
   .detailsview-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px 24px !important;
   }
 
   .detailsview-item.full {
-    grid-column: span 1;
+    grid-column: span 2 !important;
   }
 
-  .detailsview-header {
-    flex-direction: column;
-    height: auto;
-    padding: 20px;
-    text-align: center;
+  .doc-view-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
-
-  .header-info h2 {
-    font-size: 24px;
+  .doc-view-card {
+    padding: 14px 16px !important;
   }
 
   .approval-toast {
@@ -508,39 +618,248 @@
   }
 }
 
-@media (max-width: 768px) {
+/* ── 4. Mobile Devices (max-width: 767px) ── */
+@media (max-width: 767px) {
   .detailsview-page {
-    left: 12px;
-    right: 12px;
-    top: 74px;
-    padding: 12px;
-  }
-}
-
-@media (max-width: 576px) {
-  .detailsview-page {
-    left: 10px;
-    right: 10px;
-    top: 68px;
-    padding: 5px;
+    left: 10px !important;
+    right: 10px !important;
+    top: 72px !important;
+    padding: 6px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    min-height: calc(100vh - 80px) !important;
   }
 
+  .detailsview-wrapper {
+    padding: 16px 12px !important;
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  .detailsview-header {
+    flex-direction: column !important;
+    height: auto !important;
+    padding: 20px 14px !important;
+    text-align: center !important;
+    gap: 14px !important;
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  .avatar-wrapper {
+    margin: 0 auto !important;
+  }
+
+  .detailsview-avatar {
+    width: 110px !important;
+    height: 110px !important;
+  }
+
+  .header-info {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .header-info h2 {
+    font-size: 22px !important;
+    word-break: break-word !important;
+  }
+
+  .header-info p {
+    font-size: 13.5px !important;
+  }
+
+  .status-badge {
+    margin: 8px auto 0 !important;
+  }
+
+  /* Grid single column on mobile */
+  .detailsview-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .detailsview-item.full {
+    grid-column: span 1 !important;
+  }
+
+  .detailsview-item p {
+    margin-left: 0 !important;
+    margin-top: 4px !important;
+    font-size: 14px !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Upload Document Cards */
+  .doc-view-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .doc-view-card {
+    padding: 14px 12px !important;
+  }
+
+  /* Review Banners & Alert Boxes */
+  .admin-review-banner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    padding: 14px !important;
+  }
+
+  .admin-review-content {
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  .admin-review-actions {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .admin-review-actions .common-modal-btn {
+    flex: 1 !important;
+    min-width: 130px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .employee-review-alert {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    gap: 12px !important;
+  }
+
+  .employee-review-alert-content {
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .employee-review-alert-action {
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .btn-employee-resubmit-cta {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Footer action buttons */
   .detailsview-footer {
     display: flex !important;
     flex-direction: column-reverse !important;
     align-items: stretch !important;
     gap: 10px !important;
     width: 100% !important;
-    margin-top: 20px !important;
+    margin-top: 24px !important;
+  }
+
+  .detailsview-footer .common-modal-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 10px 16px !important;
+  }
+
+  /* Career Gap Cards */
+  .career-gap-review-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+  }
+
+  .approval-toast {
+    top: 80px;
+    right: 10px;
+    left: 10px;
+    max-width: calc(100% - 20px);
   }
 }
 
+/* ── 5. Compact Mobile Screens (max-width: 540px) ── */
+@media (max-width: 540px) {
+  .doc-view-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+
+  .doc-view-card-left {
+    width: 100% !important;
+  }
+
+  .doc-view-title {
+    font-size: 13.5px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  .doc-view-card-right {
+    width: 100% !important;
+    margin-left: 0 !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+  }
+
+  .doc-view-card-right .doc-view-actions-wrap {
+    width: 100% !important;
+    justify-content: stretch !important;
+  }
+
+  .doc-view-card-right .btn-doc-view,
+  .doc-view-card-right .btn-doc-delete {
+    flex: 1 !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .detailsview-section h4 {
+    font-size: 18px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .salary-history-table th,
+  .salary-history-table td {
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .modal-dialog {
+    max-width: 95vw !important;
+    margin: 10px auto !important;
+  }
+}
+
+/* ── 6. Extra Small Mobile (max-width: 380px) ── */
 @media (max-width: 380px) {
   .detailsview-page {
-    left: 8px;
-    right: 8px;
-    top: 62px;
-    padding: 5px;
+    left: 6px !important;
+    right: 6px !important;
+    top: 64px !important;
+    padding: 2px !important;
+  }
+
+  .detailsview-wrapper {
+    padding: 12px 8px !important;
+  }
+
+  .detailsview-avatar {
+    width: 96px !important;
+    height: 96px !important;
+  }
+
+  .header-info h2 {
+    font-size: 20px !important;
   }
 }
 

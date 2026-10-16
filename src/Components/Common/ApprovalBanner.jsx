@@ -273,7 +273,7 @@ const renderLeaveCategoryDetails = (req) => {
   if (isDelete) {
     return (
       <div className="approval-delete-warning">
-        <div className="approval-delete-icon">⚠️</div>
+        <div className="approval-delete-icon"></div>
         <div>
           <h4>Leave Category Deletion Requested</h4>
           <p>
@@ -312,7 +312,7 @@ const renderHolidayDetails = (req) => {
     const formattedDate = dStr ? new Date(dStr).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : dStr;
     return (
       <div className="approval-delete-warning">
-        <div className="approval-delete-icon">⚠️</div>
+        <div className="approval-delete-icon"></div>
         <div>
           <h4>Holiday Deletion Requested</h4>
           <p>
@@ -1107,7 +1107,7 @@ const ApprovalBanner = ({ moduleName, onRefresh }) => {
                 </>
               ) : inspectingRequest.actionType === "DELETE_EMPLOYEE" ? (
                 <div className="approval-delete-warning">
-                  <div className="approval-delete-icon">⚠️</div>
+                  <div className="approval-delete-icon"></div>
                   <div>
                     <h4>Employee Deletion Requested</h4>
                     <p>HR has requested to delete <strong>{inspectingRequest.payload?.empName || "the employee"}</strong> ({inspectingRequest.payload?.empIdString || ""}).</p>

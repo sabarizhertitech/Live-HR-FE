@@ -61,6 +61,8 @@ const PHASE_STATUS_OPTIONS = [
 function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, onChange, onRemove, onSave, onEdit, canEdit }) {
   if (isSaved) {
     const statusOption = PHASE_STATUS_OPTIONS.find(o => o.value === (phaseStatus || "").toLowerCase()) || { label: phaseStatus || "Pending", color: "#f59e0b" };
+    const isPhaseCompleted = (phaseStatus || "").toLowerCase() === "completed";
+    const canEditRow = canEdit && !isPhaseCompleted;
     return (
       <div className="atPhase__item animate-fade-in" style={{ padding: "12px 16px", borderRadius: "8px", background: "#f8fafc", border: "1px solid #e2e8f0", marginBottom: "10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
@@ -82,7 +84,7 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
               {statusOption.label}
             </span>
           </div>
-          {canEdit && (
+          {canEditRow && (
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <button
                 type="button"
@@ -130,25 +132,25 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
   }
 
   const [isPointByPoint, setIsPointByPoint] = useState(() => {
-    return /^\s*\d+[\.\)]\s*/.test(phaseDescription || "");
+    return /^([•\-\*]|\d+[\.\)])\s*/.test((phaseDescription || "").trim());
   });
 
   const formatToNumberedPoints = (text) => {
-    if (!text || !text.trim()) return "1. ";
+    if (!text || !text.trim()) return "• ";
     const rawLines = text.split("\n");
     const cleaned = rawLines
       .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean);
 
-    if (cleaned.length === 0) return "1. ";
-    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+    if (cleaned.length === 0) return "• ";
+    return cleaned.map(line => `• ${line}`).join("\n");
   };
 
   const removeNumberedPoints = (text) => {
     if (!text) return "";
     return text
       .split("\n")
-      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean)
       .join("\n");
   };
@@ -178,10 +180,9 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
       const linesBefore = textBeforeCursor.split("\n");
       const currentLine = linesBefore[linesBefore.length - 1];
 
-      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+      const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*(.*)$/);
 
       if (match) {
-        const num = parseInt(match[1], 10);
         const content = match[2];
 
         if (!content.trim()) {
@@ -195,8 +196,7 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
           return;
         }
 
-        const nextNum = num + 1;
-        const insertion = `\n${nextNum}. `;
+        const insertion = "\n• ";
         const newText = textBeforeCursor + insertion + textAfterCursor;
         const newCursorPos = selectionStart + insertion.length;
 
@@ -205,8 +205,7 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
           textarea.selectionStart = textarea.selectionEnd = newCursorPos;
         }, 0);
       } else {
-        const lineCount = linesBefore.length + 1;
-        const insertion = `\n${lineCount}. `;
+        const insertion = "\n• ";
         const newText = textBeforeCursor + insertion + textAfterCursor;
         const newCursorPos = selectionStart + insertion.length;
 
@@ -232,28 +231,31 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
     const textAfter = value.substring(selectionEnd);
 
     const pastedLines = pastedText
-      .split("\n")
+      .split(/\r?\n/)
       .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean);
 
+    if (pastedLines.length === 0) return;
+
     const linesBefore = textBefore.split("\n");
     const currentLine = linesBefore[linesBefore.length - 1];
-    const match = currentLine.match(/^(\d+)\.\s*/);
-    let startNum = match ? parseInt(match[1], 10) : linesBefore.length;
+    const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*/);
 
-    const formattedPaste = pastedLines
-      .map((line, i) => `${startNum + i}. ${line}`)
-      .join("\n");
+    let formattedPaste = "";
+    if (match && (currentLine.trim() === match[1] || currentLine.trim() === `${match[1]}.`)) {
+      formattedPaste = pastedLines.map((l, i) => (i === 0 ? l : `• ${l}`)).join("\n");
+    } else {
+      formattedPaste = pastedLines.map((l) => `• ${l}`).join("\n");
+      if (textBefore && !textBefore.endsWith("\n") && !match) {
+        formattedPaste = "\n" + formattedPaste;
+      }
+    }
 
-    const newBefore = match
-      ? textBefore.substring(0, textBefore.length - match[0].length)
-      : textBefore;
-
-    const newText = newBefore + formattedPaste + textAfter;
+    const newText = textBefore + formattedPaste + textAfter;
     onChange(index, "phaseDescription", newText);
     setTimeout(() => {
       textarea.selectionStart = textarea.selectionEnd =
-        (newBefore + formattedPaste).length;
+        (textBefore + formattedPaste).length;
     }, 0);
   };
 
@@ -321,7 +323,7 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
               userSelect: "none",
               margin: 0
             }}
-            title="Format description as numbered points (1., 2., 3.)"
+            title="Format description as bullet points (• Point)"
           >
             <input
               type="radio"
@@ -342,13 +344,14 @@ function PhaseRow({ phaseTitle, phaseDescription, phaseStatus, isSaved, index, o
       </div>
       <textarea
         className="atPhase__input hrms-common-textarea"
-        placeholder={isPointByPoint ? "1. Enter first point..." : `Phase ${index + 1} Description…`}
+        placeholder={isPointByPoint ? "• Enter first point..." : `Phase ${index + 1} Description…`}
         value={phaseDescription}
         disabled={!canEdit}
         onChange={e => onChange(index, "phaseDescription", e.target.value)}
         onKeyDown={handleDescriptionKeyDown}
         onPaste={handleDescriptionPaste}
-        rows={2}
+        rows={4}
+        style={{ minHeight: "90px", height: "90px" }}
       />
 
       {canEdit && (
@@ -479,17 +482,24 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
     return (task?.assignedStatus || "").toLowerCase();
   }, [task, currentUserId]);
 
+  const isTaskCompleted = useMemo(() => {
+    const s = (task?.status || "").toLowerCase().replace(/[\s\-_]/g, "");
+    return s === "completed";
+  }, [task?.status]);
+
   /* ── Field-level access ── */
   const canEditField = useCallback((field) => {
+    if (isTaskCompleted) return false;
+    if (field === "endDate") return false;
     if (isCreator) return true;
     if (isAssignedMember) {
       if (myMemberStatus === "rejected" || myMemberStatus === "allocated") return false;
-      return ["status", "startDate", "endDate"].includes(field);
+      return ["status", "startDate"].includes(field);
     }
     return false;
-  }, [isCreator, isAssignedMember, myMemberStatus]);
+  }, [isCreator, isAssignedMember, myMemberStatus, isTaskCompleted]);
 
-  const canEditPhases = isCreator || (isAssignedMember && myMemberStatus === "accepted");
+  const canEditPhases = !isTaskCompleted && (isCreator || (isAssignedMember && myMemberStatus === "accepted"));
 
   /* â”€â”€ Work History â”€â”€ */
   const fetchWorkHistory = useCallback(async () => {
@@ -623,16 +633,26 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
   }, []);
 
   const handleAddPhase = useCallback(() => {
+    if (isTaskCompleted) return;
     setPhases(prev => [...prev, { phaseTitle: "", phaseDescription: "", phaseStatus: "pending", isSaved: false }]);
     setIsDirty(true);
-  }, []);
+  }, [isTaskCompleted]);
 
   const handleRemovePhase = useCallback((index) => {
+    if (isTaskCompleted) return;
+    if ((phases[index]?.phaseStatus || "").toLowerCase() === "completed") {
+      toast.warning("Completed phase cannot be removed.");
+      return;
+    }
     setPhases(prev => prev.filter((_, i) => i !== index));
     setIsDirty(true);
-  }, []);
+  }, [isTaskCompleted, phases]);
 
   const handleSavePhase = useCallback((index) => {
+    if (isTaskCompleted) {
+      toast.warning("Completed tasks cannot be modified.");
+      return;
+    }
     const phase = phases[index];
     if (!phase || !phase.phaseTitle?.trim()) {
       toast.error("Please enter the phase title");
@@ -652,16 +672,21 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
     });
 
     setIsDirty(true);
-    toast.success("Phase saved successfully");
-  }, [phases]);
+    toast.dismiss();
+    toast.success("Phase saved successfully", { autoClose: 1500 });
+  }, [phases, isTaskCompleted]);
 
   const handleEditPhase = useCallback((index) => {
+    if ((phases[index]?.phaseStatus || "").toLowerCase() === "completed") {
+      toast.warning("Completed phase cannot be edited.");
+      return;
+    }
     setPhases(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], isSaved: false };
       return updated;
     });
-  }, []);
+  }, [phases]);
 
   /* ── Lifecycle ── */
   useEffect(() => () => clearTimeout(timerRef.current), []);
@@ -800,6 +825,10 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
 
   /* ── Submit ── */
   const handleSubmit = async () => {
+    if (isTaskCompleted) {
+      toast.warning("Completed tasks cannot be modified.");
+      return;
+    }
     // 1. If no changes were made at all, just notify and stop
     if (!isDirty) {
       toast.info("No changes detected to update.");
@@ -825,8 +854,8 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
 
     const isCompleted = (formData.status || "").toLowerCase() === "completed";
     if (isCompleted && !formData.endDate) {
-      toast.warning("Please enter an end date for completed task");
-      return;
+      const todayStr = new Date().toISOString().split("T")[0];
+      formData.endDate = task?.endDate ? task.endDate.slice(0, 10) : todayStr;
     }
 
     if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
@@ -914,7 +943,7 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
       <div className="admin-task-details-update-container">
         <ToastContainer
           position="top-right"
-          autoClose={3000}
+          autoClose={1500}
           hideProgressBar={false}
           newestOnTop={true}
           closeOnClick
@@ -923,7 +952,7 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
           draggable
           pauseOnHover
           theme="light"
-          style={{ zIndex: 30000 }}
+          style={{ zIndex: 99999999 }}
         />
         {/* Header */}
         <div className="admin-task-details-update-header">
@@ -1062,21 +1091,12 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
               <FieldWrapper label="End Date *">
                 <div className="date-inputsbut position-relative">
                   <input type="text" name="endDate" id="endDate" placeholder="YYYY-MM-DD"
-                    value={formData.endDate || ""} onChange={handleChange}
-                    disabled={!canEditField("endDate")}
-                    className={!canEditField("endDate") ? "field-disabled" : "custom-date"} />
-                  {canEditField("endDate") && (
-                    <>
-                      <img src={DateIcon} alt="calendar" className="date-icon cursor-pointer"
-                        onClick={() => { const el = document.getElementById("endDate_picker"); if (el) { try { el.showPicker(); } catch (e) { } } }} />
-                      <input id="endDate_picker" type="date"
-                        min={formData.startDate}
-                        value={formData.endDate || ""}
-                        onChange={(e) => handleChange({ target: { name: "endDate", value: e.target.value } })}
-                        style={{ position: "absolute", opacity: 0, width: 0, height: 0, pointerEvents: "none" }}
-                      />
-                    </>
-                  )}
+                    value={formData.endDate || ""}
+                    readOnly={true}
+                    disabled={true}
+                    className="hrms-unified-input-style custom-date field-disabled" />
+                  <img src={DateIcon} alt="calendar" className="date-icon opacity-50 cursor-not-allowed"
+                    style={{ pointerEvents: "none" }} />
                 </div>
               </FieldWrapper>
 
@@ -1116,7 +1136,16 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
               <FieldWrapper label="Task Status">
                 <div className="date-inputsbut">
                   <CustomDropdown options={statusOptions} value={formData.status}
-                    onChange={val => setFormData({ ...formData, status: val })}
+                    onChange={val => {
+                      const isCompleted = (val || "").toLowerCase() === "completed";
+                      const todayStr = new Date().toISOString().split("T")[0];
+                      setFormData(prev => ({
+                        ...prev,
+                        status: val,
+                        endDate: isCompleted ? (task?.endDate ? task.endDate.slice(0, 10) : todayStr) : "",
+                      }));
+                      setIsDirty(true);
+                    }}
                     disabled={!canEditField("status")} />
                 </div>
               </FieldWrapper>
@@ -1220,10 +1249,12 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
             {/* Action Buttons */}
             <div className="admin-task-details-update-form-actions">
               <button className="hrms-common-btn-cancel" onClick={handleCancel}>Cancel</button>
-              <button className="hrms-common-btn-primary"
-                onClick={handleSubmit} disabled={loading}>
-                {loading ? "Updating..." : "Update Task"}
-              </button>
+              {!isTaskCompleted && (
+                <button className="hrms-common-btn-primary"
+                  onClick={handleSubmit} disabled={loading}>
+                  {loading ? "Updating..." : "Update Task"}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1388,7 +1419,6 @@ function UpdateTask({ taskId, onClose, onSuccess }) {
         }
         .phase-remove-btn:hover { background: #fee2e2; }
       `}</style>
-      <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 99999999 }} />
     </>
   );
 }

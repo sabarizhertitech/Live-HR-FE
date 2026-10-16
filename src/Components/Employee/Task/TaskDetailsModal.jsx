@@ -42,8 +42,43 @@ const PHASE_STATUS_OPTIONS = [
   { value: "completed", label: "Completed" },
 ];
 
+const calculateOverallTaskDays = (task) => {
+  if (!task) return 0;
+  const startRaw = task.startDate || task.createdDate || task.createdAt;
+  if (!startRaw) {
+    return (task.phases || []).reduce((sum, p) => sum + (Number(p.workingDays) || 0), 0) || 1;
+  }
+  const startDate = new Date(startRaw);
+  if (isNaN(startDate.getTime())) return 1;
+
+  const isCompleted = (task.status || "").toLowerCase() === "completed";
+  const endRaw = isCompleted
+    ? (task.endDate || task.dueDate || startRaw)
+    : (task.endDate || new Date());
+
+  const endDate = new Date(endRaw);
+  if (isNaN(endDate.getTime())) return 1;
+
+  const getLocalDateStr = (d) => {
+    const dateObj = new Date(d);
+    if (isNaN(dateObj.getTime())) return "";
+    return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+  };
+
+  const startStr = getLocalDateStr(startDate);
+  const endStr = getLocalDateStr(endDate);
+
+  if (!startStr || !endStr || startStr > endStr) return 1;
+
+  const d1 = new Date(startStr + "T00:00:00");
+  const d2 = new Date(endStr + "T00:00:00");
+  const diffTime = d2.getTime() - d1.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return Math.max(1, diffDays);
+};
+
 /* ─── Phase Item (with status editing) ─── */
-function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, assignedMembers = [], currentUserId = null, isTaskCreator = false }) {
+function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, assignedMembers = [], currentUserId = null, isTaskCreator = false, isTaskCompleted = false }) {
   const phaseUpdates = dailyUpdates?.filter(u =>
     u.phase?.trim().toLowerCase() === (typeof phase === 'object' ? (phase.phaseTitle || phase.phase) : phase)?.trim().toLowerCase()
   ) || [];
@@ -117,24 +152,24 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
   const phaseName = typeof phase === 'object' ? (phase.phaseTitle || phase.phase) : phase;
   const phaseDesc = typeof phase === 'object' ? phase.phaseDescription : '';
 
-  const canEdit = (isOwner || isTaskCreator) && ["pending", "inprocess", "hold"].includes(currentStatus.toLowerCase());
+  const canEdit = !isTaskCompleted && (isOwner || isTaskCreator) && ["pending", "inprocess", "hold"].includes(currentStatus.toLowerCase());
 
   const formatToNumberedPoints = (text) => {
-    if (!text || !text.trim()) return "1. ";
+    if (!text || !text.trim()) return "• ";
     const rawLines = text.split("\n");
     const cleaned = rawLines
       .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean);
 
-    if (cleaned.length === 0) return "1. ";
-    return cleaned.map((line, i) => `${i + 1}. ${line}`).join("\n");
+    if (cleaned.length === 0) return "• ";
+    return cleaned.map(line => `• ${line}`).join("\n");
   };
 
   const removeNumberedPoints = (text) => {
     if (!text) return "";
     return text
       .split("\n")
-      .map(line => line.replace(/^\d+[\.\)]\s*/, "").trim())
+      .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean)
       .join("\n");
   };
@@ -163,10 +198,9 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
       const linesBefore = textBeforeCursor.split("\n");
       const currentLine = linesBefore[linesBefore.length - 1];
 
-      const match = currentLine.match(/^(\d+)\.\s*(.*)$/);
+      const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*(.*)$/);
 
       if (match) {
-        const num = parseInt(match[1], 10);
         const content = match[2];
 
         if (!content.trim()) {
@@ -180,8 +214,7 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
           return;
         }
 
-        const nextNum = num + 1;
-        const insertion = `\n${nextNum}. `;
+        const insertion = "\n• ";
         const newText = textBeforeCursor + insertion + textAfterCursor;
         const newCursorPos = selectionStart + insertion.length;
 
@@ -190,8 +223,7 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
           textarea.selectionStart = textarea.selectionEnd = newCursorPos;
         }, 0);
       } else {
-        const lineCount = linesBefore.length + 1;
-        const insertion = `\n${lineCount}. `;
+        const insertion = "\n• ";
         const newText = textBeforeCursor + insertion + textAfterCursor;
         const newCursorPos = selectionStart + insertion.length;
 
@@ -217,31 +249,42 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
     const textAfter = value.substring(selectionEnd);
 
     const pastedLines = pastedText
-      .split("\n")
+      .split(/\r?\n/)
       .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean);
 
+    if (pastedLines.length === 0) return;
+
     const linesBefore = textBefore.split("\n");
     const currentLine = linesBefore[linesBefore.length - 1];
-    const match = currentLine.match(/^(\d+)\.\s*/);
-    let startNum = match ? parseInt(match[1], 10) : linesBefore.length;
+    const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*/);
 
-    const formattedPaste = pastedLines
-      .map((line, i) => `${startNum + i}. ${line}`)
-      .join("\n");
+    let formattedPaste = "";
+    if (match && (currentLine.trim() === match[1] || currentLine.trim() === `${match[1]}.`)) {
+      formattedPaste = pastedLines.map((l, i) => (i === 0 ? l : `• ${l}`)).join("\n");
+    } else {
+      formattedPaste = pastedLines.map((l) => `• ${l}`).join("\n");
+      if (textBefore && !textBefore.endsWith("\n") && !match) {
+        formattedPaste = "\n" + formattedPaste;
+      }
+    }
 
-    const newBefore = match
-      ? textBefore.substring(0, textBefore.length - match[0].length)
-      : textBefore;
-
-    const newText = newBefore + formattedPaste + textAfter;
+    const newText = textBefore + formattedPaste + textAfter;
     setEditDesc(newText);
     setTimeout(() => {
-      textarea.selectionStart = textarea.selectionEnd = (newBefore + formattedPaste).length;
+      textarea.selectionStart = textarea.selectionEnd = (textBefore + formattedPaste).length;
     }, 0);
   };
 
   const handleSave = async () => {
+    if (isTaskCompleted) {
+      toast.error("Completed task phases cannot be modified");
+      return;
+    }
+    if ((currentStatus || "").toLowerCase() === "completed") {
+      toast.error("Completed phase cannot be modified");
+      return;
+    }
     if (!editTitle.trim()) {
       toast.error("Phase title cannot be empty");
       return;
@@ -290,6 +333,20 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
               👤 {phaseOwner.name}
             </span>
           )}
+          <span style={{
+            fontSize: "11px",
+            fontWeight: "600",
+            color: "#16a34a",
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: "12px",
+            padding: "1px 8px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "3px"
+          }}>
+            {phase?.workingDays || 0} {(phase?.workingDays === 1 ? "Working Day" : "Working Days")}
+          </span>
         </div>
 
         <div className="d-flex align-items-center gap-2">
@@ -350,7 +407,7 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
                   userSelect: "none",
                   margin: 0
                 }}
-                title="Format description as numbered points (1., 2., 3.)"
+                title="Format description as bullet points (• Point)"
               >
                 <input
                   type="radio"
@@ -374,7 +431,7 @@ function PhaseItem({ phase, phaseNumber, dailyUpdates, idx, taskId, onSuccess, a
               onChange={e => setEditDesc(e.target.value)}
               onKeyDown={handleDescriptionKeyDown}
               onPaste={handleDescriptionPaste}
-              placeholder={isPointByPoint ? "1. Enter first point..." : "Enter phase description..."}
+              placeholder={isPointByPoint ? "• Enter first point..." : "Enter phase description..."}
               rows={3}
             />
           </div>
@@ -558,6 +615,12 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
     return task?.status;
   }, [task, isAssignedMember, isTaskCreator, currentUserId]);
 
+  const isTaskCompleted = useMemo(() => {
+    const s = (task?.status || "").toLowerCase().replace(/[\s\-_]/g, "");
+    const ds = (currentDisplayStatus || "").toLowerCase().replace(/[\s\-_]/g, "");
+    return s === "completed" || ds === "completed";
+  }, [task?.status, currentDisplayStatus]);
+
   const currentDisplayRejectionReason = useMemo(() => {
     if (isAssignedMember && !isTaskCreator && currentUserId && Array.isArray(task?.memberStatuses)) {
       const ms = task.memberStatuses.find(m => (m.employeeId?._id || m.employeeId || "").toString() === String(currentUserId));
@@ -579,7 +642,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
   }, [task]);
 
   const showEditCancel = useMemo(() => {
-    if (!task?.status) return false;
+    if (!task?.status || isTaskCompleted) return false;
 
     // For an assigned member: only allow editing if this member has accepted the task
     if (isAssignedMember) {
@@ -596,7 +659,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
     const status = task.status.toLowerCase().replace(/\s+/g, "");
     const editableStatuses = ["assigned", "pending", "inprocess", "hold"];
     return editableStatuses.includes(status);
-  }, [isTaskCreator, isAssignedMember, task, hasAnyAcceptedMember, myMemberStatus]);
+  }, [isTaskCreator, isAssignedMember, task, hasAnyAcceptedMember, myMemberStatus, isTaskCompleted]);
 
   const formatDate = (d) => d
     ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
@@ -704,7 +767,14 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
     }
   };
 
-  const handleEditPopup = () => { setShowUpdatePopup(true); setShowOptionsMenu(false); };
+  const handleEditPopup = () => {
+    if (isTaskCompleted) {
+      toast.warning("Completed tasks cannot be edited.");
+      return;
+    }
+    setShowUpdatePopup(true);
+    setShowOptionsMenu(false);
+  };
   const handleDownload = (url) => {
     if (!url) return;
     if (typeof url === "object") {
@@ -905,69 +975,84 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
 
                 {/* Task info + docs */}
                 <div className="employee-task-details-info-panel">
-                  {/* Category, Project, Work Type & Pages */}
-                  {(task?.category || task?.project || task?.workType || (task?.pages && task?.pages.length > 0)) && (
-                    <div className="employee-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "14px", flexWrap: "wrap" }}>
-                      {(task?.category || task?.project) && (
-                        <div className="employee-task-details-info-stat" style={{ flex: "1", minWidth: "140px" }}>
-                          <label className="admin-task-details-section-label">Category / Project</label>
-                          <div className="admin-task-details-value" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <span>{(task?.category || "—").toUpperCase()}</span>
-                            <span style={{ color: "#c4c4c4" }}>/</span>
-                            <span>{task?.project ? (task.project.charAt(0).toUpperCase() + task.project.slice(1).toLowerCase()) : "—"}</span>
-                          </div>
-                        </div>
-                      )}
-                      {task?.workType && (
-                        <div className="employee-task-details-info-stat" style={{ flex: "0 0 auto", minWidth: "90px" }}>
-                          <label className="admin-task-details-section-label">Work Type</label>
-                          <div className="admin-task-details-value">
-                            <span
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: "600",
-                                color: "#5977f8",
-                                background: "#eef2ff",
-                                border: "1px solid #c7d2fe",
-                                borderRadius: "4px",
-                                padding: "2px 8px",
-                                display: "inline-block"
-                              }}
-                            >
-                              {task.workType}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      {task?.pages && task.pages.length > 0 && (
-                        <div className="employee-task-details-info-stat" style={{ flex: "1", minWidth: "140px" }}>
-                          <label className="admin-task-details-section-label">Pages</label>
-                          <div className="admin-task-details-value" style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                            {task.pages.map((pg, pIdx) => (
-                              <span
-                                key={pIdx}
-                                style={{
-                                  fontSize: "11px",
-                                  fontWeight: "500",
-                                  color: "#334155",
-                                  background: "#f1f5f9",
-                                  border: "1px solid #cbd5e1",
-                                  borderRadius: "4px",
-                                  padding: "1px 7px"
-                                }}
-                              >
-                                {pg}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                  {/* ROW 1: Category / Project, Priority, Work Type */}
+                  <div
+                    className="employee-task-details-info-row"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "16px",
+                      marginBottom: "16px",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
+                      <label className="admin-task-details-section-label">Category / Project</label>
+                      <div className="admin-task-details-value" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>{(task?.category || "—").toUpperCase()}</span>
+                        <span style={{ color: "#c4c4c4" }}>/</span>
+                        <span>{task?.project ? (task.project.charAt(0).toUpperCase() + task.project.slice(1).toLowerCase()) : "—"}</span>
+                      </div>
                     </div>
-                  )}
 
-                  {/* ROW 1: Start Date and End Date */}
-                  <div className="employee-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "14px" }}>
-                    <div className="employee-task-details-info-stat" style={{ flex: "1" }}>
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
+                      <label className="admin-task-details-section-label">Priority</label>
+                      <div className="admin-task-details-value">{task?.priority || "Mid"}</div>
+                    </div>
+
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
+                      <label className="admin-task-details-section-label">Work Type</label>
+                      <div className="admin-task-details-value" style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+                        {task?.workType ? (
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              color: "#5977f8",
+                              background: "#eef2ff",
+                              border: "1px solid #c7d2fe",
+                              borderRadius: "4px",
+                              padding: "2px 8px",
+                              display: "inline-block"
+                            }}
+                          >
+                            {task.workType}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                        {task?.pages && task.pages.length > 0 && task.pages.map((pg, pIdx) => (
+                          <span
+                            key={pIdx}
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "500",
+                              color: "#334155",
+                              background: "#f1f5f9",
+                              border: "1px solid #cbd5e1",
+                              borderRadius: "4px",
+                              padding: "1px 7px"
+                            }}
+                          >
+                            {pg}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ROW 2: Start Date, End Date, Due Date */}
+                  <div
+                    className="employee-task-details-info-row"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "16px",
+                      marginBottom: "16px",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
                       <label className="admin-task-details-section-label">Start Date</label>
                       {isTaskCreator && visibleAssignedMembers.length > 1 ? (
                         <div className="admin-task-details-value" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -990,7 +1075,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                       )}
                     </div>
 
-                    <div className="employee-task-details-info-stat" style={{ flex: "1" }}>
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
                       <label className="admin-task-details-section-label">End Date</label>
                       {isTaskCreator && visibleAssignedMembers.length > 1 ? (
                         <div className="admin-task-details-value" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -1012,16 +1097,25 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                         <div className="admin-task-details-value">{formatDate(currentDisplayEndDate)}</div>
                       )}
                     </div>
+
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
+                      <label className="admin-task-details-section-label">Due Date</label>
+                      <div className="admin-task-details-value">{formatDate(task?.dueDate)}</div>
+                    </div>
                   </div>
 
-                  {/* ROW 2: Priority, Status (separate per member), and Due Date on the right */}
-                  <div className="employee-task-details-info-row" style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
-                    <div className="employee-task-details-info-stat" style={{ flex: "0 0 90px" }}>
-                      <label className="admin-task-details-section-label">Priority</label>
-                      <div className="admin-task-details-value">{task?.priority || "Mid"}</div>
-                    </div>
-
-                    <div className="employee-task-details-info-stat" style={{ flex: "1" }}>
+                  {/* ROW 3: Status only */}
+                  <div
+                    className="employee-task-details-info-row"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "16px",
+                      marginBottom: "16px",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <div className="employee-task-details-info-stat" style={{ minWidth: 0 }}>
                       <label className="admin-task-details-section-label">Status</label>
                       {isTaskCreator && visibleAssignedMembers.length > 1 ? (
                         <div className="admin-task-details-value" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -1091,11 +1185,6 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                         </div>
                       )}
                     </div>
-
-                    <div className="employee-task-details-info-stat" style={{ flex: "1" }}>
-                      <label className="admin-task-details-section-label">Due Date</label>
-                      <div className="admin-task-details-value">{formatDate(task?.dueDate)}</div>
-                    </div>
                   </div>
 
                   <div className="employee-task-details-horizontal-divider" />
@@ -1119,9 +1208,28 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                   {phases.length > 0 && (
                     <div className="td-phases-section">
                       <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                        <label className="admin-task-details-section-label m-0">
-                          Phase
-                        </label>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <label className="admin-task-details-section-label m-0">
+                            Phase
+                          </label>
+                          <span style={{
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            color: "#2563eb",
+                            background: "#eff6ff",
+                            border: "1px solid #bfdbfe",
+                            borderRadius: "12px",
+                            padding: "2px 8px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px"
+                          }}>
+                            {(() => {
+                              const overallDays = calculateOverallTaskDays(task);
+                              return `Overall Task: ${overallDays} ${overallDays === 1 ? "Working Day" : "Working Days"}`;
+                            })()}
+                          </span>
+                        </div>
                         {(isTaskCreator || !isAssignedMember) && assignedMembers.length > 1 && (
                           <div className="d-flex align-items-center gap-1 flex-wrap">
                             <button
@@ -1183,6 +1291,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
                             assignedMembers={assignedMembers}
                             currentUserId={currentUserId}
                             isTaskCreator={isTaskCreator}
+                            isTaskCompleted={isTaskCompleted}
                           />
                         ))}
                       </div>
@@ -1297,7 +1406,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
       )}
 
       {/* Update Popup */}
-      {showUpdatePopup && (
+      {showUpdatePopup && !isTaskCompleted && (
         <div className="employee-task-details-popup-backdrop">
           <div
             className="employee-task-detailsequal-popup-container employee-task-details-popup-container--wide"
@@ -1420,7 +1529,6 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
           align-items: center;
           justify-content: space-between;
           gap: 12px;
-          margin-bottom: 12px;
           width: 100%;
         }
 

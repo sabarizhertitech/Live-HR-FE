@@ -200,7 +200,7 @@
 .employee-task-details-info-stat label {
   display: block;
   font-size: 12px;
-  color: #868585;
+  color: #939292;
   /* font-family: "Gilroy-Regular", sans-serif; */
   margin-bottom: 10px;
   font-weight: 400;
@@ -216,7 +216,7 @@
 }
 
 .admin-task-details-value {
-  color: #3a466d;
+  color: #334155;
   font-size: 14px;
   word-break: break-word;
   font-weight: 400;
