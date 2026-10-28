@@ -23,6 +23,7 @@ import Pagination from "../../Employee/Pagination/Pagination";
 import CustomDropdown from "../../Common/CustomDropdown";
 import { portalInstance } from "../../../Services/instance";
 import { useUser } from "../../UserContext";
+import { canHrDeleteRequests, canHrProcessRequests } from "../../../utils/hrAccessHelper";
 import FilterIconImg from "../../../../public/Filter.svg?url";
 import "../../../Globel/Layout.css";
 import "./HrRequestsPage.css";
@@ -124,6 +125,7 @@ const HrRequestsPage = ({ isAdmin = false }) => {
   const effectiveIsAdmin = isAdmin || location.pathname.startsWith("/admin");
   const isAdminUser = effectiveIsAdmin || user?.role === "admin";
   const isHrUser = Boolean(user?.isHr);
+  const canDeleteRequests = canHrDeleteRequests(user);
 
   // Restrict access: Only HR and Admin users can access this page
   useEffect(() => {
@@ -453,6 +455,10 @@ const HrRequestsPage = ({ isAdmin = false }) => {
   // Delete / Cancel Request
   const handleConfirmDelete = async () => {
     if (!deleteTarget?._id) return;
+    if (!canDeleteRequests) {
+      toast.error("You are not authorized to delete HR requests per Portal Configuration.");
+      return;
+    }
     try {
       setActionLoading(true);
       const res = await portalInstance.delete(`/hr-approval/request/${deleteTarget._id}`);
@@ -928,18 +934,20 @@ const HrRequestsPage = ({ isAdmin = false }) => {
                               <span>View</span>
                             </button>
 
-                            {/* Delete Button - available for all requests */}
-                            <button
-                              type="button"
-                              className="hr-req-row-btn delete-btn"
-                              onClick={() => {
-                                setDeleteTarget(req);
-                                setShowDeleteModal(true);
-                              }}
-                              title="Delete / Cancel Request"
-                            >
-                              <FiTrash2 />
-                            </button>
+                            {/* Delete Button - available when authorized */}
+                            {canDeleteRequests && (
+                              <button
+                                type="button"
+                                className="hr-req-row-btn delete-btn"
+                                onClick={() => {
+                                  setDeleteTarget(req);
+                                  setShowDeleteModal(true);
+                                }}
+                                title="Delete / Cancel Request"
+                              >
+                                <FiTrash2 />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

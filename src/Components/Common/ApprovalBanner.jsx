@@ -171,7 +171,7 @@ const renderSingleCategoryDetails = (cat, year, isBatch = false, index = 0) => {
           <table className="approval-diff-table approval-leave-table">
             <thead>
               <tr>
-                <th style={{ width: "40px" }}>#</th>
+                <th>S.No</th>
                 <th>Experience / Tenure Range</th>
                 <th>Rule Code</th>
                 <th>Leave Count</th>
@@ -217,7 +217,7 @@ const renderSingleCategoryDetails = (cat, year, isBatch = false, index = 0) => {
           <table className="approval-diff-table approval-leave-table">
             <thead>
               <tr>
-                <th style={{ width: "40px" }}>#</th>
+                <th>S.No</th>
                 <th>Experience / Tenure Range</th>
                 <th>Rule Code</th>
                 <th>Leave Count</th>

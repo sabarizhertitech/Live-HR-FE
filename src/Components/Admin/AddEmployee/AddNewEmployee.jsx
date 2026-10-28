@@ -4,12 +4,39 @@ import { toast, ToastContainer } from "react-toastify";
 import Sidebar from "../../HeaderSidebar/Sidebar";
 import { portalInstance } from "../../../Services/instance";
 import CustomDropdown from "../../Common/CustomDropdown";
+import { useUser } from "../../UserContext";
+import { canHrAddEmployee } from "../../../utils/hrAccessHelper";
 import "./AddEmployee.css";
 
 import "react-toastify/dist/ReactToastify.css";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
+  const canAdd = canHrAddEmployee(user);
+
+  if (user?.isHr && user?.role !== "admin" && !canAdd) {
+    return (
+      <div className="addemployee-page">
+        <Sidebar />
+        <div className="addemployee-form-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+          <div style={{ background: "#ffffff", borderRadius: "12px", padding: "48px 32px", maxWidth: "560px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: "44px", marginBottom: "16px" }}>🔒</div>
+            <h3 style={{ color: "#1e293b", fontSize: "20px", marginBottom: "10px", fontWeight: "700" }}>Access Restricted</h3>
+            <p style={{ color: "#64748b", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
+              Adding new employees is currently disabled for HR accounts per the Portal Access Configuration.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              style={{ background: "#3A466D", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }}
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const [formData, setFormData] = useState({
     name: "",

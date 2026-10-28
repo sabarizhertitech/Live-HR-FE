@@ -1752,24 +1752,45 @@
   }
 }
 
-/* Floating Low-Opacity Background Balloons Animation */
+/* Floating Low-Opacity Background Festive Celebration Animation */
 @keyframes floatBalloonsUp {
   0% {
-    transform: translateY(120%) translateX(0) rotate(0deg);
+    transform: translateY(140%) translateX(0) rotate(0deg) scale(0.85);
     opacity: 0;
   }
   15% {
-    opacity: 0.18;
+    opacity: 0.32;
   }
   50% {
-    transform: translateY(0%) translateX(16px) rotate(10deg);
-    opacity: 0.22;
+    transform: translateY(-40%) translateX(16px) rotate(12deg) scale(1.05);
+    opacity: 0.38;
   }
   85% {
-    opacity: 0.18;
+    opacity: 0.3;
   }
   100% {
-    transform: translateY(-130%) translateX(-12px) rotate(-10deg);
+    transform: translateY(-220%) translateX(-14px) rotate(-10deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes floatBalloonsUpAlt {
+  0% {
+    transform: translateY(140%) translateX(0) rotate(0deg) scale(0.9);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.34;
+  }
+  50% {
+    transform: translateY(-40%) translateX(-16px) rotate(-14deg) scale(1.1);
+    opacity: 0.4;
+  }
+  82% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-220%) translateX(14px) rotate(12deg) scale(0.85);
     opacity: 0;
   }
 }
@@ -1823,56 +1844,106 @@
   box-shadow: 0 18px 40px rgba(99, 102, 241, 0.45);
 }
 
-/* Floating Low-Opacity Balloons */
-.admin-birthday-card__bg-balloon {
+/* Floating Low-Opacity Background Celebration Elements (Balloons, Cakes, Caps, Poppers, Candies) */
+.admin-birthday-card__bg-balloon,
+.admin-birthday-card__bg-item {
   position: absolute;
   pointer-events: none;
-  font-size: 32px;
+  font-size: 28px;
   user-select: none;
   z-index: 1;
-  opacity: 0.18;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+  opacity: 0.3;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
   animation: floatBalloonsUp 9s ease-in-out infinite;
 }
 
+.admin-birthday-card__bg-item.b1,
 .admin-birthday-card__bg-balloon.b1 {
-  left: 8%;
-  bottom: -30px;
+  left: 4%;
+  bottom: -40px;
   font-size: 28px;
-  animation-duration: 8s;
-  animation-delay: 0s;
+  animation: floatBalloonsUp 8.5s ease-in-out infinite 0s;
 }
 
+.admin-birthday-card__bg-item.b2,
 .admin-birthday-card__bg-balloon.b2 {
-  left: 28%;
-  bottom: -30px;
-  font-size: 36px;
-  animation-duration: 10s;
-  animation-delay: 2s;
-}
-
-.admin-birthday-card__bg-balloon.b3 {
-  left: 52%;
-  bottom: -30px;
-  font-size: 30px;
-  animation-duration: 9s;
-  animation-delay: 4.5s;
-}
-
-.admin-birthday-card__bg-balloon.b4 {
-  left: 74%;
-  bottom: -30px;
-  font-size: 34px;
-  animation-duration: 11s;
-  animation-delay: 1.5s;
-}
-
-.admin-birthday-card__bg-balloon.b5 {
-  left: 90%;
-  bottom: -30px;
+  left: 12%;
+  bottom: -40px;
   font-size: 26px;
-  animation-duration: 8.5s;
-  animation-delay: 3.5s;
+  animation: floatBalloonsUpAlt 10s ease-in-out infinite 3.2s;
+}
+
+.admin-birthday-card__bg-item.b3,
+.admin-birthday-card__bg-balloon.b3 {
+  left: 21%;
+  bottom: -40px;
+  font-size: 30px;
+  animation: floatBalloonsUp 9.2s ease-in-out infinite 1.4s;
+}
+
+.admin-birthday-card__bg-item.b4,
+.admin-birthday-card__bg-balloon.b4 {
+  left: 30%;
+  bottom: -40px;
+  font-size: 28px;
+  animation: floatBalloonsUpAlt 10.5s ease-in-out infinite 4.8s;
+}
+
+.admin-birthday-card__bg-item.b5,
+.admin-birthday-card__bg-balloon.b5 {
+  left: 39%;
+  bottom: -40px;
+  font-size: 26px;
+  animation: floatBalloonsUp 8.8s ease-in-out infinite 2.2s;
+}
+
+.admin-birthday-card__bg-item.b6 {
+  left: 48%;
+  bottom: -40px;
+  font-size: 28px;
+  animation: floatBalloonsUpAlt 11s ease-in-out infinite 5.5s;
+}
+
+.admin-birthday-card__bg-item.b7 {
+  left: 57%;
+  bottom: -40px;
+  font-size: 30px;
+  animation: floatBalloonsUp 9s ease-in-out infinite 0.7s;
+}
+
+.admin-birthday-card__bg-item.b8 {
+  left: 66%;
+  bottom: -40px;
+  font-size: 26px;
+  animation: floatBalloonsUpAlt 10.2s ease-in-out infinite 3.8s;
+}
+
+.admin-birthday-card__bg-item.b9 {
+  left: 75%;
+  bottom: -40px;
+  font-size: 28px;
+  animation: floatBalloonsUp 9.6s ease-in-out infinite 1.8s;
+}
+
+.admin-birthday-card__bg-item.b10 {
+  left: 83%;
+  bottom: -40px;
+  font-size: 27px;
+  animation: floatBalloonsUpAlt 10.8s ease-in-out infinite 4.5s;
+}
+
+.admin-birthday-card__bg-item.b11 {
+  left: 90%;
+  bottom: -40px;
+  font-size: 28px;
+  animation: floatBalloonsUp 8.7s ease-in-out infinite 2.7s;
+}
+
+.admin-birthday-card__bg-item.b12 {
+  left: 96%;
+  bottom: -40px;
+  font-size: 26px;
+  animation: floatBalloonsUpAlt 10.4s ease-in-out infinite 6.2s;
 }
 
 /* Floating Particle Background Effects */

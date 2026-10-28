@@ -357,6 +357,32 @@ const getModalTitle = () => {
                     )}
                   </div>
 
+                  {/* EXCESS PERMISSION INTIMATION BANNER FOR ADMIN */}
+                  {requestType === "permission" && data.isExcess && (
+                    <div style={{
+                      background: "#fffbeb",
+                      border: "1px solid #fde68a",
+                      borderRadius: "8px",
+                      padding: "10px 14px",
+                      marginTop: "12px",
+                      marginBottom: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      color: "#92400e"
+                    }}>
+                      <span style={{ fontSize: "18px", flexShrink: 0 }}>⚠️</span>
+                      <div style={{ fontSize: "12.5px", lineHeight: "1.4" }}>
+                        <div style={{ fontWeight: "700", marginBottom: "2px" }}>
+                          Excess Permission (#{data.monthlyIndex || 3})
+                        </div>
+                        <div>
+                          Monthly quota ({data.allowedFreeCount || 2}) exceeded. Approving will deduct <strong>{data.leaveDaysToDeduct || 0.5} day leave</strong> from <strong>{data.deductCategoryName || "Annual Leave"}</strong>.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* INFO GRID */}
                   <div className="admin-leave-info-grid">
                     <div className="admin-leave-info-row">

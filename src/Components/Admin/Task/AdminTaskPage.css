@@ -800,7 +800,7 @@ body {
 /* Mobile (< 768px) */
 @media (max-width: 767.98px) {
   .adminTaskPageWrapper {
-    padding-top: 70px;
+    padding-top: 0 !important;
   }
 
   .adminTaskPage__popupContainer {

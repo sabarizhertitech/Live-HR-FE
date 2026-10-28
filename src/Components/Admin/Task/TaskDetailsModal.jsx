@@ -78,6 +78,45 @@ const calculateOverallTaskDays = (task) => {
   return Math.max(1, diffDays);
 };
 
+const renderDescription = (desc) => {
+  if (!desc || !desc.trim()) return null;
+
+  // Split by newlines first
+  const rawLines = desc.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+  // If any line contains multiple bullet points (e.g. "• Point 1 • Point 2"), split them into separate lines
+  const lines = [];
+  rawLines.forEach(l => {
+    if ((l.match(/•/g) || []).length > 1) {
+      const sub = l.split(/(?=(?:^|\s+)•\s+)/).map(s => s.trim()).filter(Boolean);
+      lines.push(...sub);
+    } else if (/(?:^|\s+)\d+[\.\)]\s+/.test(l) && (l.match(/\d+[\.\)]/g) || []).length > 1) {
+      const sub = l.split(/(?=(?:^|\s+)\d+[\.\)]\s+)/).map(s => s.trim()).filter(Boolean);
+      lines.push(...sub);
+    } else {
+      lines.push(l);
+    }
+  });
+
+  if (lines.length > 1) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "6px", textAlign: "left", width: "100%" }}>
+        {lines.map((line, i) => (
+          <div key={i} style={{ lineHeight: "1.5", wordBreak: "break-word", whiteSpace: "pre-line" }}>
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ whiteSpace: "pre-line", wordBreak: "break-word", lineHeight: "1.5", textAlign: "left" }}>
+      {desc}
+    </div>
+  );
+};
+
 /* ═══════════════════════════════════════════════════════════════
    PHASE ITEM COMPONENT
 ═══════════════════════════════════════════════════════════════ */
@@ -154,9 +193,9 @@ function PhaseItem({ phaseObj, phaseNumber, dailyUpdates, assignedMembers = [] }
           {phaseName || <em style={{ color: "#9ca3af" }}>— No details provided —</em>}
         </span>
         {phaseDesc && (
-          <span className="td-phase-desc" style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '6px', paddingTop: '6px', wordBreak: 'break-all', fontWeight: 400, whiteSpace: 'normal' }}>
-            {phaseDesc}
-          </span>
+          <div className="td-phase-desc" style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '6px', paddingTop: '6px', wordBreak: 'break-word', fontWeight: 400 }}>
+            {renderDescription(phaseDesc)}
+          </div>
         )}
       </div>
     </div>
@@ -728,7 +767,7 @@ const TaskDetailsModal = ({ taskId, onClose, initialData = null }) => {
 
                 <div className="admin-task-details-content">
                   <h5 className="admin-task-details-task-title">{task?.taskTitle}</h5>
-                  <p className="admin-task-details-task-desc">{task?.taskDetails}</p>
+                  <div className="admin-task-details-task-desc">{renderDescription(task?.taskDetails) || "—"}</div>
                 </div>
 
                 {/* ═══════════════════════════════════════════════

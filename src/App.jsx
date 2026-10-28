@@ -28,6 +28,7 @@ import Adminholiday from "./Components/Admin/Holiday/HolidayAssignmentAdmin";
 import CheckerDashboard from "./Components/Admin/Approver/Checkerdashboard";
 import ProjectDetails from "./Components/Admin/ProjectDetails/ProjectDetails";
 import HrRequestsPage from "./Components/Admin/HrRequests/HrRequestsPage";
+import Configuration from "./Components/Admin/Configuration/Configuration";
 
 
 import EmployeeDashboard from "./Components/Employee/EmployeeDashboard/EmployeeDashboard";
@@ -130,6 +131,7 @@ function App() {
               element={<DailyWorkUpdatePage />}
             />
             <Route path="/admin/audit" element={<AdminAuditManagement />} />
+            <Route path="/admin/configuration" element={<Configuration />} />
             <Route
               path="/admin/payment-scripts"
               element={<Navigate to="/admin/audit" replace />}

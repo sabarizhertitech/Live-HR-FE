@@ -5,10 +5,10 @@
   display: flex;
   flex-direction: column;
   height: auto;
-  background-color: #ffffff;
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid rgba(31, 31, 31, 0.12);
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
   /* Let it grow */
   overflow: visible;
 }
@@ -2416,7 +2416,7 @@ input.dwu-emp__filterInput:focus {
 
 /* ================= PREVIOUS PENDING WORK REMINDERS ================= */
 .dwu-reminder-banner {
-  background: #f6f6f6;
+  background: #ffffff;
   border: 1px solid #E1E1E1;
   border-radius: 10px;
   padding: 14px 16px;
@@ -2515,5 +2515,694 @@ input.dwu-emp__filterInput:focus {
 @media (max-width: 576px) {
   .dwu-reminder-items-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+.dwu-reminder-edit-action-btn:hover {
+  background: #4361ee;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(89, 119, 248, 0.25);
+}
+
+@media (max-width: 576px) {
+  .dwu-reminder-items-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   FIGMA CARD REDESIGN FOR EMPLOYEE DAILY WORK UPDATE
+   ========================================================================== */
+
+/* Page Root Container - Transparent backside as requested */
+.dwu-emp-root {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.dwu-emp__header {
+  margin-bottom: 20px !important;
+}
+
+/* Header Title */
+.dwu-emp-root .assign-task__members-title {
+  font-size: 19px;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.2px;
+}
+
+/* Header Action Buttons */
+.dwu-emp-root .dwu-header-action-icon button {
+  background: #4f6bff !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  height: 34px !important;
+  width: 80px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-emp-root .dwu-header-action-icon button:hover {
+  background: #3b5bf5 !important;
+}
+
+/* Download Excel Button */
+.dwu-emp-root .excel-export-btn {
+  background: #d4f7dc !important;
+  color: #15803d !important;
+  border: none !important;
+  border-radius: 8px !important;
+  height: 34px !important;
+  padding: 0 16px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-emp-root .excel-export-btn:hover {
+  background: #c3f2cc !important;
+  color: #166534 !important;
+}
+
+/* Page Size Dropdown (on the left side of Download Excel) */
+.dwu-emp-root .dwu-page-size-wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.dwu-emp-root .dwu-page-size-wrap .custom-dropdown-container.ta-page-size-dropdown {
+  width: 68px;
+  min-width: 68px;
+}
+
+.dwu-emp-root .dwu-page-size-wrap .custom-dropdown-trigger {
+  height: 34px;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.dwu-emp-root .dwu-page-size-wrap .custom-dropdown-trigger:hover {
+  border-color: #94a3b8;
+}
+
+.dwu-emp-root .dwu-page-size-wrap .custom-dropdown-trigger span {
+  font-size: 12px !important;
+  font-weight: 500;
+  color: #334155;
+}
+
+.dwu-emp-root .dwu-page-size-wrap .custom-dropdown-menu {
+  min-width: 68px;
+  width: 100%;
+}
+
+/* Toggle & Filter Icons */
+.dwu-emp-root .dwu-pending-toggle-icon,
+.dwu-emp-root .dwu-employee-filter-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dwu-emp-root .dwu-pending-toggle-icon:hover,
+.dwu-emp-root .dwu-employee-filter-icon:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* Container Overrides for Card Layout */
+.dwu-emp-root .employeeTaskPage__tableCard {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.dwu-emp-root .table-responsives,
+.dwu-emp-root .employeeTaskPage__table {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  width: 100% !important;
+  min-width: 100% !important;
+}
+
+/* Individual Card (Row) */
+.dwu-emp-root .employeeTaskPage__tableRow.dwu-card-row {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  border: 1px solid #edf0f5 !important;
+  border-radius: 12px !important;
+  padding: 16px 20px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.dwu-emp-root .employeeTaskPage__tableRow.dwu-card-row:hover {
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Top Metadata Grid */
+.dwu-card-meta-grid {
+  display: grid;
+  grid-template-columns: 80px 1.2fr minmax(max-content, 1.8fr) 1fr 90px;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.dwu-card-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dwu-card-meta-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #868585;
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+}
+
+.dwu-card-meta-col.employeeTaskPage__col--sno .dwu-card-meta-label {
+  text-transform: uppercase;
+}
+
+.dwu-card-meta-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3A466D;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.dwu-card-meta-col.employeeTaskPage__col--project .dwu-card-meta-value {
+  white-space: nowrap !important;
+}
+
+.dwu-card-sno-val {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+/* Status Badges */
+.dwu-emp-root .employeeTaskPage__statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.dwu-emp-root .employeeTaskPage__badge--status-inprocess,
+.dwu-emp-root .employeeTaskPage__badge--status-allocated {
+  background-color: #ddf2ff !important;
+  color: #0284c7 !important;
+}
+
+.dwu-emp-root .employeeTaskPage__badge--status-completed,
+.dwu-emp-root .employeeTaskPage__badge--status-accepted {
+  background-color: #dcfce7 !important;
+  color: #16a34a !important;
+}
+
+.dwu-emp-root .employeeTaskPage__badge--status-pending {
+  background-color: #fef3c7 !important;
+  color: #d97706 !important;
+}
+
+.dwu-emp-root .employeeTaskPage__badge--status-hold {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+/* Action Column & Icons - Centered Alignment */
+.dwu-card-meta-col.employeeTaskPage__col--action {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.dwu-card-meta-col.employeeTaskPage__col--action .dwu-card-meta-label {
+  text-align: center !important;
+  width: 100% !important;
+  margin-bottom: 2px !important;
+}
+
+.dwu-card-meta-col.employeeTaskPage__col--action .dwu-card-meta-value {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+.dwu-card-actions-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  gap: 12px !important;
+}
+
+.dwu-emp-root .dwu-row-edit-icon {
+  color: #4f6bff !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.dwu-emp-root .dwu-row-edit-icon:hover {
+  color: #3b5bf5 !important;
+  transform: scale(1.15);
+}
+
+.dwu-emp-root .dwu-row-delete-icon {
+  color: #ff5b5b !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.dwu-emp-root .dwu-row-delete-icon:hover {
+  color: #ef4444 !important;
+  transform: scale(1.15);
+}
+
+.dwu-emp-root .dwu-row-locked-icon {
+  color: #94a3b8 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: not-allowed;
+  width: 28px;
+  height: 28px;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.dwu-emp-root .dwu-row-locked-icon:hover {
+  opacity: 1;
+}
+
+/* Task Navigation Button Style */
+.dwu-row-navigate-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  background: #eef2ff !important;
+  color: #4f6bff !important;
+  border: 1px solid #c7d2fe !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.dwu-row-navigate-btn:hover {
+  background: #e0e7ff !important;
+  border-color: #a5b4fc !important;
+  color: #3b5bf5 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(79, 107, 255, 0.18) !important;
+}
+
+.dwu-row-navigate-btn span {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* Card Divider */
+.dwu-card-divider {
+  height: 1px;
+  background-color: #f1f4f8;
+  margin: 14px 0 14px 0;
+  width: 100%;
+}
+
+/* Card Content Section */
+.dwu-card-body-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.dwu-card-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dwu-card-field-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8c98a9;
+}
+
+.dwu-card-field-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3A466D;
+  line-height: 1.4;
+}
+
+.dwu-card-field-title--standalone {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #3A466D;
+}
+
+.dwu-card-field-phase {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.dwu-card-field-desc {
+  font-size: 12.5px;
+  color: #868585;
+  line-height: 1.55;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Card Footer Row (Chips on left, Date on right bottom) */
+.dwu-card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+.dwu-card-date-badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #8c98a9;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Tags / Chips Row */
+.dwu-card-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.dwu-card-chip {
+  background: #e8f2ff;
+  color: #2563eb;
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.4;
+  letter-spacing: 0.1px;
+}
+
+/* ────────────────────────────────────────────────
+   Multi-Phase Single Card & Accordion Styling
+   ──────────────────────────────────────────────── */
+
+/* Arrow Button in Top Meta Action Grid */
+.dwu-card-arrow-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 6px !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0 !important;
+  outline: none !important;
+}
+
+.dwu-card-arrow-btn:hover {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+  transform: translateY(-1px);
+}
+
+.dwu-card-arrow-btn--expanded {
+  background: #e0e7ff !important;
+  border-color: #c7d2fe !important;
+  color: #4f6bff !important;
+}
+
+/* Task Title Header Row with Accordion Trigger */
+.dwu-card-title-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.dwu-phase-accordion-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.dwu-phase-accordion-trigger:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4f6bff;
+}
+
+.dwu-phase-accordion-trigger.is-expanded {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4f6bff;
+}
+
+.dwu-phase-pill-count {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.dwu-phase-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+/* Collapsed Preview */
+.dwu-card-collapsed-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.dwu-card-collapsed-hint {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Expanded Phases Container inside the single card */
+.dwu-card-expanded-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+  animation: dwuFadeSlideDown 0.22s ease forwards;
+}
+
+@keyframes dwuFadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Nested Phase Item inside Expanded Card */
+.dwu-card-phase-row {
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.18s ease;
+}
+
+.dwu-card-phase-row:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.dwu-phase-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.dwu-phase-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dwu-phase-number-chip {
+  background: #eef2ff;
+  color: #4f6bff;
+  border: 1px solid #c7d2fe;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  line-height: 1.3;
+  letter-spacing: 0.1px;
+}
+
+.dwu-phase-row-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3A466D;
+}
+
+.dwu-phase-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Responsive adjustments for all devices */
+@media (max-width: 992px) {
+  .dwu-card-meta-grid {
+    grid-template-columns: 60px 1.2fr 1.5fr 1fr 80px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dwu-card-meta-grid {
+    grid-template-columns: 50px 1fr 1fr;
+    gap: 12px;
+  }
+  .dwu-emp-root .employeeTaskPage__tableRow.dwu-card-row {
+    padding: 14px 14px !important;
+  }
+  .dwu-emp-root .dwu-emp__header .d-flex.align-items-center {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .dwu-card-meta-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .dwu-card-meta-col.employeeTaskPage__col--sno {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  .dwu-emp-root .dwu-emp__header .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .dwu-emp-root .dwu-emp__header .d-flex.align-items-center {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  .dwu-emp-root .excel-export-btn {
+    flex: 1 1 auto;
   }
 }

@@ -52,7 +52,8 @@
   .dashboard-content-wrapper {
     left: 8px;
     right: 8px;
-    top: 62px;
+    top: 65px;
+    padding: 0 !important;
   }
 }
 

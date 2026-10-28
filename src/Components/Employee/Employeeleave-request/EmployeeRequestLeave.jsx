@@ -54,6 +54,7 @@ const EmployeeRequestLeave = () => {
   const [govHolidays, setGovHolidays] = useState([]);
   const [leaveBalances, setLeaveBalances] = useState({});
   const [probationInfo, setProbationInfo] = useState({ inProbation: false, probationEndDate: null });
+  const [permissionConfig, setPermissionConfig] = useState(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [showSpecificBalances, setShowSpecificBalances] = useState(false);
 
@@ -611,6 +612,9 @@ const EmployeeRequestLeave = () => {
           inProbation: !!res.data.inProbation,
           probationEndDate: res.data.probationEndDate || null,
         });
+        if (res.data.permissionConfig) {
+          setPermissionConfig(res.data.permissionConfig);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch leave balances", err);
@@ -789,6 +793,7 @@ const EmployeeRequestLeave = () => {
           toast.error("Please select Permission Type (Morning / Out & Return / Evening)");
           return;
         }
+
         const permPayload = {
           fromDate: formData.fromDate,
           fromTime: formData.startTime,
@@ -798,7 +803,11 @@ const EmployeeRequestLeave = () => {
           permissionType: formData.permissionType,
         };
         await portalInstance.post("/api/leaves/permission", permPayload);
-        toast.success("Permission requested successfully");
+        toast.success("Permission sent successfully");
+        handleFormClose();
+        fetchLeaveRequests();
+        fetchLeaveBalances();
+        return;
       } else {
         const payload = {
           requestType: activeTab,
@@ -1124,6 +1133,72 @@ const EmployeeRequestLeave = () => {
             </div>
           )}
 
+          {/* ── Permission Quota & Policy Banner for Employees (with Total, Used, and Remaining) ── */}
+          {activeTab === "permission" && permissionConfig && (
+            <div className="employeeLeaveRequest-panel mb-4">
+              <div style={{
+                background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                borderRadius: "12px",
+                padding: "16px 20px",
+                border: "1px solid #e2e8f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: "14px"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1, minWidth: "260px" }}>
+                  <div>
+                    <div style={{ fontSize: "14.5px", fontWeight: "500", color: "#3A466D" }}>
+                      Monthly avilable Permission: {permissionConfig.allowedFreeCount ?? (probationInfo.inProbation ? permissionConfig.probationFreeCount : permissionConfig.permanentFreeCount)} Free Permissions
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#868585", marginTop: "3px", lineHeight: "1.4" }}>
+                      Employment Status: {probationInfo.inProbation ? "Probationary Employee" : "Permanent Employee"} From the {(permissionConfig.allowedFreeCount || 2) + 1}th permission onwards, each excess permission converts to {permissionConfig.leaveDaysPerPermission || 0.5} day of leave deducted from {permissionConfig.deductCategoryName || "Annual Leave"}.
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={{
+                    background: "#ffffff",
+                    padding: "6px 14px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "12.5px",
+                    fontWeight: "500",
+                    color: "#334155"
+                  }}>
+                    Total Permission: <span style={{ color: "#4f46e5", fontWeight: "700" }}>{permissionConfig.allowedFreeCount ?? (probationInfo.inProbation ? permissionConfig.probationFreeCount : permissionConfig.permanentFreeCount) ?? 2}</span>
+                  </div>
+
+                  <div style={{
+                    background: "#ffffff",
+                    padding: "6px 14px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "12.5px",
+                    fontWeight: "500",
+                    color: "#334155"
+                  }}>
+                    Used: <span style={{ color: "#d97706", fontWeight: "700" }}>{permissionConfig.currentMonthCount ?? 0}</span>
+                  </div>
+
+                  <div style={{
+                    background: (permissionConfig.currentMonthRemaining ?? 0) === 0 ? "#fef2f2" : "#f0fdf4",
+                    padding: "6px 14px",
+                    borderRadius: "8px",
+                    border: `1px solid ${(permissionConfig.currentMonthRemaining ?? 0) === 0 ? "#fca5a5" : "#86efac"}`,
+                    fontSize: "12.5px",
+                    fontWeight: "600",
+                    color: (permissionConfig.currentMonthRemaining ?? 0) === 0 ? "#dc2626" : "#16a34a"
+                  }}>
+                    Remaining: <span style={{ fontWeight: "500" }}>{permissionConfig.currentMonthRemaining ?? 0}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── Create Request Form Panel (Separate Container) ────────────────── */}
           {showForm && (
             <div className="employeeLeaveRequest-panel mb-4 animate-slide-down employeeLeaveRequest-form-panel">
@@ -1148,6 +1223,31 @@ const EmployeeRequestLeave = () => {
                 )}
 
                 <form onSubmit={handleSubmit} id="leaveRequestForm">
+                  {/* Intimation warning banner when employee has reached or exceeded their free quota */}
+                  {activeTab === "permission" && permissionConfig && (permissionConfig.currentMonthCount || 0) >= (permissionConfig.allowedFreeCount || 2) && (
+                    <div style={{
+                      background: "#fffbeb",
+                      border: "1px solid #fde68a",
+                      borderRadius: "8px",
+                      padding: "10px 14px",
+                      marginBottom: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      color: "#92400e"
+                    }}>
+                      <span style={{ fontSize: "18px", flexShrink: 0 }}>⚠️</span>
+                      <div style={{ fontSize: "12.5px", lineHeight: "1.4" }}>
+                        <div style={{ fontWeight: "700", marginBottom: "2px" }}>
+                          Monthly Free Permission Limit Reached
+                        </div>
+                        <div>
+                          Free limit ({permissionConfig.allowedFreeCount || 2}) exceeded. This request is allowed and will deduct <strong>{permissionConfig.leaveDaysPerPermission || 0.5} day leave</strong> from <strong>{permissionConfig.deductCategoryName || "Annual Leave"}</strong> upon approval.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="row mb-3 employeeLeaveRequest-formRow employeeLeaveRequest-formRow--schedule">
                     {activeTab === "leave" && (
                       <div className="col-12 col-sm-7 col-md-auto employeeLeaveRequest-formCol employeeLeaveRequest-formCol--duration">

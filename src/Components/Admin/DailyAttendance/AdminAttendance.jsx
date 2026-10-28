@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Sidebar from "../../HeaderSidebar/Sidebar";
 import "./AdminAttendance.css";
@@ -8,10 +9,38 @@ import { Icon } from "@iconify/react";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomDropdown from "../../Common/CustomDropdown";
 import Pagination from "../../Employee/Pagination/Pagination";
+import { useUser } from "../../UserContext";
+import { canHrDailyAttendance } from "../../../utils/hrAccessHelper";
 
 const AdminAttendance = () => {
+  const navigate = useNavigate();
+  const { user } = useUser();
+  const canDaily = canHrDailyAttendance(user);
   const [hZoom, setHZoom] = useState(1);
   const chartRef = useRef(null);
+
+  if (user?.isHr && user?.role !== "admin" && !canDaily) {
+    return (
+      <div className="admin-attendance-page">
+        <Sidebar />
+        <div className="admin-attendance-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+          <div style={{ background: "#ffffff", borderRadius: "12px", padding: "48px 32px", maxWidth: "560px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: "44px", marginBottom: "16px" }}>🔒</div>
+            <h3 style={{ color: "#1e293b", fontSize: "20px", marginBottom: "10px", fontWeight: "700" }}>Access Restricted</h3>
+            <p style={{ color: "#64748b", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
+              Daily attendance reporting is currently disabled for HR accounts per the Portal Access Configuration.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              style={{ background: "#3A466D", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }}
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
 
   const formatTime = (iso) => {

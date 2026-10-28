@@ -99,25 +99,23 @@ const AdminLeaveRequest = () => {
       const permissionData =
         (permissionRes.data?.data || []).map((item) => ({
           ...item,
-
           requestType: "permission",
-
           fromDate: item.from,
-
           toDate: item.to,
-
           reasonType:
             item.permissionType || "Permission",
-
           permissionType:
             item.permissionType || "",
-
           detailedReason:
             item.reason || "",
-
           dayType: "Permission",
-
           employee: item.employee || {},
+          isExcess: !!item.isExcess,
+          monthlyIndex: item.monthlyIndex,
+          allowedFreeCount: item.allowedFreeCount,
+          leaveDaysToDeduct: item.leaveDaysToDeduct,
+          deductCategoryName: item.deductCategoryName,
+          intimationNotice: item.intimationNotice,
         }));
 
       setAllLeaveRequests(leaveData);
@@ -583,6 +581,39 @@ const AdminLeaveRequest = () => {
 
             {/* TABLE */}
             <div className="adminLeaveRequest-tableCard">
+              {selectedRequestType === "permission" && (
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 1px",
+                  backgroundColor: "#ffffff",
+                  fontSize: "12px",
+                  color: "#64748b"
+                }}>
+                  <span style={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    backgroundColor: "#ffedd5",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0
+                  }}>
+                    <span style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "50%",
+                      backgroundColor: "#f97316",
+                      display: "inline-block"
+                    }} />
+                  </span>
+                  <span>
+                    Monthly permission limit exceeded. Employee can still submit a request.
+                  </span>
+                </div>
+              )}
               <div className="table-responsive">
                 <div className="commonTableLayout adminLeaveRequest-table">
                   <div className="adminLeaveRequest-tableHeader">
@@ -613,6 +644,7 @@ const AdminLeaveRequest = () => {
                     paginatedData.map((item, index) => {
                       const serialNumber = (currentPage - 1) * PAGE_SIZE + index + 1;
                       const statusClass = item.status.replace(/\s+/g, "").toLowerCase();
+                      const isExcess = selectedRequestType === "permission" && !!item.isExcess;
                       return (
                         <div
                           key={item._id}
@@ -623,9 +655,15 @@ const AdminLeaveRequest = () => {
                           }}
                         >
                           <div className="adminLeaveRequest-tableCell">
-                            <span>
-                              {serialNumber < 10 ? `0${serialNumber}` : serialNumber}
-                            </span>
+                            {isExcess ? (
+                              <span className="adminLeaveRequest-sno-excess">
+                                {serialNumber < 10 ? `0${serialNumber}` : serialNumber}
+                              </span>
+                            ) : (
+                              <span>
+                                {serialNumber < 10 ? `0${serialNumber}` : serialNumber}
+                              </span>
+                            )}
                           </div>
                           <div className="adminLeaveRequest-tableCell">
                             <span className="adminLeaveRequest-empName">
@@ -673,7 +711,9 @@ const AdminLeaveRequest = () => {
                                   COMP_OFF: "Comp Off",
                                 }[item.leaveType] || item.leaveType || "Leave"
                               )
-                              : item.reasonType === "AFTERNOON" ? "Out & Return" : item.reasonType}
+                              : (
+                                <span>{item.reasonType === "AFTERNOON" ? "Out & Return" : item.reasonType || "Permission"}</span>
+                              )}
                           </div>
                           <div className="adminLeaveRequest-tableCellstart adminLeaveRequest-reasonCell">
                             {item.detailedReason || "No reason"}

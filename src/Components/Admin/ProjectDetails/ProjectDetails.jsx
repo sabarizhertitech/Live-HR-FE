@@ -552,6 +552,7 @@ const ProjectDetails = () => {
                   border: showFilterMenu ? "1px solid #5977f8" : "1px solid #cbd5e1",
                   background: showFilterMenu ? "#eff6ff" : "#ffffff",
                   transition: "all 0.2s ease",
+                  flexShrink: 0,
                 }}
               >
                 <img src="/Filter.svg" alt="filter" style={{ width: "20px", height: "20px" }} />
@@ -646,7 +647,6 @@ const ProjectDetails = () => {
                   type="button"
                   className="common-modal-btn btn-small-cancel"
                   onClick={handleResetFilters}
-                  style={{ minWidth: "90px" }}
                 >
                   Cancel
                 </button>
@@ -654,7 +654,6 @@ const ProjectDetails = () => {
                   type="button"
                   className="common-modal-btn btn-update"
                   onClick={handleApplyFilters}
-                  style={{ minWidth: "90px" }}
                 >
                   Search
                 </button>

@@ -10,6 +10,9 @@
   gap: 16px;
   box-shadow: 0 2px 8px rgba(249, 115, 22, 0.08);
   animation: haBannerFadeIn 0.3s ease-out;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 @keyframes haBannerFadeIn {
@@ -100,21 +103,115 @@
   transform: translateY(0);
 }
 
+.ha-notification-reminder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #ea580c;
+  border: 1.5px solid #fdba74;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ha-notification-reminder-btn:hover:not(:disabled) {
+  background: #ffedd5;
+  border-color: #ea580c;
+  transform: translateY(-1px);
+}
+
+.ha-notification-reminder-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .ha-notification-banner {
     flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+    gap: 14px;
+    box-sizing: border-box;
+  }
+
+  .ha-notification-left {
     align-items: flex-start;
-    padding: 12px 14px;
     gap: 12px;
+    width: 100%;
+  }
+
+  .ha-notification-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .ha-notification-title {
+    font-size: 14px;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .ha-notification-message {
+    font-size: 12.5px;
+    line-height: 1.45;
+    word-break: break-word;
   }
 
   .ha-notification-right {
     width: 100%;
-    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
   }
 
-  .ha-notification-action-btn {
+  .ha-notification-action-btn,
+  .ha-notification-reminder-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    min-height: 38px;
+    box-sizing: border-box;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 540px) {
+  .ha-notification-banner {
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 10px;
+  }
+
+  .ha-notification-left {
+    gap: 10px;
+  }
+
+  .ha-notification-right {
+    flex-direction: column;
     width: 100%;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .ha-notification-action-btn,
+  .ha-notification-reminder-btn {
+    width: 100%;
+    flex: none;
+    padding: 9px 12px;
+    font-size: 12.5px;
     justify-content: center;
   }
 }

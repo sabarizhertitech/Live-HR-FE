@@ -51,6 +51,7 @@
     left: 8px;
     right: 8px;
     top: 62px;
+    padding: 0 !important;
   }
 }
 

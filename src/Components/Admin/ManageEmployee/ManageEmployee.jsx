@@ -11,6 +11,7 @@ import Pagination from "../../Employee/Pagination/Pagination";
 import { useUser } from "../../UserContext";
 import ApprovalBanner from "../../Common/ApprovalBanner";
 import { FaUpload, FaCheckCircle, FaFileAlt, FaCalendarAlt, FaEye, FaEdit, FaSpinner, FaTrash } from "react-icons/fa";
+import { canHrEditEmployee, canHrViewEmployee } from "../../../utils/hrAccessHelper";
 
 // ─── Salary Modal Component ───────────────────────────────────────────────────
 const SalaryModal = ({ emp, onClose }) => {
@@ -2921,8 +2922,18 @@ const ManageEmployee = () => {
     })
     .sort((a, b) => (getEmployeeId(a) || "").localeCompare(getEmployeeId(b) || "", undefined, { numeric: true }));
 
+  const canEdit = canHrEditEmployee(user);
+  const canView = canHrViewEmployee(user);
+
   const handleViewProfile = (emp) => navigate(`/admin/employees/view/${getEmployeeId(emp)}`);
-  const handleEditEmployee = (emp) => navigate(`/admin/employees/${getEmployeeId(emp)}/edit`);
+  const handleEditEmployee = (emp) => {
+    if (!canEdit) {
+      toast.warning("Your HR permissions do not allow editing employee details directly.", { containerId: "manage-employee-toast" });
+      handleViewProfile(emp);
+      return;
+    }
+    navigate(`/admin/employees/${getEmployeeId(emp)}/edit`);
+  };
 
   const handleToggleHr = async (emp) => {
     try {
@@ -2992,6 +3003,29 @@ const ManageEmployee = () => {
       setDeleteLoading(false);
     }
   };
+
+  if (user?.isHr && user?.role !== "admin" && !canView) {
+    return (
+      <div className="erti-employee-page">
+        <Sidebar />
+        <div className="erti-employee-content" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+          <div style={{ background: "#ffffff", borderRadius: "12px", padding: "48px 32px", maxWidth: "560px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: "44px", marginBottom: "16px" }}>🔒</div>
+            <h3 style={{ color: "#1e293b", fontSize: "20px", marginBottom: "10px", fontWeight: "700" }}>Access Restricted</h3>
+            <p style={{ color: "#64748b", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
+              Employee directory viewing is currently disabled for HR accounts per the Portal Access Configuration.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              style={{ background: "#3A466D", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }}
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="erti-employee-page">
@@ -3095,9 +3129,12 @@ const ManageEmployee = () => {
                   {openMenu === index && (
                     <div className="erti-card-menu" onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => handleViewProfile(emp)}>View Profile</button>
+                      {canEdit && (
+                        <button onClick={() => handleEditEmployee(emp)}>Edit Employee</button>
+                      )}
                       <button onClick={() => { setSalaryEmp(emp); setOpenMenu(null); }}>Salary Details</button>
                       <button onClick={() => { setBankDetailsEmp(emp); setOpenMenu(null); }}>Bank Details</button>
-                      {user?.role === "admin" ? (
+                      {user?.role === "admin" && (
                         <>
                           {emp.isHr ? (
                             <button style={{ color: "#ef4444" }} onClick={() => { handleToggleHr(emp); setOpenMenu(null); }}>
@@ -3110,9 +3147,7 @@ const ManageEmployee = () => {
                           ) : null}
                           <button className="erti-danger" onClick={(e) => handleDeleteClick(emp, e)}>Delete Profile</button>
                         </>
-                      ) : user?.isHr ? (
-                        <button className="erti-danger" onClick={(e) => handleDeleteClick(emp, e)}>Delete Profile</button>
-                      ) : null}
+                      )}
                     </div>
                   )}
 
@@ -3153,9 +3188,19 @@ const ManageEmployee = () => {
                   <p><span>Department</span><span>{emp.department || "-"}</span></p>
                   <p><span>Date Joined</span><span>{formatDate(emp.dateJoined)}</span></p>
 
-                  <button className="erti-edit-btn" onClick={() => handleEditEmployee(emp)}>
-                    Edit Employee
-                  </button>
+                  {canEdit ? (
+                    <button className="erti-edit-btn" onClick={() => handleEditEmployee(emp)}>
+                      Edit Employee
+                    </button>
+                  ) : (
+                    <button
+                      className="erti-edit-btn"
+                      style={{ background: "#c5e0ff"}}
+                      onClick={() => handleViewProfile(emp)}
+                    >
+                      View Profile
+                    </button>
+                  )}
                 </div>
               </div>
             );

@@ -10,13 +10,21 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
-import { Trash2, AlertTriangle, Edit2, Clock, ExternalLink } from "lucide-react";
+import { Trash2, AlertTriangle, Edit2, Clock, ExternalLink, Lock } from "lucide-react";
 import { FaPlusCircle } from "react-icons/fa";
 import closeIcon from "../../../assets/close.png";
 import "./EmployeeDailyWorkUpdate.css";
 
 import "../../../Globel/Layout.css";
-const PAGE_SIZE = 10;
+
+const PAGE_SIZE_OPTIONS = [
+  { label: "5", value: 5 },
+  { label: "10", value: 10 },
+  { label: "15", value: 15 },
+  { label: "20", value: 20 },
+  { label: "50", value: 50 },
+  { label: "100", value: 100 },
+];
 
 const DATE_MODE_OPTIONS = [
   { value: "All", label: "All Time" },
@@ -47,7 +55,7 @@ const EmployeeDailyWorkUpdate = () => {
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [editingUpdate, setEditingUpdate] = useState(null);
 
@@ -178,6 +186,141 @@ const EmployeeDailyWorkUpdate = () => {
     return (v || "Pending").toString().charAt(0).toUpperCase() + (v || "Pending").toString().slice(1);
   };
 
+  const getPhaseNumber = (u, allUpdates = []) => {
+    if (!u) return 1;
+    if (typeof u.phaseNumber === "number" && u.phaseNumber > 0) {
+      return u.phaseNumber;
+    }
+    if (u.task && Array.isArray(u.task.phases) && u.task.phases.length > 0) {
+      const pIdStr = (u.phaseId || u.taskPhaseId || u.referenceId)
+        ? String(u.phaseId || u.taskPhaseId || u.referenceId)
+        : null;
+      const pTitleStr = (u.title || u.phase || "").trim().toLowerCase();
+
+      const idx = u.task.phases.findIndex(p => {
+        if (!p) return false;
+        const currentPId = p._id ? String(p._id) : null;
+        if (pIdStr && currentPId && currentPId === pIdStr) return true;
+        if (pTitleStr && p.phaseTitle && p.phaseTitle.trim().toLowerCase() === pTitleStr) return true;
+        return false;
+      });
+
+      if (idx !== -1) {
+        return idx + 1;
+      }
+    }
+
+    const titleToCheck = u.title || u.phase || "";
+    const match = titleToCheck.match(/(?:^|\b)phase\s*(\d+)\b/i);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+
+    if (allUpdates && allUpdates.length > 0) {
+      const taskIdStr = String(u.task?._id || u.taskId || (typeof u.task === "string" ? u.task : "") || "");
+      const taskTitleStr = (u.task?.taskTitle || "").trim().toLowerCase();
+
+      const taskUpdates = allUpdates.filter(it => {
+        if (!it) return false;
+        const itTaskId = String(it.task?._id || it.taskId || (typeof it.task === "string" ? it.task : "") || "");
+        if (taskIdStr && taskIdStr !== "standalone" && itTaskId && itTaskId !== "standalone") {
+          return itTaskId === taskIdStr;
+        }
+        const itTaskTitle = (it.task?.taskTitle || "").trim().toLowerCase();
+        if (taskTitleStr && itTaskTitle) {
+          return itTaskTitle === taskTitleStr;
+        }
+        return false;
+      });
+
+      if (taskUpdates.length > 0) {
+        const uniquePhases = [];
+        const chronSorted = [...taskUpdates].sort((a, b) => {
+          const tA = new Date(a.updateDate || a.createdAt || 0).getTime();
+          const tB = new Date(b.updateDate || b.createdAt || 0).getTime();
+          if (tA !== tB) return tA - tB;
+          return String(a._id || "").localeCompare(String(b._id || ""));
+        });
+        chronSorted.forEach(it => {
+          const key = String(it.phaseId || it.taskPhaseId || it.referenceId || it.title || it.phase || "").trim().toLowerCase();
+          if (key && !uniquePhases.includes(key)) {
+            uniquePhases.push(key);
+          }
+        });
+        const myKey = String(u.phaseId || u.taskPhaseId || u.referenceId || u.title || u.phase || "").trim().toLowerCase();
+        const phaseIndex = uniquePhases.indexOf(myKey);
+        if (phaseIndex !== -1) {
+          return phaseIndex + 1;
+        }
+      }
+    }
+
+    return 1;
+  };
+
+  const sortUpdatesWithPhaseOrder = (list) => {
+    if (!Array.isArray(list)) return [];
+    return [...list].sort((a, b) => {
+      const taskIdA = (a.task?._id && a.task._id !== "standalone") ? String(a.task._id) : (a.taskId ? String(a.taskId) : null);
+      const taskIdB = (b.task?._id && b.task._id !== "standalone") ? String(b.task._id) : (b.taskId ? String(b.taskId) : null);
+      const titleA = (a.task?.taskTitle || "").trim().toLowerCase();
+      const titleB = (b.task?.taskTitle || "").trim().toLowerCase();
+
+      const isSameTask = Boolean(
+        (taskIdA && taskIdB && taskIdA === taskIdB) ||
+        (titleA && titleB && titleA === titleB)
+      );
+
+      // If both updates belong to the same task, sort in ascending phase order (Phase 1, Phase 2, Phase 3, Phase 4, Phase 5)
+      if (isSameTask) {
+        const numA = getPhaseNumber(a, list);
+        const numB = getPhaseNumber(b, list);
+        if (numA !== numB) return numA - numB;
+        const timeA = new Date(a.updateDate || a.createdAt || 0).getTime();
+        const timeB = new Date(b.updateDate || b.createdAt || 0).getTime();
+        if (timeA !== timeB) return timeA - timeB;
+        return String(a._id || "").localeCompare(String(b._id || ""));
+      }
+
+      // Otherwise sort by date descending
+      const getLocalDateStr = (d) => {
+        if (!d) return "";
+        const dateObj = new Date(d);
+        if (isNaN(dateObj.getTime())) return "";
+        return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+      };
+
+      const dateStrA = getLocalDateStr(a.updateDate || a.createdAt);
+      const dateStrB = getLocalDateStr(b.updateDate || b.createdAt);
+      if (dateStrA !== dateStrB) return dateStrB.localeCompare(dateStrA);
+
+      // On same date, if both have phase numbers, sort by phase number ascending (1, 2, 3...)
+      const numA = getPhaseNumber(a, list);
+      const numB = getPhaseNumber(b, list);
+      const isPhaseA = Boolean(a.phaseId || a.taskPhaseId || a.referenceId || a.task?.phases?.length);
+      const isPhaseB = Boolean(b.phaseId || b.taskPhaseId || b.referenceId || b.task?.phases?.length);
+      if (isPhaseA && isPhaseB && numA !== numB) {
+        return numA - numB;
+      }
+
+      return String(a._id || "").localeCompare(String(b._id || ""));
+    });
+  };
+
+  const totalItems = (updates || []).length;
+
+  const paginatedDisplayUpdates = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return (updates || []).slice(startIndex, startIndex + pageSize);
+  }, [updates, currentPage, pageSize]);
+
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil((updates || []).length / pageSize));
+    if (currentPage > maxPage) {
+      setCurrentPage(maxPage);
+    }
+  }, [updates.length, pageSize, currentPage]);
+
   // --- 3. Data Fetching ---
 
   const fetchMeta = useCallback(async () => {
@@ -230,11 +373,18 @@ const EmployeeDailyWorkUpdate = () => {
         // Priority 2: phaseId (if referenceId was absent)
         // Priority 3: workUpdateRefId links standalone updates across days
         // Priority 4: category + project + title for standalone updates
+        const activeWorkUpdateRefs = new Set();
+        sorted.forEach(item => {
+          if (item.workUpdateRefId) activeWorkUpdateRefs.add(String(item.workUpdateRefId));
+        });
+
         const groups = new Map();
         sorted.forEach(item => {
           const rId = item.referenceId ? String(item.referenceId) : null;
           const pId = (item.phaseId || item.taskPhaseId) ? String(item.phaseId || item.taskPhaseId) : null;
-          const wRefId = item.workUpdateRefId ? String(item.workUpdateRefId) : null;
+          const wRefId = item.workUpdateRefId
+            ? String(item.workUpdateRefId)
+            : (item._id && activeWorkUpdateRefs.has(String(item._id)) ? String(item._id) : null);
 
           let groupKey = "";
           if (rId) {
@@ -312,7 +462,7 @@ const EmployeeDailyWorkUpdate = () => {
           }
         });
 
-        setPendingReminders(activePending);
+        setPendingReminders(sortUpdatesWithPhaseOrder(activePending));
       }
     } catch (err) {
       console.error("FETCH PENDING REMINDERS ERROR:", err);
@@ -324,10 +474,6 @@ const EmployeeDailyWorkUpdate = () => {
       setLoading(true);
       const params = new URLSearchParams();
       if (loggedInUserId) params.append("employeeId", loggedInUserId);
-
-      // Server-Side Pagination
-      params.append("page", currentPage);
-      params.append("limit", PAGE_SIZE);
 
       if (appliedFilters.dateMode === "Today") params.append("today", "true");
       else if (appliedFilters.dateMode === "Yesterday") params.append("yesterday", "true");
@@ -348,22 +494,8 @@ const EmployeeDailyWorkUpdate = () => {
       const res = await portalInstance.get(`/creat/daily-update/all?${params.toString()}`);
       if (res.data?.success) {
         const fetched = res.data.data || [];
-        // Helper to convert date to YYYY-MM-DD in local time
-        const getLocalDateStr = (d) => {
-          if (!d) return "";
-          const dateObj = new Date(d);
-          if (isNaN(dateObj.getTime())) return "";
-          return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
-        };
-        // Sort updates so that the newest updates (by date portion first, then _id descending) are at the start (top)
-        const sorted = [...fetched].sort((a, b) => {
-          const dateStrA = getLocalDateStr(a.updateDate || a.createdAt);
-          const dateStrB = getLocalDateStr(b.updateDate || b.createdAt);
-          if (dateStrA !== dateStrB) return dateStrB.localeCompare(dateStrA);
-          return String(b._id || "").localeCompare(String(a._id || ""));
-        });
+        const sorted = sortUpdatesWithPhaseOrder(fetched);
         setUpdates(sorted);
-        setTotalItems(res.data?.total || res.data?.count || sorted.length);
       }
     } catch (error) {
       console.error("FETCH UPDATES ERROR:", error);
@@ -371,7 +503,7 @@ const EmployeeDailyWorkUpdate = () => {
     } finally {
       setLoading(false);
     }
-  }, [loggedInUserId, appliedFilters, currentPage]);
+  }, [loggedInUserId, appliedFilters]);
 
   // --- 4. Effects ---
   useEffect(() => {
@@ -565,14 +697,18 @@ const EmployeeDailyWorkUpdate = () => {
       const formattedPages = entry.hasPages && Array.isArray(entry.pages) ? entry.pages : [];
 
       const isCompletedEdit = isEditing && getStatusKey(editingUpdate.status || editingUpdate.phaseStatus) === "completed";
+      if (isCompletedEdit) {
+        toast.error("Completed work updates cannot be edited.");
+        return;
+      }
 
-      if (isEditing && (isEditingToday || isCompletedEdit)) {
+      if (isEditing && isEditingToday) {
         const isItemTaskPhase = Boolean(
           (editingUpdate?.task?._id && editingUpdate.task._id !== "standalone" && (editingUpdate.phaseId || editingUpdate.taskPhaseId || editingUpdate.referenceId)) ||
           (entry.taskId && entry.taskId !== "standalone" && !entry.isNewTask)
         );
-        const resolvedWorkUpdateRefId = (!isItemTaskPhase && editingUpdate)
-          ? (editingUpdate.workUpdateRefId || editingUpdate._id)
+        const resolvedWorkUpdateRefId = (!isItemTaskPhase && editingUpdate?.workUpdateRefId)
+          ? editingUpdate.workUpdateRefId
           : undefined;
 
         const submitData = {
@@ -696,13 +832,18 @@ const EmployeeDailyWorkUpdate = () => {
             ? (editingUpdate.workUpdateRefId || editingUpdate._id)
             : undefined;
 
+          // For the past record, do not store workUpdateRefId on itself if it's the root creation
+          const pastRecordRefId = (editingUpdate?.workUpdateRefId && String(editingUpdate.workUpdateRefId) !== String(editingUpdate._id))
+            ? editingUpdate.workUpdateRefId
+            : undefined;
+
           if (firstValid && firstValid.title?.trim()) {
             await portalInstance.put(`/creat/daily-update/${editingUpdate._id}`, {
               title: firstValid.title.trim(),
               category: firstValid.category ? firstValid.category.toUpperCase() : undefined,
               project: firstValid.project ? (firstValid.project.charAt(0).toUpperCase() + firstValid.project.slice(1).toLowerCase()) : undefined,
               workType: firstValid.workType || undefined,
-              workUpdateRefId: resolvedWorkUpdateRefId
+              workUpdateRefId: pastRecordRefId
             });
           }
         } catch (syncErr) {
@@ -719,18 +860,7 @@ const EmployeeDailyWorkUpdate = () => {
       if (newEntries.length > 0) {
         setUpdates(prev => {
           const combinedList = [...newEntries, ...prev];
-          return combinedList.sort((a, b) => {
-            const getLocalDateStr = (d) => {
-              if (!d) return "";
-              const dateObj = new Date(d);
-              if (isNaN(dateObj.getTime())) return "";
-              return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
-            };
-            const dateStrA = getLocalDateStr(a.updateDate || a.createdAt);
-            const dateStrB = getLocalDateStr(b.updateDate || b.createdAt);
-            if (dateStrA !== dateStrB) return dateStrB.localeCompare(dateStrA);
-            return String(b._id || "").localeCompare(String(a._id || ""));
-          });
+          return sortUpdatesWithPhaseOrder(combinedList);
         });
       }
 
@@ -758,6 +888,11 @@ const EmployeeDailyWorkUpdate = () => {
   };
 
   const handleEditClick = (u) => {
+    if (getStatusKey(u.status || u.phaseStatus) === "completed") {
+      toast.info("Completed work updates are locked and cannot be edited.");
+      return;
+    }
+
     const isItemTaskPhase = Boolean(
       (u.task?._id && u.task._id !== "standalone" && !u.isNewTask && (u.phaseId || u.taskPhaseId || u.referenceId)) ||
       (u.task && typeof u.task === "string" && u.task !== "standalone" && (u.phaseId || u.taskPhaseId || u.referenceId)) ||
@@ -768,10 +903,10 @@ const EmployeeDailyWorkUpdate = () => {
       const targetTaskId = (u.task?._id && u.task._id !== "standalone")
         ? (typeof u.task._id === "object" ? (u.task._id._id || u.task._id.toString()) : u.task._id)
         : (u.task && u.task !== "standalone"
-            ? (typeof u.task === "object" ? (u.task._id || u.task.toString()) : u.task)
-            : (u.task_id && u.task_id !== "standalone"
-                ? (typeof u.task_id === "object" ? (u.task_id._id || u.task_id.toString()) : u.task_id)
-                : (u.taskId || null)));
+          ? (typeof u.task === "object" ? (u.task._id || u.task.toString()) : u.task)
+          : (u.task_id && u.task_id !== "standalone"
+            ? (typeof u.task_id === "object" ? (u.task_id._id || u.task_id.toString()) : u.task_id)
+            : (u.taskId || null)));
       if (targetTaskId) {
         navigate("/emp/tasks", { state: { selectedTaskId: targetTaskId } });
       } else {
@@ -809,12 +944,24 @@ const EmployeeDailyWorkUpdate = () => {
 
   const handleDeleteUpdate = async (e, id) => {
     e.stopPropagation();
+    const target = updates.find(u => u._id === id);
+    if (target && getStatusKey(target.status || target.phaseStatus) === "completed") {
+      toast.info("Completed work updates are locked and cannot be deleted.");
+      return;
+    }
     setDeleteTargetId(id);
     setShowDeleteConfirm(true);
   };
 
   const confirmDelete = async () => {
     if (!deleteTargetId) return;
+    const target = updates.find(u => u._id === deleteTargetId);
+    if (target && getStatusKey(target.status || target.phaseStatus) === "completed") {
+      toast.error("Completed work updates are locked and cannot be deleted.");
+      setShowDeleteConfirm(false);
+      setDeleteTargetId(null);
+      return;
+    }
     try {
       const res = await portalInstance.delete(`/creat/daily-update/${deleteTargetId}`);
       if (res.data.success) {
@@ -1059,7 +1206,16 @@ const EmployeeDailyWorkUpdate = () => {
       const existingProjectPages = getPagesForProject(catName, projName);
       const exists = existingProjectPages.some(p => (p || "").toLowerCase() === val.toLowerCase());
       if (exists) {
-        toast.info(`"${val}" is already available in the dropdown.`);
+        const matchingPage = existingProjectPages.find(p => (p || "").toLowerCase() === val.toLowerCase()) || val;
+        setFormEntries(prev => {
+          const updated = [...prev];
+          const currentPages = updated[idx]?.pages || [];
+          if (!currentPages.includes(matchingPage)) {
+            updated[idx] = { ...updated[idx], pages: [...currentPages, matchingPage] };
+          }
+          return updated;
+        });
+        toast.info(`"${matchingPage}" is already available in the dropdown.`);
         setActiveOtherField(null);
         setNewOtherVal("");
         return;
@@ -1109,6 +1265,14 @@ const EmployeeDailyWorkUpdate = () => {
           });
         }
         await fetchMeta();
+        setFormEntries(prev => {
+          const updated = [...prev];
+          const currentPages = updated[idx]?.pages || [];
+          if (!currentPages.includes(val)) {
+            updated[idx] = { ...updated[idx], pages: [...currentPages, val] };
+          }
+          return updated;
+        });
       }
 
       setActiveOtherField(null);
@@ -1118,6 +1282,16 @@ const EmployeeDailyWorkUpdate = () => {
       if (err.response?.status === 409) {
         toast.info(`"${val}" already exists in the dropdown.`);
         await fetchMeta();
+        if (type === "page") {
+          setFormEntries(prev => {
+            const updated = [...prev];
+            const currentPages = updated[idx]?.pages || [];
+            if (!currentPages.includes(val)) {
+              updated[idx] = { ...updated[idx], pages: [...currentPages, val] };
+            }
+            return updated;
+          });
+        }
         setActiveOtherField(null);
         setNewOtherVal("");
       } else {
@@ -1354,6 +1528,20 @@ const EmployeeDailyWorkUpdate = () => {
                   </div>
                 </div>
 
+                {/* Page Per Record Dropdown (Left side of Download Excel) */}
+                <div className="dwu-page-size-wrap" title="Records per page">
+                  <CustomDropdown
+                    options={PAGE_SIZE_OPTIONS}
+                    value={pageSize}
+                    onChange={(val) => {
+                      setPageSize(Number(val));
+                      setCurrentPage(1);
+                    }}
+                    className="ta-page-size-dropdown"
+                    placeholder="5"
+                  />
+                </div>
+
                 {/* 3. Excel Button */}
                 <Button
                   variant="outline-success"
@@ -1367,7 +1555,7 @@ const EmployeeDailyWorkUpdate = () => {
           </header>
 
           {showFilterMenu && (
-            <div className="dwu-filter-row animate-slide-down mb-4" ref={filterRef} style={{ padding: '20px', borderRadius: '12px', background: '#f6f6f6', marginTop: '20px' }}>
+            <div className="dwu-filter-row animate-slide-down mb-4" ref={filterRef} style={{ padding: '20px', borderRadius: '12px', background: '#ffffff', marginTop: '20px' }}>
               <div className="row g-3 align-items-end">
                 {/* 1. Timeframe */}
                 <div className="col-12 col-md">
@@ -1471,19 +1659,18 @@ const EmployeeDailyWorkUpdate = () => {
 
                 <div className="dwu-reminder-items-grid">
                   {pendingReminders.map((item) => {
+                    const getRawTaskId = (it) => {
+                      if (!it) return null;
+                      if (it.task?._id && it.task._id !== "standalone") return String(it.task._id?._id || it.task._id);
+                      if (it.task && typeof it.task === "string" && it.task !== "standalone") return String(it.task);
+                      if (it.task_id && it.task_id !== "standalone") return String(it.task_id?._id || it.task_id);
+                      if (it.taskId && it.taskId !== "standalone") return String(it.taskId);
+                      return null;
+                    };
+                    const targetTaskId = getRawTaskId(item);
                     const isTaskPhase = Boolean(
-                      (item.task?._id && item.task._id !== "standalone" && !item.isNewTask && (item.phaseId || item.taskPhaseId || item.referenceId)) ||
-                      (item.task && typeof item.task === "string" && item.task !== "standalone" && (item.phaseId || item.taskPhaseId || item.referenceId)) ||
-                      (item.task_id && item.task_id !== "standalone" && (item.phaseId || item.taskPhaseId || item.referenceId)) ||
-                      (!item.isNewTask && item.task && item.task !== "standalone" && (item.phaseId || item.referenceId))
+                      targetTaskId && !item.isNewTask && (item.phaseId || item.taskPhaseId || item.referenceId)
                     );
-                    const targetTaskId = (item.task?._id && item.task._id !== "standalone")
-                      ? (typeof item.task._id === "object" ? (item.task._id._id || item.task._id.toString()) : item.task._id)
-                      : (item.task && item.task !== "standalone"
-                          ? (typeof item.task === "object" ? (item.task._id || item.task.toString()) : item.task)
-                          : (item.task_id && item.task_id !== "standalone"
-                              ? (typeof item.task_id === "object" ? (item.task_id._id || item.task_id.toString()) : item.task_id)
-                              : (item.taskId || null)));
 
                     return (
                       <div key={item._id} className="dwu-reminder-item-card">
@@ -1521,7 +1708,7 @@ const EmployeeDailyWorkUpdate = () => {
                               </div>
                               {isTaskPhase && item.title && (
                                 <div style={{ fontSize: "11px", color: "#4f46e5", fontWeight: 600 }}>
-                                  <span style={{ fontSize: "10px", color: "#64748b", fontWeight: "normal", marginRight: "4px" }}>Phase:</span>
+                                  <span style={{ fontSize: "10px", color: "#64748b", fontWeight: "normal", marginRight: "4px" }}>Phase {getPhaseNumber(item, pendingReminders)}:</span>
                                   {item.title}
                                 </div>
                               )}
@@ -1582,241 +1769,241 @@ const EmployeeDailyWorkUpdate = () => {
             <div className="employeeTaskPage__tableCard mt-2">
               <div className="table-responsives">
                 <div className="employeeTaskPage__table">
-                  <div className="employeeTaskPage__tableHeader">
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--sno">S.No</div>
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--date">Date</div>
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--catproj">Category / Project</div>
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__col--title">Title</div>
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableCell--description">Description</div>
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--status">Status</div>
-                    <div className="employeeTaskPage__tableHeaderCell employeeTaskPage__tableHeaderCell--center employeeTaskPage__col--action">Action</div>
-                  </div>
                   {loading ? (
                     <div className="employeeTaskPage__tableEmpty">Fetching data...</div>
-                  ) : updates.length === 0 ? (
+                  ) : paginatedDisplayUpdates.length === 0 ? (
                     <div className="employeeTaskPage__tableEmpty">No updates found.</div>
                   ) : (
-                    updates.map((u, idx) => {
-                      const isTaskPhase = Boolean(u.task?._id && u.task._id !== "standalone" && (u.phaseId || u.taskPhaseId || u.referenceId));
+                    paginatedDisplayUpdates.map((u, idx) => {
+                      const getRawTaskId = (it) => {
+                        if (!it) return null;
+                        if (it.task?._id && it.task._id !== "standalone") {
+                          return typeof it.task._id === "object" ? (it.task._id._id || it.task._id.toString()) : String(it.task._id);
+                        }
+                        if (it.task && typeof it.task === "string" && it.task !== "standalone") return String(it.task);
+                        if (it.task_id && it.task_id !== "standalone") {
+                          return typeof it.task_id === "object" ? (it.task_id._id || it.task_id.toString()) : String(it.task_id);
+                        }
+                        if (it.taskId && it.taskId !== "standalone") return String(it.taskId);
+                        return null;
+                      };
+
+                      const targetTaskId = getRawTaskId(u);
+                      const isTaskPhase = Boolean(
+                        targetTaskId && !u.isNewTask && (u.phaseId || u.taskPhaseId || u.referenceId || (u.task?.phases && u.task.phases.length > 0) || u.phase)
+                      );
+                      const phaseNum = getPhaseNumber(u, updates);
+                      const phaseTitle = isTaskPhase
+                        ? (u.title || u.phase || (u.task?.phases ? u.task.phases.find(p => String(p._id) === String(u.phaseId || u.taskPhaseId || u.referenceId))?.phaseTitle : null) || `Phase ${phaseNum}`)
+                        : null;
+                      const taskTitle = u.task?.taskTitle || "";
+                      const pagesList = ((u.pages && u.pages.length > 0) ? u.pages : (u.task?.pages && u.task.pages.length > 0 ? u.task.pages : []));
+                      const workType = u.workType || u.task?.workType;
+                      const categoryName = u.task?.category || u.category || "—";
+                      const projectName = (() => {
+                        const p = u.task?.project || u.project;
+                        return p ? (p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()) : "—";
+                      })();
+
                       return (
-                      <div
-                        key={u._id}
-                        className="employeeTaskPage__tableRow"
-                      >
-                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--sno">
-                          {(currentPage - 1) * PAGE_SIZE + idx + 1}
-                        </div>
-                        <div className="employeeTaskPage__tableCelldate employeeTaskPage__col--date" style={{ fontSize: "12px" }}>
-                          {formatDate(u.updateDate)}
-                        </div>
-                        <div className="employeeTaskPage__tableCelldate employeeTaskPage__col--catproj" style={{ fontSize: "12px" }}>
-                          <div className="d-flex justify-content-center align-items-center flex-wrap gap-1">
-                            {u.task?.category || u.category ? (
-                              <span>
-                                {(u.task?.category || u.category || "").toUpperCase()}
+                        <div
+                          key={u._id}
+                          className="employeeTaskPage__tableRow dwu-card-row"
+                        >
+                          {/* ── Top Meta Grid (S.NO, Category, Project, Status, Action) ── */}
+                          <div className="dwu-card-meta-grid">
+                            <div className="dwu-card-meta-col employeeTaskPage__col--sno">
+                              <span className="dwu-card-meta-label">S.NO</span>
+                              <span className="dwu-card-meta-value dwu-card-sno-val">
+                                {(currentPage - 1) * pageSize + idx + 1}
                               </span>
-                            ) : (
-                              <span className="empTask__metaNone">-</span>
-                            )}
-                            <span className="mx-1" style={{ color: "#c4c4c4" }}>/</span>
-                            {u.task?.project || u.project ? (
-                              <span>
-                                {(() => {
-                                  const p = u.task?.project || u.project;
-                                  return p ? (p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()) : "-";
-                                })()}
+                            </div>
+
+                            <div className="dwu-card-meta-col employeeTaskPage__col--catproj">
+                              <span className="dwu-card-meta-label">Category</span>
+                              <span className="dwu-card-meta-value">
+                                {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
                               </span>
-                            ) : (
-                              <span className="empTask__metaNone">-</span>
-                            )}
-                            {(u.workType || u.task?.workType) && (
-                              <span
-                                style={{
-                                  fontSize: "10px",
-                                  fontWeight: "600",
-                                  color: "#5977f8",
-                                  background: "#eef2ff",
-                                  border: "1px solid #c7d2fe",
-                                  borderRadius: "4px",
-                                  padding: "0px 5px",
-                                  marginLeft: "2px"
-                                }}
-                                title={formatWorkType(u.workType || u.task?.workType)}
-                              >
-                                {u.workType || u.task?.workType}
+                            </div>
+
+                            <div className="dwu-card-meta-col employeeTaskPage__col--project">
+                              <span className="dwu-card-meta-label">Project</span>
+                              <span className="dwu-card-meta-value" style={{ whiteSpace: "nowrap" }}>
+                                {projectName}
                               </span>
-                            )}
-                            {((u.pages && u.pages.length > 0) ? u.pages : (u.task?.pages && u.task.pages.length > 0 ? u.task.pages : [])).map((pName, pIdx) => (
-                              <span
-                                key={pIdx}
-                                style={{
-                                  fontSize: "10px",
-                                  fontWeight: "500",
-                                  color: "#334155",
-                                  background: "#f1f5f9",
-                                  border: "1px solid #cbd5e1",
-                                  borderRadius: "4px",
-                                  padding: "0px 5px",
-                                  marginLeft: "2px"
-                                }}
-                                title={`Page: ${pName}`}
-                              >
-                                {pName}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="employeeTaskPage__tableCell employeeTaskPage__col--title" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
-                          {isTaskPhase ? (
-                            <div>
-                              <div className="d-flex align-items-center flex-wrap gap-2 mb-1">
-                                <strong className="employeeTaskPage__taskTitle">
-                                  {u.task?.taskTitle || u.title || "N/A"}
-                                </strong>
-                                <span
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    fontSize: "10px",
-                                    fontWeight: "600",
-                                    color: "#5977f8",
-                                    background: "#eef2ff",
-                                    border: "1px solid #c7d2fe",
-                                    borderRadius: "4px",
-                                    padding: "1px 6px",
-                                    letterSpacing: "0.2px",
-                                    whiteSpace: "nowrap",
-                                    lineHeight: "14px"
-                                  }}
-                                  title="This update originates from a Task Phase"
-                                >
-                                  Task Phase
+                            </div>
+
+                            <div className="dwu-card-meta-col employeeTaskPage__col--status">
+                              <span className="dwu-card-meta-label">Status</span>
+                              <div className="dwu-card-meta-value">
+                                <span className={`employeeTaskPage__statusBadge employeeTaskPage__badge--status-${getStatusKey(u.status || u.phaseStatus)}`}>
+                                  {getStatusLabel(u.status || u.phaseStatus)}
                                 </span>
                               </div>
-                              {u.title && (
-                                <div style={{ fontSize: "12px", color: "#4f46e5", fontWeight: 600 }}>
-                                  <span style={{ fontSize: "11px", color: "#64748b", fontWeight: "normal", marginRight: "4px" }}>Phase:</span>
-                                  {u.title}
-                                </div>
-                              )}
                             </div>
-                          ) : (
-                            <div className="d-flex align-items-center flex-wrap gap-2">
-                              <strong className="employeeTaskPage__taskTitle">
-                                {u.title || u.task?.taskTitle || "N/A"}
-                              </strong>
-                            </div>
-                          )}
-                        </div>
-                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--wrap employeeTaskPage__tableCell--description">
-                          <div className="dwu-phase-text">{renderDescription(u.description)}</div>
-                        </div>
-                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--status">
-                          <span className={`employeeTaskPage__statusBadge employeeTaskPage__badge--status-${getStatusKey(u.status || u.phaseStatus)}`}>
-                            {getStatusLabel(u.status || u.phaseStatus)}
-                          </span>
-                        </div>
-                        <div className="employeeTaskPage__tableCell employeeTaskPage__tableCell--center employeeTaskPage__col--action">
-                          <div className="d-flex align-items-center justify-content-center gap-2">
-                            {isTaskPhase ? (
-                              <button
-                                type="button"
-                                className="dwu-row-navigate-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const targetTaskId = (u.task?._id && u.task._id !== "standalone")
-                                    ? (typeof u.task._id === "object" ? (u.task._id._id || u.task._id.toString()) : u.task._id)
-                                    : (u.task && u.task !== "standalone" ? (typeof u.task === "object" ? u.task.toString() : u.task) : (u.taskId || null));
-                                  if (targetTaskId) {
-                                    navigate("/emp/tasks", { state: { selectedTaskId: targetTaskId } });
-                                  } else {
-                                    navigate("/emp/tasks");
-                                  }
-                                }}
-                                title="Go to Task to update, edit or delete this phase"
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  gap: "4px",
-                                  color: "#5977f8",
-                                  background: "#eef2ff",
-                                  border: "1px solid #c7d2fe",
-                                  borderRadius: "5px",
-                                  padding: "2px 7px",
-                                  fontSize: "11px",
-                                  fontWeight: "600",
-                                  cursor: "pointer",
-                                  whiteSpace: "nowrap",
-                                  lineHeight: "1.2"
-                                }}
-                              >
-                                <span>Task</span>
-                                <ExternalLink size={12} />
-                              </button>
-                            ) : (
-                              <>
-                                {getStatusKey(u.status || u.phaseStatus) === "completed" ? (
-                                  <div
-                                    className="dwu-row-edit-icon dwu-row-locked-icon"
-                                    title="Completed work update is locked and cannot be edited"
-                                    style={{ display: "flex", alignItems: "center", cursor: "not-allowed", padding: "2px" }}
-                                  >
-                                    <span
-                                      style={{
-                                        fontSize: "11px",
-                                        fontWeight: "600",
-                                        lineHeight: "1.2",
-                                        backgroundColor: "#feefe2ff",
-                                        color: "#ffa600ff",
-                                        borderRadius: "4px",
-                                        padding: "2px 8px"
-                                      }}
-                                      role="img"
-                                      aria-label="Locked"
-                                    >
-                                      Locked
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div
-                                    className="dwu-row-edit-icon"
+
+                            <div className="dwu-card-meta-col employeeTaskPage__col--action">
+                              <span className="dwu-card-meta-label">Action</span>
+                              <div className="dwu-card-meta-value dwu-card-actions-wrapper">
+                                {isTaskPhase ? (
+                                  <button
+                                    type="button"
+                                    className="dwu-row-navigate-btn"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleEditClick(u);
+                                      if (targetTaskId && !targetTaskId.startsWith("title:")) {
+                                        navigate("/emp/tasks", { state: { selectedTaskId: targetTaskId } });
+                                      } else {
+                                        navigate("/emp/tasks");
+                                      }
                                     }}
-                                    title="Edit Update"
-                                    style={{ display: "flex", alignItems: "center", cursor: "pointer", color: "#5977f8", padding: "2px" }}
+                                    title="Go to Task to update, edit or delete this phase"
                                   >
-                                    <Edit2 size={16} />
+                                    <span>Task</span>
+                                    <ExternalLink size={12} />
+                                  </button>
+                                ) : getStatusKey(u.status || u.phaseStatus) === "completed" ? (
+                                  <span
+                                    className="dwu-row-locked-icon"
+                                    title="Completed work update is locked"
+                                  >
+                                    <Lock size={15} />
+                                  </span>
+                                ) : (
+                                  <>
+                                    <div
+                                      className="dwu-row-edit-icon"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditClick(u);
+                                      }}
+                                      title="Edit Update"
+                                    >
+                                      <Edit2 size={15} />
+                                    </div>
+
+                                    {isTodayUpdate(u.updateDate || u.createdAt) && (
+                                      <div
+                                        className="dwu-row-delete-icon"
+                                        onClick={(e) => handleDeleteUpdate(e, u._id)}
+                                        title="Delete Update"
+                                      >
+                                        <Trash2 size={15} />
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* ── Card Divider ── */}
+                          <div className="dwu-card-divider" />
+
+                          {/* ── Content Section ── */}
+                          <div className="dwu-card-body-section">
+                            {isTaskPhase ? (
+                              <>
+                                {/* Phase Title & Task Origin Indication */}
+                                <div className="dwu-card-field-block">
+                                  <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                    <span className="dwu-card-field-label" style={{ marginBottom: 0 }}>
+                                      Phase {phaseNum} Title
+                                    </span>
+                                    <span
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        fontSize: "10.5px",
+                                        fontWeight: "500",
+                                        color: "#5977f8",
+                                        background: "#eef2ff",
+                                        border: "1px solid #c7d2fe",
+                                        borderRadius: "4px",
+                                        padding: "1px 6px",
+                                        lineHeight: "14px"
+                                      }}
+                                      title="This work update comes from a Task Phase"
+                                    >
+                                      Task Phase
+                                    </span>
+                                    {/* {taskTitle && (
+                                      <span style={{ fontSize: "11px", color: "#64748b", fontWeight: "500", marginLeft: "6px" }} title={`Originating Task: ${taskTitle}`}>
+                                        Task: <span style={{ color: "#475569", fontWeight: "500" }}>{taskTitle}</span>
+                                      </span>
+                                    )} */}
+                                  </div>
+                                  <div className="dwu-card-field-title">
+                                    {phaseTitle}
+                                  </div>
+                                </div>
+
+                                {/* Work Description */}
+                                {u.description && u.description.trim() && (
+                                  <div className="dwu-card-field-block">
+                                    <span className="dwu-card-field-label">Description</span>
+                                    <div className="dwu-card-field-desc employeeTaskPage__tableCell--description">
+                                      {renderDescription(u.description)}
+                                    </div>
                                   </div>
                                 )}
+                              </>
+                            ) : (
+                              <>
+                                <div className="dwu-card-field-block">
+                                  <div className="dwu-card-field-title dwu-card-field-title--standalone">
+                                    {u.title || "N/A"}
+                                  </div>
+                                </div>
 
-                                {/* Delete icon - only shown for today's updates AND if not completed */}
-                                {isTodayUpdate(u.updateDate || u.createdAt) && getStatusKey(u.status || u.phaseStatus) !== "completed" && (
-                                  <div
-                                    className="dwu-row-delete-icon"
-                                    onClick={(e) => handleDeleteUpdate(e, u._id)}
-                                    title="Delete Update"
-                                    style={{ display: "flex", alignItems: "center", cursor: "pointer", color: "#ff4d4f", padding: "2px" }}
-                                  >
-                                    <Trash2 size={16} />
+                                {u.description && u.description.trim() && (
+                                  <div className="dwu-card-field-block">
+                                    <div className="dwu-card-field-desc employeeTaskPage__tableCell--description">
+                                      {renderDescription(u.description)}
+                                    </div>
                                   </div>
                                 )}
                               </>
                             )}
+
+                            {/* ── Card Footer: Chips on left, Date on right ── */}
+                            <div className="dwu-card-footer-row">
+                              {(pagesList.length > 0 || workType) ? (
+                                <div className="dwu-card-chips-row">
+                                  {workType && (
+                                    <span className="dwu-card-chip" title={formatWorkType(workType)}>
+                                      {workType}
+                                    </span>
+                                  )}
+                                  {pagesList.map((pName, pIdx) => (
+                                    <span
+                                      key={pIdx}
+                                      className="dwu-card-chip"
+                                      title={`Page: ${pName}`}
+                                    >
+                                      {pName}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div />
+                              )}
+
+                              <div className="dwu-card-date-badge" title="Work Update Date">
+                                <span>{formatDate(u.updateDate || u.createdAt)}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
+                      );
+                    })
                   )}
                 </div>
               </div>
 
               <Pagination
                 totalItems={totalItems}
-                pageSize={PAGE_SIZE}
+                pageSize={pageSize}
                 currentPage={currentPage}
                 onPageChange={(p) => setCurrentPage(p)}
                 maxPagesInGroup={5}

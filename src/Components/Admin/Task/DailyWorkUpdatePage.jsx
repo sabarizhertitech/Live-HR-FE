@@ -144,7 +144,7 @@ const DailyWorkUpdatePage = () => {
       if (appliedFilters.project) params.append("project", appliedFilters.project);
 
       const res = await portalInstance.get(`/creat/daily-update/all?${params.toString()}`);
-      setUpdates(res.data.data || []);
+      setUpdates(sortUpdatesWithPhaseOrder(res.data.data || []));
     } catch (error) {
       console.error("FETCH UPDATES ERROR:", error);
       toast.error("Failed to load work updates");
@@ -303,6 +303,126 @@ const DailyWorkUpdatePage = () => {
     } catch (error) { toast.error("Export failed"); }
   };
 
+  const getPhaseNumber = (u, allUpdates = []) => {
+    if (!u) return 1;
+    if (typeof u.phaseNumber === "number" && u.phaseNumber > 0) {
+      return u.phaseNumber;
+    }
+    if (u.task && Array.isArray(u.task.phases) && u.task.phases.length > 0) {
+      const pIdStr = (u.phaseId || u.taskPhaseId || u.referenceId)
+        ? String(u.phaseId || u.taskPhaseId || u.referenceId)
+        : null;
+      const pTitleStr = (u.title || u.phase || "").trim().toLowerCase();
+
+      const idx = u.task.phases.findIndex(p => {
+        if (!p) return false;
+        const currentPId = p._id ? String(p._id) : null;
+        if (pIdStr && currentPId && currentPId === pIdStr) return true;
+        if (pTitleStr && p.phaseTitle && p.phaseTitle.trim().toLowerCase() === pTitleStr) return true;
+        return false;
+      });
+
+      if (idx !== -1) {
+        return idx + 1;
+      }
+    }
+
+    const titleToCheck = u.title || u.phase || "";
+    const match = titleToCheck.match(/(?:^|\b)phase\s*(\d+)\b/i);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+
+    if (allUpdates && allUpdates.length > 0) {
+      const taskIdStr = String(u.task?._id || u.taskId || (typeof u.task === "string" ? u.task : "") || "");
+      const taskTitleStr = (u.task?.taskTitle || "").trim().toLowerCase();
+
+      const taskUpdates = allUpdates.filter(it => {
+        if (!it) return false;
+        const itTaskId = String(it.task?._id || it.taskId || (typeof it.task === "string" ? it.task : "") || "");
+        if (taskIdStr && taskIdStr !== "standalone" && itTaskId && itTaskId !== "standalone") {
+          return itTaskId === taskIdStr;
+        }
+        const itTaskTitle = (it.task?.taskTitle || "").trim().toLowerCase();
+        if (taskTitleStr && itTaskTitle) {
+          return itTaskTitle === taskTitleStr;
+        }
+        return false;
+      });
+
+      if (taskUpdates.length > 0) {
+        const uniquePhases = [];
+        const chronSorted = [...taskUpdates].sort((a, b) => {
+          const tA = new Date(a.updateDate || a.createdAt || 0).getTime();
+          const tB = new Date(b.updateDate || b.createdAt || 0).getTime();
+          if (tA !== tB) return tA - tB;
+          return String(a._id || "").localeCompare(String(b._id || ""));
+        });
+        chronSorted.forEach(it => {
+          const key = String(it.phaseId || it.taskPhaseId || it.referenceId || it.title || it.phase || "").trim().toLowerCase();
+          if (key && !uniquePhases.includes(key)) {
+            uniquePhases.push(key);
+          }
+        });
+        const myKey = String(u.phaseId || u.taskPhaseId || u.referenceId || u.title || u.phase || "").trim().toLowerCase();
+        const phaseIndex = uniquePhases.indexOf(myKey);
+        if (phaseIndex !== -1) {
+          return phaseIndex + 1;
+        }
+      }
+    }
+
+    return 1;
+  };
+
+  const sortUpdatesWithPhaseOrder = (list) => {
+    if (!Array.isArray(list)) return [];
+    return [...list].sort((a, b) => {
+      const taskIdA = (a.task?._id && a.task._id !== "standalone") ? String(a.task._id) : (a.taskId ? String(a.taskId) : null);
+      const taskIdB = (b.task?._id && b.task._id !== "standalone") ? String(b.task._id) : (b.taskId ? String(b.taskId) : null);
+      const titleA = (a.task?.taskTitle || "").trim().toLowerCase();
+      const titleB = (b.task?.taskTitle || "").trim().toLowerCase();
+
+      const isSameTask = Boolean(
+        (taskIdA && taskIdB && taskIdA === taskIdB) ||
+        (titleA && titleB && titleA === titleB)
+      );
+
+      // If both belong to the same task, sort in ascending phase order (Phase 1, Phase 2, Phase 3, Phase 4, Phase 5)
+      if (isSameTask) {
+        const numA = getPhaseNumber(a, list);
+        const numB = getPhaseNumber(b, list);
+        if (numA !== numB) return numA - numB;
+        const timeA = new Date(a.updateDate || a.createdAt || 0).getTime();
+        const timeB = new Date(b.updateDate || b.createdAt || 0).getTime();
+        if (timeA !== timeB) return timeA - timeB;
+        return String(a._id || "").localeCompare(String(b._id || ""));
+      }
+
+      const formatDateStr = (d) => {
+        if (!d) return "";
+        const dateObj = new Date(d);
+        if (isNaN(dateObj.getTime())) return "";
+        return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+      };
+
+      const dateStrA = formatDateStr(a.updateDate || a.createdAt);
+      const dateStrB = formatDateStr(b.updateDate || b.createdAt);
+      if (dateStrA !== dateStrB) return dateStrB.localeCompare(dateStrA);
+
+      // On same date, if both have phase numbers, sort by phase number ascending (Phase 1, Phase 2, Phase 3...)
+      const numA = getPhaseNumber(a, list);
+      const numB = getPhaseNumber(b, list);
+      const isPhaseA = Boolean(a.phaseId || a.taskPhaseId || a.referenceId || a.task?.phases?.length);
+      const isPhaseB = Boolean(b.phaseId || b.taskPhaseId || b.referenceId || b.task?.phases?.length);
+      if (isPhaseA && isPhaseB && numA !== numB) {
+        return numA - numB;
+      }
+
+      return getUpdateTimestamp(a) - getUpdateTimestamp(b);
+    });
+  };
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
     if (typeof dateStr === "string" && dateStr.includes("T")) {
@@ -317,15 +437,56 @@ const DailyWorkUpdatePage = () => {
     return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
   };
 
+  const getDisplayDateHeader = (emp) => {
+    if (!emp) return "";
+    if (appliedFilters.dateMode === "All") return "All Time";
+    if (appliedFilters.dateMode === "This Month") return "This Month";
+    if (appliedFilters.dateMode === "This Week") return "This Week";
+    if (appliedFilters.dateMode === "This Year") return "This Year";
+    if (appliedFilters.dateMode === "Specific" && appliedFilters.fromDate) {
+      return formatDate(appliedFilters.fromDate);
+    }
+    if (appliedFilters.dateMode === "Custom" && appliedFilters.fromDate && appliedFilters.toDate) {
+      return `${formatDate(appliedFilters.fromDate)} - ${formatDate(appliedFilters.toDate)}`;
+    }
+    return formatDate(emp.latestDate);
+  };
+
   const formatWorkType = (wt) => {
     if (!wt) return "";
-    const upper = wt.trim().toUpperCase();
-    if (upper === "BE") return "Back End";
-    if (upper === "FE") return "Front End";
-    if (upper === "FE & BE" || upper === "FE AND BE" || upper === "BE & FE" || upper === "BE AND FE") {
-      return "Front End and Back End";
+    const clean = wt.trim();
+    const upper = clean.toUpperCase().replace(/\s+/g, " ");
+    if (
+      upper === "FE & BE" ||
+      upper === "FE AND BE" ||
+      upper === "BE & FE" ||
+      upper === "BE AND FE" ||
+      upper === "FRONT END AND BACK END" ||
+      upper === "FRONT END & BACK END" ||
+      upper === "FRONTEND AND BACKEND" ||
+      upper === "FRONTEND & BACKEND"
+    ) {
+      return "Frontend and Backend";
     }
+    if (upper === "BE" || upper === "BACK END" || upper === "BACKEND") return "Backend";
+    if (upper === "FE" || upper === "FRONT END" || upper === "FRONTEND") return "Frontend";
     return wt;
+  };
+
+  const getUpdateTimestamp = (u) => {
+    if (u?.createdAt) {
+      const t = new Date(u.createdAt).getTime();
+      if (!isNaN(t) && t > 0) return t;
+    }
+    if (u?._id && typeof u._id === "string" && u._id.length >= 8) {
+      const t = parseInt(u._id.substring(0, 8), 16) * 1000;
+      if (!isNaN(t) && t > 0) return t;
+    }
+    if (u?.updateDate) {
+      const t = new Date(u.updateDate).getTime();
+      if (!isNaN(t) && t > 0) return t;
+    }
+    return 0;
   };
 
   // --- 8. Admin Two-Panel Logic ---
@@ -355,6 +516,8 @@ const DailyWorkUpdatePage = () => {
         photoPath = userObj?.photo || userObj?.avatar || empFromList?.photo || empFromList?.avatar || "";
       }
 
+      const uTime = getUpdateTimestamp(u);
+
       if (!map[empId]) {
         map[empId] = {
           empId,
@@ -363,22 +526,46 @@ const DailyWorkUpdatePage = () => {
           photo: photoPath,
           designation: userObj?.designation || empFromList?.designation || userObj?.employeeId || "",
           latestDate: u.updateDate,
+          firstSubmittedAt: uTime,
           updates: []
         };
+      } else {
+        if (new Date(u.updateDate) > new Date(map[empId].latestDate)) {
+          map[empId].latestDate = u.updateDate;
+          map[empId].firstSubmittedAt = uTime;
+        } else if (
+          new Date(u.updateDate).toDateString() === new Date(map[empId].latestDate).toDateString() &&
+          uTime && (!map[empId].firstSubmittedAt || uTime < map[empId].firstSubmittedAt)
+        ) {
+          map[empId].firstSubmittedAt = uTime;
+        }
       }
       map[empId].updates.push(u);
-      if (new Date(u.updateDate) > new Date(map[empId].latestDate)) {
-        map[empId].latestDate = u.updateDate;
-      }
     });
+
+    // Ensure each employee's updates are ordered with phases in order: Phase 1, Phase 2, Phase 3, Phase 4, Phase 5
+    Object.values(map).forEach(emp => {
+      emp.updates = sortUpdatesWithPhaseOrder(emp.updates);
+    });
+
     return map;
   }, [updates, employees]);
 
-  const empList = useMemo(() => Object.values(employeeUpdateMap), [employeeUpdateMap]);
+  const empList = useMemo(() => {
+    const list = Object.values(employeeUpdateMap);
+    return list.sort((a, b) => {
+      const dateA = new Date(a.latestDate).setHours(0, 0, 0, 0);
+      const dateB = new Date(b.latestDate).setHours(0, 0, 0, 0);
+      if (dateA !== dateB) {
+        return dateB - dateA;
+      }
+      return (a.firstSubmittedAt || 0) - (b.firstSubmittedAt || 0);
+    });
+  }, [employeeUpdateMap]);
   const paginatedEmpList = empList.slice((empListPage - 1) * EMP_PAGE_SIZE, empListPage * EMP_PAGE_SIZE);
 
   useEffect(() => {
-    if (empList.length > 0 && !selectedEmpId) {
+    if (empList.length > 0 && (!selectedEmpId || !empList.some(e => e.empId === selectedEmpId))) {
       setSelectedEmpId(empList[0].empId);
     }
   }, [empList, selectedEmpId]);
@@ -405,7 +592,7 @@ const DailyWorkUpdatePage = () => {
               />
               <div>
                 <h6 className="m-0">{selectedEmpData.name}</h6>
-                <small>{formatDate(selectedEmpData.latestDate)}</small>
+                <small>{getDisplayDateHeader(selectedEmpData)}</small>
               </div>
             </div>
             <button className="dwu-mobile-modal-close" onClick={() => setShowMobileModal(false)}>✕</button>
@@ -417,13 +604,11 @@ const DailyWorkUpdatePage = () => {
               <div key={u._id} className="dwu-work-card mb-3">
                 <div className="dwu-work-card__header">
                   <div className="dwu-work-card__field"><span className="dwu-work-card__label">S.NO</span><span className="dwu-work-card__value">{idx + 1}</span></div>
+                  <div className="dwu-work-card__field"><span className="dwu-work-card__label">Date</span><span className="dwu-work-card__value" style={{ color: "#3A466D", fontWeight: 600 }}>{formatDate(u.updateDate || u.createdAt)}</span></div>
                   <div className="dwu-work-card__field"><span className="dwu-work-card__label">Category</span><span className="dwu-work-card__value">{(u.task?.category || u.category || "—").toUpperCase()}</span></div>
                   <div className="dwu-work-card__field"><span className="dwu-work-card__label">Project</span><span className="dwu-work-card__value">{u.task?.project ? (u.task.project.charAt(0).toUpperCase() + u.task.project.slice(1).toLowerCase()) : (u.project ? (u.project.charAt(0).toUpperCase() + u.project.slice(1).toLowerCase()) : "—")}</span></div>
                   {u.workType && (
                     <div className="dwu-work-card__field"><span className="dwu-work-card__label">Type</span><span className="dwu-work-card__value" style={{ color: "#5977f8", fontWeight: 600 }}>{formatWorkType(u.workType)}</span></div>
-                  )}
-                  {u.pages && u.pages.length > 0 && (
-                    <div className="dwu-work-card__field"><span className="dwu-work-card__label">Pages</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.pages.join(", ")}</span></div>
                   )}
                   {/* {isTaskPhase && (
                     <div className="dwu-work-card__field"><span className="dwu-work-card__label">Phase Days</span><span className="dwu-work-card__value" style={{ color: "#16a34a", fontWeight: 600 }}>{u.phaseWorkingDays !== undefined && u.phaseWorkingDays !== null ? `${u.phaseWorkingDays} ${u.phaseWorkingDays === 1 ? 'day' : 'days'}` : "—"}</span></div>
@@ -466,12 +651,31 @@ const DailyWorkUpdatePage = () => {
                   </div>
                   {isTaskPhase && u.title && (
                     <div className="mt-2">
-                      <span className="dwu-work-card__section-label">Phase Title</span>
+                      <span className="dwu-work-card__section-label">Phase {getPhaseNumber(u, selectedEmpData?.updates || updates)}</span>
                       <p className="dwu-work-card__text mb-0" style={{ fontWeight: 600, color: "#4f46e5" }}>{u.title}</p>
                     </div>
                   )}
                 </div>
-                <div className="dwu-work-card__section"><span className="dwu-work-card__section-label">Work Description</span><p className="dwu-work-card__text">{u.description || u.note || u.phase || "—"}</p></div>
+                {((u.pages && u.pages.length > 0) || (u.task?.pages && u.task.pages.length > 0)) && (
+                  <div className="dwu-work-card__section">
+                    <span className="dwu-work-card__section-label">Pages</span>
+                    <p className="dwu-work-card__text" style={{ color: "#2563eb" }}>
+                      {Array.isArray(u.pages && u.pages.length > 0 ? u.pages : u.task?.pages)
+                        ? (u.pages && u.pages.length > 0 ? u.pages : u.task?.pages).join(", ")
+                        : (u.pages || u.task?.pages)}
+                    </p>
+                  </div>
+                )}
+                <div className="dwu-work-card__section">
+                  <span className="dwu-work-card__section-label">Work Description</span>
+                  <p className="dwu-work-card__text">{u.description || u.note || u.phase || "—"}</p>
+                  <div className="d-flex justify-content-end align-items-center mt-2 pt-2" style={{ borderTop: "1px dashed #e2e8f0" }}>
+                    <div className="dwu-card-date-badge" title="Created Date" style={{ fontSize: "11.5px", color: "#64748b", fontWeight: 500, display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                      <Icon icon="solar:calendar-linear" width="14" height="14" style={{ color: "#94a3b8" }} />
+                      <span>Date: <strong style={{ color: "#3A466D", fontWeight: 600 }}>{formatDate(u.updateDate || u.createdAt)}</strong></span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )})}
           </div>
@@ -625,7 +829,7 @@ const DailyWorkUpdatePage = () => {
                         </div>
                       </div>
                       <div className="dwu-emp-panel__cell" style={{ width: "80px", textAlign: "center" }}>
-                        <span className="dwu-emp-date">{formatDate(emp.latestDate)}</span>
+                        <span className="dwu-emp-date">{getDisplayDateHeader(emp)}</span>
                       </div>
                     </div>
                   ))
@@ -644,7 +848,7 @@ const DailyWorkUpdatePage = () => {
                   </span>
                   {selectedEmpData && (
                     <span className="dwu-detail-panel__date">
-                      {formatDate(selectedEmpData.latestDate)}
+                      {getDisplayDateHeader(selectedEmpData)}
                     </span>
                   )}
                 </div>
@@ -656,13 +860,11 @@ const DailyWorkUpdatePage = () => {
                       <div key={u._id} className="dwu-work-card">
                         <div className="dwu-work-card__header">
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">S.NO</span><span className="dwu-work-card__value">{idx + 1}</span></div>
+                          <div className="dwu-work-card__field"><span className="dwu-work-card__label">Date</span><span className="dwu-work-card__value" style={{ color: "#3A466D", fontWeight: 600 }}>{formatDate(u.updateDate || u.createdAt)}</span></div>
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">Category</span><span className="dwu-work-card__value">{(u.task?.category || u.category || "—").toUpperCase()}</span></div>
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">Project</span><span className="dwu-work-card__value">{u.task?.project ? (u.task.project.charAt(0).toUpperCase() + u.task.project.slice(1).toLowerCase()) : (u.project ? (u.project.charAt(0).toUpperCase() + u.project.slice(1).toLowerCase()) : "—")}</span></div>
                           {u.workType && (
                             <div className="dwu-work-card__field"><span className="dwu-work-card__label">Type</span><span className="dwu-work-card__value" style={{ color: "#5977f8", fontWeight: 600 }}>{formatWorkType(u.workType)}</span></div>
-                          )}
-                          {u.pages && u.pages.length > 0 && (
-                            <div className="dwu-work-card__field"><span className="dwu-work-card__label">Pages</span><span className="dwu-work-card__value" style={{ color: "#2563eb", fontWeight: 600 }}>{u.pages.join(", ")}</span></div>
                           )}
                           <div className="dwu-work-card__field"><span className="dwu-work-card__label">Status</span><span className={`dwu-admin__statusBadge dwu-admin__statusBadge--${(u.status || u.phaseStatus || "pending").toLowerCase()}`}>{u.status || u.phaseStatus || "Pending"}</span></div>
                           {/* {isTaskPhase && (
@@ -701,13 +903,32 @@ const DailyWorkUpdatePage = () => {
                             </div>
                             {isTaskPhase && u.title && (
                               <div>
-                                <span className="dwu-work-card__section-label">Phase Title</span>
+                                <span className="dwu-work-card__section-label">Phase {getPhaseNumber(u, selectedEmpData?.updates || updates)}</span>
                                 <p className="dwu-work-card__text mb-0" style={{ fontWeight: 600, color: "#4f46e5" }}>{u.title}</p>
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="dwu-work-card__section"><span className="dwu-work-card__section-label">Work Description</span><p className="dwu-work-card__text">{u.description || u.note || u.phase || "—"}</p></div>
+                        {((u.pages && u.pages.length > 0) || (u.task?.pages && u.task.pages.length > 0)) && (
+                          <div className="dwu-work-card__section">
+                            <span className="dwu-work-card__section-label">Pages</span>
+                            <p className="dwu-work-card__text" style={{ color: "#2563eb" }}>
+                              {Array.isArray(u.pages && u.pages.length > 0 ? u.pages : u.task?.pages)
+                                ? (u.pages && u.pages.length > 0 ? u.pages : u.task?.pages).join(", ")
+                                : (u.pages || u.task?.pages)}
+                            </p>
+                          </div>
+                        )}
+                        <div className="dwu-work-card__section">
+                          <span className="dwu-work-card__section-label">Work Description</span>
+                          <p className="dwu-work-card__text">{u.description || u.note || u.phase || "—"}</p>
+                          <div className="d-flex justify-content-end align-items-center mt-2 pt-2" style={{ borderTop: "1px dashed #e2e8f0" }}>
+                            <div className="dwu-card-date-badge" title="Created Date" style={{ fontSize: "11.5px", color: "#64748b", fontWeight: 500, display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                              <Icon icon="solar:calendar-linear" width="14" height="14" style={{ color: "#94a3b8" }} />
+                              <span>Date: <strong style={{ color: "#3A466D", fontWeight: 600 }}>{formatDate(u.updateDate || u.createdAt)}</strong></span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )})}
                   </div>

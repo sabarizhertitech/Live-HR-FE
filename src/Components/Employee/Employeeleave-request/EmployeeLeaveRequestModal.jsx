@@ -1,7 +1,8 @@
 import "./EmployeeLeaveRequestModal.css";
 import { portalInstance } from "../../../Services/instance";
 import React, { useMemo, useState } from "react";
-import "../../../Globel/Layout.css"
+import "../../../Globel/Layout.css";
+import { toast } from "react-toastify";
 const DEFAULT_AVATAR = "/avatar.png";
 
 const EmployeeLeaveRequestModal = ({
@@ -16,7 +17,6 @@ const EmployeeLeaveRequestModal = ({
   const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [isCancelLoading, setIsCancelLoading] = useState(false);
-  const [cancelError, setCancelError] = useState("");
 
 
   const {
@@ -360,14 +360,12 @@ if (
 
   const handleCancelRequest = async () => {
     try {
-      setCancelError("");
-      setIsCancelLoading(true);
-
       if (!cancelReason.trim()) {
-        setCancelError("Please provide a reason for cancellation");
-        setIsCancelLoading(false);
+        toast.error("Please provide a reason for cancellation");
         return;
       }
+
+      setIsCancelLoading(true);
 
       if (onRequestCancel) {
         await onRequestCancel(cancelReason);
@@ -375,12 +373,12 @@ if (
 
       setShowCancelPopup(false);
       setCancelReason("");
-      setCancelError("");
     } catch (err) {
       console.error("Cancel error:", err);
-      setCancelError(
+      toast.error(
         err?.response?.data?.message || "Failed to cancel request"
       );
+    } finally {
       setIsCancelLoading(false);
     }
   };
@@ -575,52 +573,59 @@ if (
             e.stopPropagation();
             setShowCancelPopup(false);
             setCancelReason("");
-            setCancelError("");
           }}
         >
           <div
             className="cancel-validation-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* STEP 8: Updated cancel confirmation title */}
-            <span className="cancel-validation-modals">
-              {displayRequestType === "permission"
-                ? "Confirm Permission Cancellation"
-                : displayRequestType === "leave"
-                ? "Confirm Leave Cancellation"
-                : "Confirm WFH Cancellation"}
-            </span>
+            <div className="cancel-validation-header">
+              <div className="cancel-validation-title-wrap">
+                <span className="cancel-validation-modals">
+                  {displayRequestType === "permission"
+                    ? "Confirm Permission Cancellation"
+                    : displayRequestType === "leave"
+                    ? "Confirm Leave Cancellation"
+                    : "Confirm WFH Cancellation"}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="cancel-validation-close-btn"
+                onClick={() => {
+                  setShowCancelPopup(false);
+                  setCancelReason("");
+                }}
+                disabled={isCancelLoading}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
 
-            <p>{getCancelConfirmMessage()}</p>
+            <p className="cancel-validation-desc">{getCancelConfirmMessage()}</p>
 
             <div className="cancel-validation-reason-section">
               <label className="cancel-validation-label">
-                Reason for Cancellation (Optional)
+                Reason for Cancellation <span className="cancel-validation-req">*</span>
               </label>
               <textarea
                 className="cancel-validation-textarea"
                 placeholder="Please provide a reason for your cancellation request..."
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                rows={4}
+                rows={3}
                 disabled={isCancelLoading}
               />
             </div>
 
-            {cancelError && (
-              <div className="cancel-validation-error">
-                {cancelError}
-              </div>
-            )}
-
             <div className="cancel-validation-actions">
-              {/* STEP 9: Updated "No, Keep" button text */}
               <button
+                type="button"
                 className="hrms-common-btn-cancel"
                 onClick={() => {
                   setShowCancelPopup(false);
                   setCancelReason("");
-                  setCancelError("");
                 }}
                 disabled={isCancelLoading}
               >
@@ -633,6 +638,7 @@ if (
               </button>
 
               <button
+                type="button"
                 className="hrms-common-Reject-btn"
                 onClick={handleCancelRequest}
                 disabled={isCancelLoading}

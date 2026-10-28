@@ -49,7 +49,7 @@ function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false);
   const copy = (e) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard.writeText(text).catch(() => { });
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
@@ -64,17 +64,17 @@ function CopyBtn({ text }) {
 /* ── Score bar ── */
 function ScoreBar({ label, score, color }) {
   const colorMap = {
-    risk:       score <= 30 ? "green" : score <= 60 ? "amber" : "red",
-    seo:        score >= 70 ? "green" : score >= 40 ? "amber" : "red",
-    security:   score >= 70 ? "green" : score >= 40 ? "amber" : "red",
+    risk: score <= 30 ? "green" : score <= 60 ? "amber" : "red",
+    seo: score >= 70 ? "green" : score >= 40 ? "amber" : "red",
+    security: score >= 70 ? "green" : score >= 40 ? "amber" : "red",
     compliance: score >= 70 ? "green" : score >= 40 ? "amber" : "red",
   };
   const cls = colorMap[color] || "indigo";
   const textColor = {
     green: "var(--wi-success)",
     amber: "var(--wi-warning)",
-    red:   "var(--wi-danger)",
-    indigo:"var(--wi-accent)",
+    red: "var(--wi-danger)",
+    indigo: "var(--wi-accent)",
   }[cls];
   return (
     <div className="wi-score-card">
@@ -91,18 +91,18 @@ function ScoreBar({ label, score, color }) {
 function ChecklistItem({ label, sub, state }) {
   // state: "found" | "missing" | "unverified" | "warn" | "warning"
   const icons = {
-    found:      <CheckCircle size={16} />,
-    missing:    <XCircle size={16} />,
+    found: <CheckCircle size={16} />,
+    missing: <XCircle size={16} />,
     unverified: <HelpCircle size={16} />,
-    warn:       <AlertTriangle size={16} />,
-    warning:    <AlertTriangle size={16} />,
+    warn: <AlertTriangle size={16} />,
+    warning: <AlertTriangle size={16} />,
   };
   const labels = {
-    found:      "✓ Found",
-    missing:    "✗ Missing",
+    found: "✓ Found",
+    missing: "✗ Missing",
     unverified: "⚠ Not Verified",
-    warn:       "⚠ Warning",
-    warning:    "⚠ Warning",
+    warn: "⚠ Warning",
+    warning: "⚠ Warning",
   };
   return (
     <div className="wi-checklist-item">
@@ -147,25 +147,25 @@ function isGenericEmail(email = "") {
 
 /* ── Merchant verdict calculation ── */
 function getMerchantVerdict(report, allEmails, allPhones) {
-  const compliance  = report.scores?.compliance ?? 0;
-  const risk        = report.scores?.risk ?? 0;
-  const hasSSL      = report.ssl?.isValid;
-  const hasPrivacy  = report.complianceSummary?.hasPrivacyPolicy;
-  const hasTerms    = report.complianceSummary?.hasTermsOfService;
-  const hasRefund   = report.complianceSummary?.hasRefundPolicy;
-  const hasContact  = allEmails.length > 0 || allPhones.length > 0;
+  const compliance = report.scores?.compliance ?? 0;
+  const risk = report.scores?.risk ?? 0;
+  const hasSSL = report.ssl?.isValid;
+  const hasPrivacy = report.complianceSummary?.hasPrivacyPolicy;
+  const hasTerms = report.complianceSummary?.hasTermsOfService;
+  const hasRefund = report.complianceSummary?.hasRefundPolicy;
+  const hasContact = allEmails.length > 0 || allPhones.length > 0;
   const isAllGenericEmail = allEmails.length > 0 && allEmails.every(isGenericEmail);
 
   const reasons = [];
 
-  if (!hasSSL)                         reasons.push({ text: "No valid SSL / HTTPS certificate detected.", sev: "HIGH" });
-  if (risk >= 70)                      reasons.push({ text: `Risk score is critically high (${risk}/100).`, sev: "HIGH" });
-  if (!hasPrivacy)                     reasons.push({ text: "Privacy Policy page not detected.", sev: "HIGH" });
-  if (!hasTerms)                       reasons.push({ text: "Terms & Conditions page not detected.", sev: "HIGH" });
-  if (!hasRefund)                      reasons.push({ text: "Refund & Cancellation Policy not detected.", sev: "MEDIUM" });
-  if (!hasContact)                     reasons.push({ text: "No contact information (email/phone) found.", sev: "MEDIUM" });
-  if (isAllGenericEmail)               reasons.push({ text: "Contact email uses a generic provider (@gmail.com) instead of a corporate domain.", sev: "MEDIUM" });
-  if (compliance < 40)                 reasons.push({ text: `Compliance score is too low (${compliance}%).`, sev: "HIGH" });
+  if (!hasSSL) reasons.push({ text: "No valid SSL / HTTPS certificate detected.", sev: "HIGH" });
+  if (risk >= 70) reasons.push({ text: `Risk score is critically high (${risk}/100).`, sev: "HIGH" });
+  if (!hasPrivacy) reasons.push({ text: "Privacy Policy page not detected.", sev: "HIGH" });
+  if (!hasTerms) reasons.push({ text: "Terms & Conditions page not detected.", sev: "HIGH" });
+  if (!hasRefund) reasons.push({ text: "Refund & Cancellation Policy not detected.", sev: "MEDIUM" });
+  if (!hasContact) reasons.push({ text: "No contact information (email/phone) found.", sev: "MEDIUM" });
+  if (isAllGenericEmail) reasons.push({ text: "Contact email uses a generic provider (@gmail.com) instead of a corporate domain.", sev: "MEDIUM" });
+  if (compliance < 40) reasons.push({ text: `Compliance score is too low (${compliance}%).`, sev: "HIGH" });
 
   // Hard rejections
   if (!hasSSL || risk >= 70 || compliance < 25) {
@@ -186,14 +186,14 @@ function getMerchantVerdict(report, allEmails, allPhones) {
 /* ── Missing items builder ── */
 function buildMissingItems(report, pages, allEmails, allPhones, allAddresses) {
   const compSum = report.complianceSummary || {};
-  const issues  = report.issues || [];
-  const groups  = [];
+  const issues = report.issues || [];
+  const groups = [];
 
   /* ── 1. Missing Pages ── */
   const missingPages = [];
-  if (!compSum.hasPrivacyPolicy)  missingPages.push({ name: "Privacy Policy",         sev: "high",   fix: "Create a dedicated /privacy-policy page and link it in the footer." });
-  if (!compSum.hasTermsOfService) missingPages.push({ name: "Terms & Conditions",     sev: "high",   fix: "Create a /terms-and-conditions page with governing law and liability clauses." });
-  if (!compSum.hasRefundPolicy)   missingPages.push({ name: "Refund & Return Policy", sev: "medium", fix: "Create a /refund-policy page specifying timelines, process, and contact." });
+  if (!compSum.hasPrivacyPolicy) missingPages.push({ name: "Privacy Policy", sev: "high", fix: "Create a dedicated /privacy-policy page and link it in the footer." });
+  if (!compSum.hasTermsOfService) missingPages.push({ name: "Terms & Conditions", sev: "high", fix: "Create a /terms-and-conditions page with governing law and liability clauses." });
+  if (!compSum.hasRefundPolicy) missingPages.push({ name: "Refund & Return Policy", sev: "medium", fix: "Create a /refund-policy page specifying timelines, process, and contact." });
   if (missingPages.length > 0) {
     groups.push({ title: "Missing Policy Documents", icon: FileText, items: missingPages });
   }
@@ -201,7 +201,7 @@ function buildMissingItems(report, pages, allEmails, allPhones, allAddresses) {
   /* ── 2. Missing Contact Information ── */
   const missingContact = [];
   if (allEmails.length === 0) {
-    missingContact.push({ name: "Business Email Address",  sev: "high",   fix: "Add a business email address to your Contact Us page and footer." });
+    missingContact.push({ name: "Business Email Address", sev: "high", fix: "Add a business email address to your Contact Us page and footer." });
   } else if (allEmails.every(isGenericEmail)) {
     missingContact.push({
       name: "Corporate Domain Email (@domain.com)",
@@ -209,8 +209,8 @@ function buildMissingItems(report, pages, allEmails, allPhones, allAddresses) {
       fix: `The website uses a generic email ('${allEmails[0]}'). Update to an official corporate email domain (e.g. contact@${report?.url ? new URL(report.url).hostname.replace(/^www\./, '') : 'yourdomain.com'}) to enhance trust.`
     });
   }
-  if (allPhones.length === 0)    missingContact.push({ name: "Business Phone Number",   sev: "medium", fix: "Display a customer support phone number prominently on the Contact Us page." });
-  if (allAddresses.length === 0) missingContact.push({ name: "Business Address",        sev: "medium", fix: "Include a registered business/office address on the Contact Us or About Us page." });
+  if (allPhones.length === 0) missingContact.push({ name: "Business Phone Number", sev: "medium", fix: "Display a customer support phone number prominently on the Contact Us page." });
+  if (allAddresses.length === 0) missingContact.push({ name: "Business Address", sev: "medium", fix: "Include a registered business/office address on the Contact Us or About Us page." });
   if (missingContact.length > 0) {
     groups.push({ title: "Missing Contact Information", icon: Mail, items: missingContact });
   }
@@ -229,7 +229,7 @@ function buildMissingItems(report, pages, allEmails, allPhones, allAddresses) {
     /gstin|gstn/i.test(rawText) ||
     /\b[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z][1-9A-Za-z][Zz][0-9A-Za-z]\b/i.test(rawText);
 
-  if (!hasGST) missingLegal.push({ name: "GST Number (GSTIN)",        sev: "high",   fix: "Display your GST registration number (GSTIN) on the About Us or Contact page." });
+  if (!hasGST) missingLegal.push({ name: "GST Number (GSTIN)", sev: "high", fix: "Display your GST registration number (GSTIN) on the About Us or Contact page." });
   if (missingLegal.length > 0) {
     groups.push({ title: "Missing Legal & Regulatory Info", icon: Gavel, items: missingLegal });
   }
@@ -265,12 +265,12 @@ function buildMissingItems(report, pages, allEmails, allPhones, allAddresses) {
 
 /* ─────────────────────────────────────────────── */
 export default function CrawlerReportPage() {
-  const { id }         = useParams();
-  const navigate       = useNavigate();
-  const [report, setReport]   = useState(null);
-  const [pages, setPages]     = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [report, setReport] = useState(null);
+  const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchReportDetails = async () => {
@@ -417,13 +417,13 @@ export default function CrawlerReportPage() {
       phoneDedupeMap.set(key, p);
     }
   }
-  const allPhones    = [...phoneDedupeMap.values()];
+  const allPhones = [...phoneDedupeMap.values()];
   const allAddresses = report?.complianceSummary?.addresses || [];
   const allCopyrights = report?.complianceSummary?.copyrights || [];
-  const compSum      = report.complianceSummary || {};
+  const compSum = report.complianceSummary || {};
 
   /* ── Derived verdicts ── */
-  const verdict     = getMerchantVerdict(report, allEmails, allPhones);
+  const verdict = getMerchantVerdict(report, allEmails, allPhones);
   const missingGroups = buildMissingItems(report, pages, allEmails, allPhones, allAddresses);
 
   /* ── Page presence heuristics ── */
@@ -494,35 +494,35 @@ export default function CrawlerReportPage() {
   const formValidationRows = fvSummary.reportRows && fvSummary.reportRows.length > 0
     ? fvSummary.reportRows
     : uniqueForms.flatMap(form => {
-        const fields = form.fields || [];
-        return fields.flatMap(field => {
-          const tests = field.tests || [];
-          if (tests.length > 0) {
-            return tests.map(test => ({
-              pageTitle: form.pageTitle || "Page",
-              formType: form.formType || form.formId || "form",
-              fieldName: field.fieldName || field.name || "field",
-              fieldType: field.fieldType || field.type || "text",
-              required: field.required ? "Yes" : "No",
-              testValue: test.inputValue !== undefined ? String(test.inputValue) : "",
-              expected: test.expected || "Accept",
-              actual: test.actual || "Accepted",
-              status: test.status || (test.passed ? "PASS" : "FAIL"),
-            }));
-          }
-          return [{
+      const fields = form.fields || [];
+      return fields.flatMap(field => {
+        const tests = field.tests || [];
+        if (tests.length > 0) {
+          return tests.map(test => ({
             pageTitle: form.pageTitle || "Page",
             formType: form.formType || form.formId || "form",
             fieldName: field.fieldName || field.name || "field",
             fieldType: field.fieldType || field.type || "text",
             required: field.required ? "Yes" : "No",
-            testValue: field.validTestValue || "",
-            expected: "Accept",
-            actual: field.validTestResult || "Accepted",
-            status: field.overallFieldStatus || "PASS",
-          }];
-        });
+            testValue: test.inputValue !== undefined ? String(test.inputValue) : "",
+            expected: test.expected || "Accept",
+            actual: test.actual || "Accepted",
+            status: test.status || (test.passed ? "PASS" : "FAIL"),
+          }));
+        }
+        return [{
+          pageTitle: form.pageTitle || "Page",
+          formType: form.formType || form.formId || "form",
+          fieldName: field.fieldName || field.name || "field",
+          fieldType: field.fieldType || field.type || "text",
+          required: field.required ? "Yes" : "No",
+          testValue: field.validTestValue || "",
+          expected: "Accept",
+          actual: field.validTestResult || "Accepted",
+          status: field.overallFieldStatus || "PASS",
+        }];
       });
+    });
 
   /* ── Form Validation Field-Level Diagnostics ── */
   const inferFieldSemanticRole = (name = "", label = "", type = "") => {
@@ -631,9 +631,9 @@ export default function CrawlerReportPage() {
       case "phone":
         expectedRule = "Numbers Only (0-9)";
         if (isFailed) {
-          const badAlpha = failedTests.find(t => 
-            t.testName?.includes("alpha") || 
-            t.testName?.includes("phone") || 
+          const badAlpha = failedTests.find(t =>
+            t.testName?.includes("alpha") ||
+            t.testName?.includes("phone") ||
             /[a-zA-Z]/.test(String(t.inputValue || ""))
           );
           const acceptedVal = badAlpha ? badAlpha.inputValue : "letters";
@@ -764,18 +764,18 @@ export default function CrawlerReportPage() {
       <div className={`wi-verdict-banner ${verdict.cls}`}>
         <div className="wi-verdict-banner-inner" style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div className="wi-verdict-icon">
-            {verdict.cls === "approved"  && <ShieldCheck size={28} />}
-            {verdict.cls === "review"    && <Search size={28} />}
+            {verdict.cls === "approved" && <ShieldCheck size={28} />}
+            {verdict.cls === "review" && <Search size={28} />}
             {verdict.cls === "high-risk" && <AlertTriangle size={28} />}
-            {verdict.cls === "rejected"  && <ShieldAlert size={28} />}
+            {verdict.cls === "rejected" && <ShieldAlert size={28} />}
           </div>
           <div>
             <div className="wi-verdict-title">{verdict.verdict}</div>
             <div className="wi-verdict-sub">
-              {verdict.cls === "approved"  && "This website meets the minimum onboarding requirements."}
-              {verdict.cls === "review"    && "This website needs to address a few issues before onboarding."}
+              {verdict.cls === "approved" && "This website meets the minimum onboarding requirements."}
+              {verdict.cls === "review" && "This website needs to address a few issues before onboarding."}
               {verdict.cls === "high-risk" && "Significant compliance gaps detected — review before proceeding."}
-              {verdict.cls === "rejected"  && "Critical compliance failures — cannot proceed with onboarding."}
+              {verdict.cls === "rejected" && "Critical compliance failures — cannot proceed with onboarding."}
             </div>
             <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
@@ -804,16 +804,16 @@ export default function CrawlerReportPage() {
       {/* ─── Score Overview ─── */}
       <div className="row g-3 mb-4 pdf-avoid-break">
         <div className="col-6 col-md-3">
-          <ScoreBar label="Onboarding Score"  score={report.scores?.compliance ?? 0} color="compliance" />
+          <ScoreBar label="Onboarding Score" score={report.scores?.compliance ?? 0} color="compliance" />
         </div>
         <div className="col-6 col-md-3">
-          <ScoreBar label="Risk Score"         score={report.scores?.risk ?? 0}        color="risk" />
+          <ScoreBar label="Risk Score" score={report.scores?.risk ?? 0} color="risk" />
         </div>
         <div className="col-6 col-md-3">
-          <ScoreBar label="Security Score"     score={report.scores?.security ?? 0}    color="security" />
+          <ScoreBar label="Security Score" score={report.scores?.security ?? 0} color="security" />
         </div>
         <div className="col-6 col-md-3">
-          <ScoreBar label="SEO Score"          score={report.scores?.seo ?? 0}         color="seo" />
+          <ScoreBar label="SEO Score" score={report.scores?.seo ?? 0} color="seo" />
         </div>
       </div>
 
@@ -831,16 +831,16 @@ export default function CrawlerReportPage() {
               />
             </div>
             <div className="wi-checklist">
-              <ChecklistItem label="Privacy Policy"         sub="Required by law for all merchants"          state={compSum.hasPrivacyPolicy  ? "found" : "missing"} />
-              <ChecklistItem label="Terms & Conditions"     sub="Governs merchant-user relationship"          state={compSum.hasTermsOfService ? "found" : "missing"} />
-              <ChecklistItem label="Refund & Return Policy" sub="Mandatory for payment gateway approval"      state={compSum.hasRefundPolicy   ? "found" : "missing"} />
-              <ChecklistItem label="About Us"               sub="Business identity and credibility"           state={hasAboutUs    ? "found" : "missing"} />
-              <ChecklistItem label="Contact Us"             sub="Customer support reachability"               state={hasContactUs  ? "found" : "missing"} />
-              <ChecklistItem label="Cancellation Policy"    sub="Verified separately or within refund policy" state={compSum.hasRefundPolicy ? "found" : "unverified"} />
-              <ChecklistItem label="Shipping & Delivery"    sub="Required for e-commerce merchants"           state="unverified" />
-              <ChecklistItem label="Cookie Policy"          sub="Required under DPDP / GDPR"                  state="unverified" />
-              <ChecklistItem label="FAQ Page"               sub="Improves customer trust"                     state={hasFAQ ? "found" : "unverified"} />
-              <ChecklistItem label="Sitemap"                sub="SEO & crawlability signal"                   state={hasSitemap ? "found" : "unverified"} />
+              <ChecklistItem label="Privacy Policy" sub="Required by law for all merchants" state={compSum.hasPrivacyPolicy ? "found" : "missing"} />
+              <ChecklistItem label="Terms & Conditions" sub="Governs merchant-user relationship" state={compSum.hasTermsOfService ? "found" : "missing"} />
+              <ChecklistItem label="Refund & Return Policy" sub="Mandatory for payment gateway approval" state={compSum.hasRefundPolicy ? "found" : "missing"} />
+              <ChecklistItem label="About Us" sub="Business identity and credibility" state={hasAboutUs ? "found" : "missing"} />
+              <ChecklistItem label="Contact Us" sub="Customer support reachability" state={hasContactUs ? "found" : "missing"} />
+              <ChecklistItem label="Cancellation Policy" sub="Verified separately or within refund policy" state={compSum.hasRefundPolicy ? "found" : "unverified"} />
+              <ChecklistItem label="Shipping & Delivery" sub="Required for e-commerce merchants" state="unverified" />
+              <ChecklistItem label="Cookie Policy" sub="Required under DPDP / GDPR" state="unverified" />
+              <ChecklistItem label="FAQ Page" sub="Improves customer trust" state={hasFAQ ? "found" : "unverified"} />
+              <ChecklistItem label="Sitemap" sub="SEO & crawlability signal" state={hasSitemap ? "found" : "unverified"} />
             </div>
           </div>
         </div>
@@ -862,15 +862,15 @@ export default function CrawlerReportPage() {
                   !report.ssl?.isValid
                     ? "No valid SSL detected"
                     : report.ssl.daysRemaining < 180
-                    ? `Warning: Expiring in ${report.ssl.daysRemaining} days (Below 180 days) · ${report.ssl.issuer}`
-                    : `Valid · ${report.ssl.daysRemaining} days remaining · ${report.ssl.issuer}`
+                      ? `Warning: Expiring in ${report.ssl.daysRemaining} days (Below 180 days) · ${report.ssl.issuer}`
+                      : `Valid · ${report.ssl.daysRemaining} days remaining · ${report.ssl.issuer}`
                 }
                 state={
                   !report.ssl?.isValid
                     ? "missing"
                     : report.ssl.daysRemaining < 180
-                    ? "warn"
-                    : "found"
+                      ? "warn"
+                      : "found"
                 }
               />
               <ChecklistItem
@@ -902,11 +902,11 @@ export default function CrawlerReportPage() {
                 <div style={{ background: "var(--wi-surface-2)", borderRadius: "var(--wi-radius-sm)", overflow: "hidden", border: "1px solid var(--wi-border)" }}>
                   <InfoCard label="Certificate Authority" value={report.ssl.issuer} />
                   <InfoCard label="Days Remaining" value={
-                    <span style={{ 
-                      color: report.ssl.daysRemaining >= 180 ? "var(--wi-success)" : "var(--wi-warning)", 
-                      fontWeight: 700 
+                    <span style={{
+                      color: report.ssl.daysRemaining >= 180 ? "var(--wi-success)" : "var(--wi-warning)",
+                      fontWeight: 700
                     }}>
-                      {report.ssl.daysRemaining} days {report.ssl.daysRemaining < 180 ? "⚠️ (Expiring Soon)" : ""}
+                      {report.ssl.daysRemaining} days {report.ssl.daysRemaining < 180 ? "(Expiring Soon)" : ""}
                     </span>
                   } />
                   <div className="wi-info-cell" style={{ borderBottom: "none" }}>
@@ -952,8 +952,8 @@ export default function CrawlerReportPage() {
                   allEmails.length === 0
                     ? "wi-contact-missing"
                     : allEmails.every(isGenericEmail)
-                    ? "wi-contact-warning"
-                    : "wi-contact-present"
+                      ? "wi-contact-warning"
+                      : "wi-contact-present"
                 } style={
                   allEmails.length > 0 && allEmails.every(isGenericEmail)
                     ? { background: "var(--wi-warning-bg)", color: "var(--wi-warning)", border: "1px solid var(--wi-warning-border)", padding: "0.2rem 0.55rem", borderRadius: "999px", fontSize: "0.72rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }
@@ -1067,10 +1067,10 @@ export default function CrawlerReportPage() {
               <SectionHeader icon={CreditCard} title="E-Commerce Verification" description="Online store and payment capability checks" />
             </div>
             <div className="wi-checklist">
-              <ChecklistItem label="Product / Service Catalog"   sub="Products or services clearly listed"   state={hasProductListing ? "found" : "unverified"} />
-              <ChecklistItem label="Shopping Cart / Checkout"    sub="E-commerce transaction capability"      state={hasCart ? "found" : "unverified"} />
-              <ChecklistItem label="Payment Methods Displayed"   sub="Accepted payment options shown"         state={hasPaymentInfo ? "found" : "unverified"} />
-              <ChecklistItem label="Order Tracking"              sub="Post-purchase tracking available"       state="unverified" />
+              <ChecklistItem label="Product / Service Catalog" sub="Products or services clearly listed" state={hasProductListing ? "found" : "unverified"} />
+              <ChecklistItem label="Shopping Cart / Checkout" sub="E-commerce transaction capability" state={hasCart ? "found" : "unverified"} />
+              <ChecklistItem label="Payment Methods Displayed" sub="Accepted payment options shown" state={hasPaymentInfo ? "found" : "unverified"} />
+              <ChecklistItem label="Order Tracking" sub="Post-purchase tracking available" state="unverified" />
             </div>
           </div>
         </div>
@@ -1085,15 +1085,15 @@ export default function CrawlerReportPage() {
               {(() => {
                 const techSum = report.technologySummary || {};
                 const allLangs = techSum.languages || [];
-                const feLangs  = ["HTML5","CSS3","JavaScript","TypeScript"];
-                const feItems  = [...allLangs.filter(l => feLangs.includes(l)), ...(techSum.frontendFrameworks||[]), ...(techSum.cssFrameworks||[])];
-                const beItems  = [...allLangs.filter(l => !feLangs.includes(l)), ...(techSum.backendFrameworks||[]), ...(techSum.webServers||[])];
-                const groups   = [
-                  { label: "Frontend",  items: [...new Set(feItems)] },
-                  { label: "Backend",   items: [...new Set(beItems)] },
-                  { label: "CMS",       items: techSum.cms       || [] },
+                const feLangs = ["HTML5", "CSS3", "JavaScript", "TypeScript"];
+                const feItems = [...allLangs.filter(l => feLangs.includes(l)), ...(techSum.frontendFrameworks || []), ...(techSum.cssFrameworks || [])];
+                const beItems = [...allLangs.filter(l => !feLangs.includes(l)), ...(techSum.backendFrameworks || []), ...(techSum.webServers || [])];
+                const groups = [
+                  { label: "Frontend", items: [...new Set(feItems)] },
+                  { label: "Backend", items: [...new Set(beItems)] },
+                  { label: "CMS", items: techSum.cms || [] },
                   { label: "Libraries", items: techSum.libraries || [] },
-                  { label: "Hosting",   items: techSum.hosting   || [] },
+                  { label: "Hosting", items: techSum.hosting || [] },
                 ].filter(g => g.items.length > 0);
 
                 if (groups.length === 0) return <EmptyState icon={Server} title="No technologies detected" description="No specific frameworks matched." />;
@@ -1134,10 +1134,9 @@ export default function CrawlerReportPage() {
             <span style={{ fontSize: "0.8rem", color: "var(--wi-text-muted)" }}>
               Overall Status:
             </span>
-            <span className={`wi-badge ${
-              overallFormHealth === "PASS" ? "wi-badge-success" :
-              overallFormHealth === "FAIL" ? "wi-badge-danger" : "wi-badge-neutral"
-            }`} style={{ fontWeight: 700, letterSpacing: "0.5px" }}>
+            <span className={`wi-badge ${overallFormHealth === "PASS" ? "wi-badge-success" :
+                overallFormHealth === "FAIL" ? "wi-badge-danger" : "wi-badge-neutral"
+              }`} style={{ fontWeight: 700, letterSpacing: "0.5px" }}>
               {overallFormHealth}
             </span>
           </div>
@@ -1355,7 +1354,7 @@ export default function CrawlerReportPage() {
                     borderLeft: `3px solid ${item.sev === "high" ? "var(--wi-danger)" : item.sev === "medium" ? "var(--wi-warning)" : "var(--wi-info)"}`,
                   }}>
                     <div className={`wi-missing-item-icon ${item.sev}`}>
-                      {item.sev === "high"   ? <XCircle size={14} /> : <AlertCircle size={14} />}
+                      {item.sev === "high" ? <XCircle size={14} /> : <AlertCircle size={14} />}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div className="wi-missing-item-name">{item.name}</div>
@@ -1387,10 +1386,10 @@ export default function CrawlerReportPage() {
       {/* ─── Quick Navigation to sub-reports ─── */}
       <div className="row g-3 mb-4 no-print">
         {[
-          { label: "Risk Analysis",     desc: "Security threats, phishing flags, vulnerabilities",     icon: Shield,       path: `/crawler/report/${id}/risk`,       color: "var(--wi-danger)" },
-          { label: "SEO Audit",         desc: "Headings, meta tags, canonical links, alt attributes",  icon: Search,       path: `/crawler/report/${id}/seo`,        color: "var(--wi-info)" },
-          { label: "Compliance Review", desc: "Full policy document and clause analysis",              icon: CheckCircle,  path: `/crawler/report/${id}/compliance`,  color: "var(--wi-success)" },
-          { label: "Pages Map",         desc: "All crawled pages and their URLs",                      icon: Layers,       path: `/crawler/report/${id}/pages`,       color: "var(--wi-accent)" },
+          { label: "Risk Analysis", desc: "Security threats, phishing flags, vulnerabilities", icon: Shield, path: `/crawler/report/${id}/risk`, color: "var(--wi-danger)" },
+          { label: "SEO Audit", desc: "Headings, meta tags, canonical links, alt attributes", icon: Search, path: `/crawler/report/${id}/seo`, color: "var(--wi-info)" },
+          { label: "Compliance Review", desc: "Full policy document and clause analysis", icon: CheckCircle, path: `/crawler/report/${id}/compliance`, color: "var(--wi-success)" },
+          { label: "Pages Map", desc: "All crawled pages and their URLs", icon: Layers, path: `/crawler/report/${id}/pages`, color: "var(--wi-accent)" },
         ].map(({ label, desc, icon: Icon, path, color }) => (
           <div className="col-md-6 col-lg-3" key={label}>
             <div className="wi-card" style={{ cursor: "pointer", padding: "1.25rem" }} onClick={() => navigate(path)}>

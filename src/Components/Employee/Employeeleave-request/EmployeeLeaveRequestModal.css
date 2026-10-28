@@ -338,32 +338,156 @@
     font-size: 13px;
   }
 }
+/* CANCEL CONFIRMATION POPUP */
 .cancel-validation-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2.5px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000; /* above .employee-leave-overlay content */
+  animation: cancelFadeIn 0.18s ease-out;
 }
 
-.cancel-validation-modal  {
+@keyframes cancelFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cancelPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.cancel-validation-modal {
   background: #ffffff;
+  border-radius: 12px;
+  padding: 22px 24px;
+  max-width: 440px;
+  width: 92%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  animation: cancelPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.cancel-validation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.cancel-validation-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cancel-validation-icon-badge {
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
-  padding: 20px 24px;
-  max-width: 400px;
-  font-size: 12px;
-  width: 100%;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-.cancel-validation-modals{
+  background: #fee2e2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
-  size:bold;
+  font-weight: 700;
+  flex-shrink: 0;
 }
+
+.cancel-validation-modals {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.cancel-validation-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  color: #94a3b8;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.cancel-validation-close-btn:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cancel-validation-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.cancel-validation-reason-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.cancel-validation-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cancel-validation-req {
+  color: #ef4444;
+}
+
+.cancel-validation-textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #1e293b;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 84px;
+  max-height: 160px;
+  outline: none;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.cancel-validation-textarea:focus {
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
 .cancel-validation-actions {
-  margin-top: 16px;
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
 }

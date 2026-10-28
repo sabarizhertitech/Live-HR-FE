@@ -170,6 +170,10 @@
   padding-top: 14px;
 }
 
+.project-filter-actions .common-modal-btn {
+  min-width: 90px;
+}
+
 /* ── Table Styling ── */
 .project-category-tag {
   display: inline-block;
@@ -224,24 +228,156 @@
 }
 
 /* ── Responsive adjustments ── */
+@media (max-width: 992px) {
+  .project-details-filter-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+}
+
 @media (max-width: 768px) {
+  .project-details-page-header {
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+
+  .project-details-page-subtitle {
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+
+  .project-details-stats-badge {
+    padding: 4px 12px;
+    font-size: 11.5px;
+    align-self: flex-start;
+  }
+
+  /* Keep search box and filter button on the SAME ROW */
   .project-details-top-controls {
-    flex-direction: column;
-    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    border-radius: 10px;
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .project-details-search-box {
-    max-width: 100%;
-    min-width: 100%;
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
+    height: 38px;
+    padding: 0 10px;
+    box-sizing: border-box;
+  }
+
+  .project-details-search-box input {
+    font-size: 12.5px;
+    width: 100%;
+    min-width: 0;
   }
 
   .project-details-right-actions {
-    justify-content: space-between;
+    flex: 0 0 auto;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Filter panel */
+  .project-details-filter-panel {
+    padding: 14px 14px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    box-sizing: border-box;
     width: 100%;
   }
 
   .project-details-filter-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .project-filter-field {
+    width: 100%;
+  }
+
+  .project-filter-label {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .project-filter-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    box-sizing: border-box;
+    justify-content: space-between;
+  }
+
+  .project-filter-actions button,
+  .project-filter-actions .common-modal-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 38px !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-details-top-controls {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .project-details-search-box {
+    height: 36px;
+    padding: 0 8px;
+  }
+
+  .project-details-search-box input {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+
+  .project-details-filter-panel {
+    padding: 12px 12px;
+  }
+
+  .project-details-filter-grid {
+    gap: 10px;
+  }
+
+  .project-filter-label {
+    font-size: 11.5px;
+  }
+
+  .project-filter-actions {
+    margin-top: 12px;
+    padding-top: 10px;
+    gap: 8px;
+  }
+
+  .project-filter-actions button,
+  .project-filter-actions .common-modal-btn {
+    height: 36px !important;
+    font-size: 12.5px !important;
+    padding: 6px 10px !important;
   }
 }
 

@@ -1822,17 +1822,29 @@ const AdminDashboard = () => {
           {/* ── Employee Birthday Celebration Card ── */}
           {todayBirthdays.length > 0 && (
             <div className="admin-birthday-card">
-              {/* Background Floating Low-Opacity Balloons */}
-              <div className="admin-birthday-card__bg-balloon b1">🎈</div>
-              <div className="admin-birthday-card__bg-balloon b2">🎈</div>
-              <div className="admin-birthday-card__bg-balloon b3">🎈</div>
-              <div className="admin-birthday-card__bg-balloon b4">🎈</div>
-              <div className="admin-birthday-card__bg-balloon b5">🎈</div>
-
-              {/* Background Floating Decorative Particles */}
-              <div className="admin-birthday-card__bg-particle p1">✨</div>
-              <div className="admin-birthday-card__bg-particle p2">🌟</div>
-              <div className="admin-birthday-card__bg-particle p3">🎊</div>
+              {/* Background Floating Festive Elements: Balloons, Cakes, Birthday Caps, Poppers, Candies */}
+              <div className="admin-birthday-card__bg-item b1" title="Balloon">{"\u{1F388}"}</div>
+              <div className="admin-birthday-card__bg-item b2" title="Cake">{"\u{1F382}"}</div>
+              <div className="admin-birthday-card__bg-item b3" title="Birthday Cap">{"\u{1F973}"}</div>
+              <div className="admin-birthday-card__bg-item b4" title="Popper">{"\u{1F389}"}</div>
+              <div className="admin-birthday-card__bg-item b5" title="Candy">{"\u{1F36C}"}</div>
+              <div className="admin-birthday-card__bg-item b6" title="Lollipop">{"\u{1F36D}"}</div>
+              <div className="admin-birthday-card__bg-item b7" title="Balloon">{"\u{1F388}"}</div>
+              <div className="admin-birthday-card__bg-item b8" title="Cake Slice">{"\u{1F370}"}</div>
+              <div className="admin-birthday-card__bg-item b9" title="Party Cap">
+                <svg width="28" height="28" viewBox="0 0 36 36" fill="none" style={{ verticalAlign: "middle" }}>
+                  <path d="M18 4L6 31C6 31 12 33 18 33C24 33 30 31 30 31L18 4Z" fill="#F43F5E" />
+                  <path d="M12.5 16.5L8.2 26C11 27 14.5 27.5 18 27.5C21.5 27.5 25 27 27.8 26L23.5 16.5H12.5Z" fill="#FBBF24" />
+                  <path d="M15 10.5L13.5 14H22.5L21 10.5H15Z" fill="#60A5FA" />
+                  <circle cx="18" cy="4" r="3.5" fill="#FBBF24" />
+                  <circle cx="13" cy="22" r="1.5" fill="#FFFFFF" />
+                  <circle cx="18" cy="20" r="1.5" fill="#FFFFFF" />
+                  <circle cx="23" cy="22" r="1.5" fill="#FFFFFF" />
+                </svg>
+              </div>
+              <div className="admin-birthday-card__bg-item b10" title="Confetti Popper">{"\u{1F38A}"}</div>
+              <div className="admin-birthday-card__bg-item b11" title="Birthday Cake">{"\u{1F382}"}</div>
+              <div className="admin-birthday-card__bg-item b12" title="Candy">{"\u{1F36C}"}</div>
 
               <div className="admin-birthday-card__header">
                 <div className="admin-birthday-card__icon-badge">

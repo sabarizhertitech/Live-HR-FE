@@ -34,6 +34,7 @@ function StateAssign({ onClose, editData }) {
   const [showCcList, setShowCcList] = useState(false);
   const [showRequestTypeList, setShowRequestTypeList] = useState(false);
   const [searchCc, setSearchCc] = useState("");
+  const [isPointByPoint, setIsPointByPoint] = useState(false);
 
   // Base form
   const [formData, setFormData] = useState({
@@ -108,6 +109,10 @@ function StateAssign({ onClose, editData }) {
   // ─── Initialize for Edit Mode ──────────────────────────────────────
   useEffect(() => {
     if (editData) {
+      const desc = editData.description || "";
+      const hasPoints = /(^|\n)[•\-\*]\s/.test(desc);
+      setIsPointByPoint(hasPoints);
+
       setFormData({
         title: editData.title || "",
         description: editData.description || "",
@@ -170,6 +175,126 @@ function StateAssign({ onClose, editData }) {
   // ─── Handlers ────────────────────────────────────────────────────────
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const formatToNumberedPoints = (text) => {
+    if (!text || !text.trim()) return "• ";
+    const rawLines = text.split("\n");
+    const cleaned = rawLines
+      .map((line) => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    if (cleaned.length === 0) return "• ";
+    return cleaned.map((line) => `• ${line}`).join("\n");
+  };
+
+  const removeNumberedPoints = (text) => {
+    if (!text) return "";
+    return text
+      .split("\n")
+      .map((line) => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const handleTogglePointByPoint = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setIsPointByPoint((prevMode) => {
+      const nextMode = !prevMode;
+      const currentDesc = formData.description || "";
+      if (nextMode) {
+        setFormData((prev) => ({
+          ...prev,
+          description: formatToNumberedPoints(currentDesc),
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          description: removeNumberedPoints(currentDesc),
+        }));
+      }
+      return nextMode;
+    });
+  };
+
+  const handleDescriptionKeyDown = (e) => {
+    if (!isPointByPoint) return;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const textarea = e.target;
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      const textBeforeCursor = value.substring(0, selectionStart);
+      const textAfterCursor = value.substring(selectionEnd);
+
+      const linesBefore = textBeforeCursor.split("\n");
+      const currentLine = linesBefore[linesBefore.length - 1];
+
+      const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*(.*)$/);
+
+      if (match) {
+        const content = match[2];
+
+        if (!content.trim()) {
+          const newLines = linesBefore.slice(0, -1);
+          const newBefore = newLines.length > 0 ? newLines.join("\n") + "\n" : "";
+          const newText = newBefore + textAfterCursor;
+          setFormData((prev) => ({ ...prev, description: newText }));
+          setTimeout(() => {
+            textarea.selectionStart = textarea.selectionEnd = newBefore.length;
+          }, 0);
+          return;
+        }
+
+        const insertion = "\n• ";
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        setFormData((prev) => ({ ...prev, description: newText }));
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      } else {
+        const insertion = "\n• ";
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        setFormData((prev) => ({ ...prev, description: newText }));
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      }
+    }
+  };
+
+  const handleDescriptionPaste = (e) => {
+    if (!isPointByPoint) return;
+
+    const pastedText = e.clipboardData?.getData("text");
+    if (!pastedText || !pastedText.includes("\n")) return;
+
+    e.preventDefault();
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const textBefore = value.substring(0, selectionStart);
+    const textAfter = value.substring(selectionEnd);
+
+    const pastedLines = pastedText
+      .split("\n")
+      .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    const formattedPaste = pastedLines
+      .map((line) => `• ${line}`)
+      .join("\n");
+
+    const newText = textBefore + formattedPaste + textAfter;
+    setFormData((prev) => ({ ...prev, description: newText }));
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = (textBefore + formattedPaste).length;
+    }, 0);
+  };
 
   const handleRequestDataChange = (e) =>
     setRequestData({ ...requestData, [e.target.name]: e.target.value });
@@ -346,14 +471,48 @@ function StateAssign({ onClose, editData }) {
 
             {/* Description */}
             <div className="security-maker-form-group">
-              <label>
-                Description *
-              </label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                <label >Description *</label>
+                <div
+                  onClick={handleTogglePointByPoint}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    fontSize: "12px",
+                    fontWeight: "500",
+                    color: isPointByPoint ? "#5977f8" : "#77728e",
+                    cursor: "pointer",
+                    userSelect: "none",
+                    margin: 0
+                  }}
+                  title="Format description as bullet points (• Point)"
+                >
+                  <input
+                    type="radio"
+                    name="stateAssignPointByPoint"
+                    checked={isPointByPoint}
+                    readOnly
+                    tabIndex={-1}
+                    style={{
+                      cursor: "pointer",
+                      accentColor: "#5977f8",
+                      width: "13px",
+                      height: "13px",
+                      margin: 0,
+                      pointerEvents: "none"
+                    }}
+                  />
+                  <span>Point by Point</span>
+                </div>
+              </div>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe this request..."
+                onKeyDown={handleDescriptionKeyDown}
+                onPaste={handleDescriptionPaste}
+                placeholder={isPointByPoint ? "• Enter first point..." : "Describe this request..."}
                 style={{ minHeight: "90px" }}
               />
             </div>

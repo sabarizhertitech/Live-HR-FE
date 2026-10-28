@@ -12,6 +12,7 @@ import { Icon } from "@iconify/react";
 import { useUser } from "../../UserContext";
 import { FaTimesCircle, FaCheckCircle, FaExclamationCircle, FaEye } from "react-icons/fa";
 import { checkProfileRestriction } from "../../../utils/profileCompletionRestriction";
+import { canHrEditEmployee, canHrDeleteDocuments, isHrUser, isAdminUser } from "../../../utils/hrAccessHelper";
 
 /* ================= STATUS CLASS ================= */
 const getStatusClass = (status = "") =>
@@ -111,12 +112,26 @@ const getFieldFriendlyName = (fieldId) => {
     careerGaps: "Career Gap Details",
     degreeCertificate: "Degree / Diploma Certificate",
     courses: "College / Degree Details",
+    professionalCertifications: "Professional Certifications",
     aadhaarFile: "Masked Aadhaar Card",
     panFile: "PAN Card Document",
     picture: "Profile Photo",
     passbookFile: "Bank Passbook Document",
   };
-  return legacyMap[fieldId] || fieldId;
+  if (legacyMap[fieldId]) return legacyMap[fieldId];
+  if (typeof fieldId === "string") {
+    if (fieldId.startsWith("courses.") || fieldId.startsWith("course_")) {
+      const match = fieldId.match(/courses\.(\d+)/) || fieldId.match(/course_(\d+)/);
+      const idx = match ? parseInt(match[1], 10) + 1 : "";
+      return idx ? `Course Certificate #${idx}` : "Course Certificate";
+    }
+    if (fieldId.startsWith("professionalCertifications.") || fieldId.startsWith("prof_cert_")) {
+      const match = fieldId.match(/professionalCertifications\.(\d+)/) || fieldId.match(/prof_cert_(\d+)/);
+      const idx = match ? parseInt(match[1], 10) + 1 : "";
+      return idx ? `Professional Certificate #${idx}` : "Professional Certificate";
+    }
+  }
+  return fieldId;
 };
 
 const EmployeeDetails = ({ isAdmin = false }) => {
@@ -124,7 +139,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   const location = useLocation();
   const { empId } = useParams();
   const { user, setUser } = useUser();
-  const isPrivileged = isAdmin || user?.role === "admin" || Boolean(user?.isHr);
+  const isDesignatedHr = isHrUser(user);
+  const isHrRestrictedFromEdit = isDesignatedHr && !canHrEditEmployee(user);
+  const effectiveIsAdmin = isAdminUser(user) || (isAdmin && !isHrRestrictedFromEdit);
+  const isPrivileged = isAdminUser(user) || (isAdmin && !isHrRestrictedFromEdit) || (isDesignatedHr && !isHrRestrictedFromEdit);
 
   /* ================= STATE ================= */
   const [originalData, setOriginalData] = useState(null);
@@ -362,6 +380,9 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
   const handleCertFileChange = (index, file, target) => {
     markFieldAsUpdated("courses");
+    markFieldAsUpdated("professionalCertifications");
+    markFieldAsUpdated(`professionalCertifications.${index}.certificate`);
+    markFieldAsUpdated(`prof_cert_${index}`);
     if (!file) {
       const updated = [...certifications];
       updated[index] = { ...updated[index], certificateFile: null };
@@ -382,6 +403,21 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     const updated = [...certifications];
     updated[index] = { ...updated[index], certificateFile: file };
     setCertifications(updated);
+
+    const previewUrl = URL.createObjectURL(file);
+    const certId = certifications[index]?.id || certifications[index]?._id;
+    setFilePreviews((prev) => {
+      const keyIndex = `cert_${index}_certificate`;
+      const keyId = certId ? `cert_${certId}_certificate` : null;
+      if (prev[keyIndex]?.startsWith("blob:")) {
+        URL.revokeObjectURL(prev[keyIndex]);
+      }
+      return {
+        ...prev,
+        [keyIndex]: previewUrl,
+        ...(keyId ? { [keyId]: previewUrl } : {}),
+      };
+    });
   };
 
   useEffect(() => {
@@ -706,6 +742,18 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       ) {
         return true;
       }
+      if (canonical.startsWith("courses.") || canonical.startsWith("course_")) {
+        const m = canonical.match(/courses\.(\d+)/) || canonical.match(/course_(\d+)/);
+        const idx = m ? parseInt(m[1], 10) : 0;
+        if (formData.courses?.[idx]?.certificate instanceof File) return true;
+        if (formData.courses?.some((c) => c && c.certificate instanceof File)) return true;
+      }
+      if (canonical.startsWith("professionalCertifications.") || canonical.startsWith("prof_cert_") || canonical === "professionalCertifications") {
+        const m = canonical.match(/professionalCertifications\.(\d+)/) || canonical.match(/prof_cert_(\d+)/);
+        const idx = m ? parseInt(m[1], 10) : 0;
+        if (certifications?.[idx]?.certificateFile instanceof File) return true;
+        if (certifications?.some((c) => c && c.certificateFile instanceof File)) return true;
+      }
       if (canonical === "aadhaarFile" && formData.aadhaarFile instanceof File) return true;
       if (canonical === "panFile" && formData.panFile instanceof File) return true;
       if (canonical === "passbookFile" && formData.passbookFile instanceof File) return true;
@@ -729,7 +777,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
       return false;
     },
-    [updatedFields, formData, originalData]
+    [updatedFields, formData, originalData, certifications]
   );
 
   // Normalize, deduplicate, and exclude any field already updated by employee
@@ -1058,6 +1106,21 @@ const EmployeeDetails = ({ isAdmin = false }) => {
           });
         }
 
+        if (emp.professionalCertifications && Array.isArray(emp.professionalCertifications)) {
+          emp.professionalCertifications.forEach((cert, idx) => {
+            const certId =
+              cert.id ||
+              (cert._id ? cert._id.toString?.() ?? String(cert._id) : null);
+            const url = cert.certificateUrl || (typeof cert.certificate === "string" ? cert.certificate : null);
+            if (url) {
+              previews[`cert_${idx}_certificate`] = url;
+              if (certId) {
+                previews[`cert_${certId}_certificate`] = url;
+              }
+            }
+          });
+        }
+
         setFilePreviews(previews);
 
         const backendCourses = emp.courses || [];
@@ -1211,11 +1274,25 @@ const EmployeeDetails = ({ isAdmin = false }) => {
         const targetId = `field-wrapper-${field}`;
         let element = document.getElementById(targetId);
 
-        if (!element && (field === "degreeCertificate" || field === "courses")) {
+        if (!element && (field === "degreeCertificate" || field === "courses" || String(field).startsWith("courses.") || String(field).startsWith("course_"))) {
+          const m = String(field).match(/courses\.(\d+)/) || String(field).match(/course_(\d+)/);
+          const idx = m ? m[1] : "0";
           element =
+            document.getElementById(`field-wrapper-courses.${idx}.certificate`) ||
+            document.getElementById(`field-wrapper-courses-${idx}-certificate`) ||
+            document.getElementById(`field-wrapper-course-certificate-${idx}`) ||
+            (idx === "0" ? document.getElementById("field-wrapper-degreeCertificate") : null) ||
             document.getElementById("field-wrapper-degreeCertificate") ||
             document.getElementById("field-wrapper-courses") ||
             document.querySelector(".employeedetails-courses-section");
+        } else if (!element && (field === "professionalCertifications" || String(field).startsWith("professionalCertifications.") || String(field).startsWith("prof_cert_"))) {
+          const m = String(field).match(/professionalCertifications\.(\d+)/) || String(field).match(/prof_cert_(\d+)/);
+          const idx = m ? m[1] : "0";
+          element =
+            document.getElementById(`field-wrapper-professionalCertifications.${idx}.certificate`) ||
+            document.getElementById(`field-wrapper-professionalCertifications-${idx}-certificate`) ||
+            document.getElementById(`field-wrapper-prof-cert-${idx}`) ||
+            document.querySelector(".employeedetails-certifications-section");
         }
 
         if (element) {
@@ -1265,11 +1342,25 @@ const EmployeeDetails = ({ isAdmin = false }) => {
           target = document.getElementById("field-wrapper-marksheet10") || document.getElementById("field-wrapper-school10");
         } else if (fieldId === "certificate12" || fieldId === "marksheet12") {
           target = document.getElementById("field-wrapper-marksheet12") || document.getElementById("field-wrapper-school12");
-        } else if (fieldId === "degreeCertificate" || fieldId === "courses") {
+        } else if (fieldId.startsWith("courses.") || fieldId.startsWith("course_") || fieldId === "degreeCertificate" || fieldId === "courses") {
+          const match = fieldId.match(/courses\.(\d+)/) || fieldId.match(/course_(\d+)/);
+          const idx = match ? match[1] : "0";
           target =
+            document.getElementById(`field-wrapper-courses.${idx}.certificate`) ||
+            document.getElementById(`field-wrapper-courses-${idx}-certificate`) ||
+            document.getElementById(`field-wrapper-course-certificate-${idx}`) ||
+            (idx === "0" ? document.getElementById("field-wrapper-degreeCertificate") : null) ||
             document.getElementById("field-wrapper-degreeCertificate") ||
             document.getElementById("field-wrapper-courses") ||
             document.querySelector(".employeedetails-courses-section");
+        } else if (fieldId.startsWith("professionalCertifications.") || fieldId.startsWith("prof_cert_") || fieldId === "professionalCertifications") {
+          const match = fieldId.match(/professionalCertifications\.(\d+)/) || fieldId.match(/prof_cert_(\d+)/);
+          const idx = match ? match[1] : "0";
+          target =
+            document.getElementById(`field-wrapper-professionalCertifications.${idx}.certificate`) ||
+            document.getElementById(`field-wrapper-professionalCertifications-${idx}-certificate`) ||
+            document.getElementById(`field-wrapper-prof-cert-${idx}`) ||
+            document.querySelector(".employeedetails-certifications-section");
         } else if (fieldId === "education") {
           target =
             document.getElementById("field-wrapper-marksheet10") ||
@@ -2076,6 +2167,8 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
     markFieldAsUpdated("degreeCertificate");
     markFieldAsUpdated("courses");
+    markFieldAsUpdated(`courses.${index}.certificate`);
+    markFieldAsUpdated(`course_${index}`);
 
     setFormData((prev) => {
       const updatedCourses = [...prev.courses];
@@ -2147,10 +2240,17 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     if (field === "certificate10" && (rejectedFields.includes("marksheet10") || rejectedFields.includes("certificate10"))) return true;
     if (field === "marksheet12" && (rejectedFields.includes("certificate12") || rejectedFields.includes("marksheet12"))) return true;
     if (field === "certificate12" && (rejectedFields.includes("marksheet12") || rejectedFields.includes("certificate12"))) return true;
-    if ((field === "degreeCertificate" || field === "courses") && (rejectedFields.includes("degreeCertificate") || rejectedFields.includes("courses"))) return true;
+    if (
+      (field === "degreeCertificate" || field === "courses" || String(field).startsWith("course_") || String(field).startsWith("courses.")) &&
+      (rejectedFields.includes("degreeCertificate") || rejectedFields.includes("courses") || rejectedFields.some((rf) => String(rf).startsWith("course_") || String(rf).startsWith("courses.")))
+    ) return true;
+    if (
+      (field === "professionalCertifications" || String(field).startsWith("prof_cert_") || String(field).startsWith("professionalCertifications.")) &&
+      (rejectedFields.includes("professionalCertifications") || rejectedFields.some((rf) => String(rf).startsWith("prof_cert_") || String(rf).startsWith("professionalCertifications.")))
+    ) return true;
     if (rejectedFields.includes("kyc") && ["aadhaarNo", "panNo", "aadhaarFile", "panFile"].includes(field)) return true;
     if (rejectedFields.includes("bank") && ["bankName", "accountHolder", "accountNumber", "ifscCode", "branch", "passbookFile"].includes(field)) return true;
-    if (rejectedFields.includes("education") && ["school10", "marks10", "marksheet10", "certificate10", "passedOutYear10", "school12", "marks12", "marksheet12", "certificate12", "passedOutYear12", "careerGaps", "educationPath", "courses", "degreeCertificate"].includes(field)) return true;
+    if (rejectedFields.includes("education") && ["school10", "marks10", "marksheet10", "certificate10", "passedOutYear10", "school12", "marks12", "marksheet12", "certificate12", "passedOutYear12", "careerGaps", "educationPath", "courses", "degreeCertificate", "professionalCertifications"].includes(field)) return true;
     if (rejectedFields.includes("personal") && ["dob", "gender", "phone", "emergencyContact", "bloodGroup", "address"].includes(field)) return true;
     if (rejectedFields.includes("family") && ["fatherName", "motherName", "fatherOccupation", "motherOccupation", "siblings"].includes(field)) return true;
     if (rejectedFields.includes("working") && ["previousExperiences", "department", "designation", "experience"].includes(field)) return true;
@@ -2158,6 +2258,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
   };
 
   const canEditField = (field) => {
+    if (isHrRestrictedFromEdit) {
+      return false;
+    }
+
     if (isPrivileged) {
       return true;
     }
@@ -2211,19 +2315,33 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       "school12", "marks12", "marksheet12", "certificate12", "passedOutYear12",
       "educationPath", "careerGaps",
     ],
-    courses: ["courses", "degreeCertificate"],
+    courses: ["courses", "degreeCertificate", "professionalCertifications"],
     kyc: ["aadhaarNo", "panNo", "aadhaarFile", "panFile"],
     pf: ["pfNo", "uanNo"],
     bank: ["bankName", "accountHolder", "accountNumber", "ifscCode", "branch", "toDate", "passbookFile"],
-    documents: ["picture", "aadhaarFile", "panFile", "marksheet10", "marksheet12", "courses", "degreeCertificate", "passbookFile"],
+    documents: ["picture"],
   };
+
+  const isRejectedMode = Boolean(
+    !effectiveIsAdmin &&
+    approvalStatus === "rejected" &&
+    rejectedFields &&
+    rejectedFields.length > 0 &&
+    !rejectedFields.includes("ALL")
+  );
 
   const getVisibleSections = () => {
     if (!permissionsLoaded) return [];
 
-    if (isPrivileged) return Object.keys(sectionFieldMap);
+    if (isPrivileged || isHrRestrictedFromEdit) return Object.keys(sectionFieldMap);
 
     if (approvalStatus === "rejected") {
+      if (rejectedFields && rejectedFields.length > 0 && !rejectedFields.includes("ALL")) {
+        return Object.keys(sectionFieldMap).filter((section) =>
+          rejectedFields.includes(section) ||
+          sectionFieldMap[section].some((field) => isFieldRejected(field))
+        );
+      }
       return Object.keys(sectionFieldMap);
     }
 
@@ -2481,7 +2599,13 @@ const EmployeeDetails = ({ isAdmin = false }) => {
       return;
     }
 
-    if (!isAdmin && !canEditProfile) {
+    if (isHrRestrictedFromEdit) {
+      showErrorModal("Permission Denied", "Direct editing of employee details is disabled for HR by Administrator Configuration.");
+      toast.warning("Direct editing of employee details is disabled for HR by Administrator Configuration.");
+      return;
+    }
+
+    if (!effectiveIsAdmin && !canEditProfile) {
       showErrorModal("Permission Denied", editMessage || "Permission denied");
       return;
     }
@@ -2942,6 +3066,89 @@ const EmployeeDetails = ({ isAdmin = false }) => {
     );
   };
 
+  const renderCertFilePreview = (certIndex) => {
+    const cert = certifications[certIndex];
+    if (!cert) return null;
+
+    let previewUrl = null;
+    let isPdf = false;
+
+    if (cert.certificateFile instanceof File) {
+      previewUrl = URL.createObjectURL(cert.certificateFile);
+      isPdf = cert.certificateFile.type === "application/pdf";
+    } else if (filePreviews[`cert_${cert.id}_certificate`]) {
+      previewUrl = filePreviews[`cert_${cert.id}_certificate`];
+    } else if (filePreviews[`cert_${cert._id}_certificate`]) {
+      previewUrl = filePreviews[`cert_${cert._id}_certificate`];
+    } else if (filePreviews[`cert_${certIndex}_certificate`]) {
+      previewUrl = filePreviews[`cert_${certIndex}_certificate`];
+    } else if (cert.certificateUrl) {
+      previewUrl = cert.certificateUrl;
+    } else if (typeof cert.certificate === "string" && cert.certificate) {
+      previewUrl = cert.certificate;
+    }
+
+    if (!previewUrl) return null;
+
+    if (!isPdf && /\.pdf/i.test(previewUrl.split("?")[0])) {
+      isPdf = true;
+    }
+
+    const isImage =
+      !isPdf &&
+      (previewUrl.startsWith("blob:") ||
+        /\.(jpeg|jpg|gif|png|webp|bmp|svg)/i.test(previewUrl.split("?")[0]));
+
+    return (
+      <div className="employeedetails-file-preview-container" style={{ marginTop: "10px" }}>
+        <small className="employeedetails-text-muted">Certificate Preview:</small>
+        <div className="employeedetails-file-preview">
+          {isImage ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <img
+                src={previewUrl}
+                alt="Certification"
+                className="employeedetails-img-thumbnail"
+                style={{ maxHeight: "120px", maxWidth: "180px", objectFit: "contain", borderRadius: "6px", border: "1px solid #e5e7eb" }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  const fallback = e.target.nextSibling;
+                  if (fallback) fallback.style.display = "flex";
+                }}
+              />
+              <div
+                className="employeedetails-document-preview"
+                style={{ display: "none" }}
+              >
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="employeedetails-text-primary"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                >
+                  📄 View Certificate
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="employeedetails-document-preview">
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="employeedetails-text-primary"
+                style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+              >
+                📄 View Certificate
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const handlePhoneKeyDown = (e) => {
     const allowedKeys = [
       "Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"
@@ -3109,7 +3316,13 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                         <strong className="text-secondary small">Required Correction:</strong>{" "}
                         <div className="d-flex flex-wrap gap-2 mt-2">
                           {displayRejectedFields.map((f, i) => (
-                            <div key={i} className="rejected-field-pill d-inline-flex align-items-center gap-2 px-3 py-1 rounded border">
+                            <div
+                              key={i}
+                              className="rejected-field-pill d-inline-flex align-items-center gap-2 px-3 py-1 rounded border"
+                              style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                              onClick={() => scrollToTargetRejectedField(f)}
+                              title={`Click to scroll to and update ${getFieldFriendlyName(f)}`}
+                            >
                               <span className="rejected-pill-label fw-semibold text-danger">
                                 {getFieldFriendlyName(f)}
                               </span>
@@ -3117,7 +3330,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                 type="button"
                                 className="btn-reject-view"
                                 style={{ fontSize: "12px", height: "26px", fontWeight: "500", borderRadius: "14px" }}
-                                onClick={() => scrollToTargetRejectedField(f)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  scrollToTargetRejectedField(f);
+                                }}
                                 title={`Scroll to and inspect ${getFieldFriendlyName(f)}`}
                               >
                                 <FaEye className="me-1" /> View File
@@ -3221,6 +3437,33 @@ const EmployeeDetails = ({ isAdmin = false }) => {
               </div>
             )}
 
+            {isHrRestrictedFromEdit && (
+              <div
+                style={{
+                  background: "#fffbeb",
+                  border: "1px solid #fcd34d",
+                  borderRadius: "8px",
+                  padding: "14px 20px",
+                  marginBottom: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  color: "#b45309",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+                }}
+              >
+                <span style={{ fontSize: "20px" }}>🔒</span>
+                <div>
+                  <div>Read-Only Access (HR Direct Edit Disabled)</div>
+                  <div style={{ fontSize: "13px", fontWeight: "400", color: "#92400e", marginTop: "2px" }}>
+                    Administrator has configured HR permissions with Direct Edit disabled. Profile details are in view-only mode.
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* ===== BASIC DETAILS ===== */}
             {visibleSections.includes("basic") && (
               <>
@@ -3231,7 +3474,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                   <LockedField
                     label="Name"
                     value={formData.name}
-                    editable={isAdmin}
+                    editable={effectiveIsAdmin}
                     visible={canEditField("name")}
                     onChange={(v) => handleChange("name", v)}
                   />
@@ -3239,12 +3482,12 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                   <LockedField
                     label="Email"
                     value={formData.email}
-                    editable={isAdmin}
+                    editable={effectiveIsAdmin}
                     visible={canEditField("email")}
                     onChange={(v) => handleChange("email", v)}
                   />
 
-                  {isAdmin ? (
+                  {effectiveIsAdmin ? (
                     <DetailSelect
                       id="field-wrapper-status"
                       label="Status"
@@ -3259,10 +3502,10 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                       visible={canEditField("status")}
                     />
                   ) : (
-                    <LockedField id="field-wrapper-status" label="Status" value={formData.status} editable={false} visible={canEditField("status")} />
+                    <LockedField id="field-wrapper-status" label="Status" value={formData.status} editable={false} visible={true} />
                   )}
 
-                  {isAdmin && (formData.status === "relieved" || formData.dateRelieved) && (
+                  {effectiveIsAdmin && (formData.status === "relieved" || formData.dateRelieved) && (
                     <DetailInput
                       type="date"
                       label="Date Relieved"
@@ -3548,7 +3791,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     <LockedField
                       label="Department"
                       value={formData.department}
-                      editable={isAdmin}
+                      editable={effectiveIsAdmin}
                       visible={canEditField("department")}
                       onChange={(v) => handleChange("department", v)}
                     />
@@ -3556,12 +3799,12 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     <LockedField
                       label="Designation"
                       value={formData.designation}
-                      editable={isAdmin}
+                      editable={effectiveIsAdmin}
                       visible={canEditField("designation")}
                       onChange={(v) => handleChange("designation", v)}
                     />
 
-                    {isAdmin ? (
+                    {effectiveIsAdmin ? (
                       <DetailSelect
                         label="Status"
                         value={formData.status}
@@ -3574,7 +3817,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                         visible={canEditField("status")}
                       />
                     ) : (
-                      <LockedField label="Status" value={formData.status} editable={false} visible={canEditField("status")} />
+                      <LockedField label="Status" value={formData.status} editable={false} visible={true} />
                     )}
 
                     {/* {canEditField("experience") && (
@@ -3747,119 +3990,125 @@ const EmployeeDetails = ({ isAdmin = false }) => {
               <>
                 <h6 className="employeedetails-section-title">Education Details</h6>
 
-                <div className="employeedetails-education-group">
-                  <div className="employeedetails-education-group-label">10th Standard</div>
-                  <div className="employeedetails-row employeedetails-education-row">
-                    <div id="field-wrapper-school10" className="employeedetails-col-md-6 employeedetails-mb-4">
-                      <div className="employeedetails-detail-label">10th School</div>
-                      <input
-                        className={`employeedetails-detail-input ${!canEditField("school10") ? "employeedetails-input-locked" : ""}`}
-                        type="text"
-                        value={formData.school10 || ""}
-                        onChange={(e) => handleChange("school10", e.target.value)}
-                        disabled={!canEditField("school10")}
-                        readOnly={!canEditField("school10")}
-                      />
-                    </div>
-
-                    <div id="field-wrapper-marks10" className="employeedetails-col-md-6 employeedetails-mb-4">
-                      <div className="employeedetails-detail-label">10th Marks</div>
-                      <div className="employeedetails-field-wrapper">
+                {(!isRejectedMode || canEditField("school10") || canEditField("marks10") || canEditField("passedOutYear10") || canEditField("marksheet10")) && (
+                  <div className="employeedetails-education-group">
+                    <div className="employeedetails-education-group-label">10th Standard</div>
+                    <div className="employeedetails-row employeedetails-education-row">
+                      <div id="field-wrapper-school10" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("school10")) ? "block" : "none" }}>
+                        <div className="employeedetails-detail-label">10th School</div>
                         <input
-                          className={`employeedetails-detail-input ${!canEditField("marks10") ? "employeedetails-input-locked" : ""} ${marksErrors.marks10 ? "employeedetails-input-error" : ""}`}
+                          className={`employeedetails-detail-input ${!canEditField("school10") ? "employeedetails-input-locked" : ""}`}
                           type="text"
-                          inputMode="decimal"
-                          value={formData.marks10 || ""}
-                          onChange={(e) => handleMarksChange("marks10", e.target.value)}
-                          onKeyDown={handleMarksKeyDown}
-                          disabled={!canEditField("marks10")}
-                          readOnly={!canEditField("marks10")}
-                          placeholder="100 – 500"
+                          value={formData.school10 || ""}
+                          onChange={(e) => handleChange("school10", e.target.value)}
+                          disabled={!canEditField("school10")}
+                          readOnly={!canEditField("school10")}
                         />
-                        {marksErrors.marks10 && (
-                          <div className="employeedetails-field-error">{marksErrors.marks10}</div>
-                        )}
                       </div>
-                    </div>
 
-                    <div id="field-wrapper-passedOutYear10" className="employeedetails-col-md-6 employeedetails-mb-4">
-                      <div className="employeedetails-detail-label">10th Passed-Out Year</div>
-                      <div className="employeedetails-field-wrapper">
-                        <input
-                          className={`employeedetails-detail-input ${!canEditField("passedOutYear10") ? "employeedetails-input-locked" : ""} ${yearErrors.passedOutYear10 ? "employeedetails-input-error" : ""}`}
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={4}
-                          value={formData.passedOutYear10 || ""}
-                          onChange={(e) => handleYearChange("passedOutYear10", e.target.value)}
-                          onKeyDown={handleNumberKeyDown}
-                          disabled={!canEditField("passedOutYear10")}
-                          readOnly={!canEditField("passedOutYear10")}
-                          placeholder="e.g. 2021"
-                        />
-                        {yearErrors.passedOutYear10 && (
-                          <div className="employeedetails-field-error">{yearErrors.passedOutYear10}</div>
-                        )}
+                      <div id="field-wrapper-marks10" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("marks10")) ? "block" : "none" }}>
+                        <div className="employeedetails-detail-label">10th Marks</div>
+                        <div className="employeedetails-field-wrapper">
+                          <input
+                            className={`employeedetails-detail-input ${!canEditField("marks10") ? "employeedetails-input-locked" : ""} ${marksErrors.marks10 ? "employeedetails-input-error" : ""}`}
+                            type="text"
+                            inputMode="decimal"
+                            value={formData.marks10 || ""}
+                            onChange={(e) => handleMarksChange("marks10", e.target.value)}
+                            onKeyDown={handleMarksKeyDown}
+                            disabled={!canEditField("marks10")}
+                            readOnly={!canEditField("marks10")}
+                            placeholder="100 – 500"
+                          />
+                          {marksErrors.marks10 && (
+                            <div className="employeedetails-field-error">{marksErrors.marks10}</div>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div id="field-wrapper-marksheet10" className="employeedetails-col-md-6 employeedetails-mb-4">
-                      <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>10th Marksheet</span>
+                      <div id="field-wrapper-passedOutYear10" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("passedOutYear10")) ? "block" : "none" }}>
+                        <div className="employeedetails-detail-label">10th Passed-Out Year</div>
+                        <div className="employeedetails-field-wrapper">
+                          <input
+                            className={`employeedetails-detail-input ${!canEditField("passedOutYear10") ? "employeedetails-input-locked" : ""} ${yearErrors.passedOutYear10 ? "employeedetails-input-error" : ""}`}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={4}
+                            value={formData.passedOutYear10 || ""}
+                            onChange={(e) => handleYearChange("passedOutYear10", e.target.value)}
+                            onKeyDown={handleNumberKeyDown}
+                            disabled={!canEditField("passedOutYear10")}
+                            readOnly={!canEditField("passedOutYear10")}
+                            placeholder="e.g. 2021"
+                          />
+                          {yearErrors.passedOutYear10 && (
+                            <div className="employeedetails-field-error">{yearErrors.passedOutYear10}</div>
+                          )}
+                        </div>
                       </div>
-                      <div className="employeedetails-file-upload-container">
-                        <input
-                          type="file"
-                          accept="image/*,.pdf"
-                          onChange={(e) => handleFileChange("marksheet10", e.target.files[0], e.target)}
-                          className="employeedetails-detail-input"
-                          disabled={!canEditField("marksheet10")}
-                        />
 
-                        {filePreviews.marksheet10 && (
-                          <div className="employeedetails-file-name">
-                            Existing File: {getFileName(filePreviews.marksheet10)}
-                          </div>
-                        )}
+                      <div id="field-wrapper-marksheet10" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("marksheet10")) ? "block" : "none" }}>
+                        <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>10th Marksheet</span>
+                        </div>
+                        <div className="employeedetails-file-upload-container">
+                          <input
+                            type="file"
+                            accept="image/*,.pdf"
+                            onChange={(e) => handleFileChange("marksheet10", e.target.files[0], e.target)}
+                            className="employeedetails-detail-input"
+                            disabled={!canEditField("marksheet10")}
+                          />
 
-                        {renderFilePreview("marksheet10", "10th Marksheet")}
+                          {filePreviews.marksheet10 && (
+                            <div className="employeedetails-file-name">
+                              Existing File: {getFileName(filePreviews.marksheet10)}
+                            </div>
+                          )}
+
+                          {renderFilePreview("marksheet10", "10th Marksheet")}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="employeedetails-education-divider" />
+                {(!isRejectedMode || canEditField("educationPath")) && (
+                  <>
+                    <div className="employeedetails-education-divider" />
 
-                <h6>Select Education Path After 10th</h6>
-                <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEducationPath("12th");
-                      setNewCourse((prev) => ({ ...prev, courseType: "UG" }));
-                    }}
-                    className={`employeedetails-path-btn ${educationPath === "12th" ? "active" : ""}`}
-                  >
-                    12th
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEducationPath("Diploma");
-                      setNewCourse((prev) => ({ ...prev, courseType: "Diploma" }));
-                    }}
-                    className={`employeedetails-path-btn ${educationPath === "Diploma" ? "active" : ""}`}
-                  >
-                    Diploma
-                  </button>
-                </div>
+                    <h6>Select Education Path After 10th</h6>
+                    <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEducationPath("12th");
+                          setNewCourse((prev) => ({ ...prev, courseType: "UG" }));
+                        }}
+                        className={`employeedetails-path-btn ${educationPath === "12th" ? "active" : ""}`}
+                      >
+                        12th
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEducationPath("Diploma");
+                          setNewCourse((prev) => ({ ...prev, courseType: "Diploma" }));
+                        }}
+                        className={`employeedetails-path-btn ${educationPath === "Diploma" ? "active" : ""}`}
+                      >
+                        Diploma
+                      </button>
+                    </div>
+                  </>
+                )}
 
-                {educationPath === "12th" && (
+                {educationPath === "12th" && (!isRejectedMode || canEditField("school12") || canEditField("marks12") || canEditField("passedOutYear12") || canEditField("marksheet12")) && (
                   <>
                     <div className="employeedetails-education-group">
                       <div className="employeedetails-education-group-label">12th Standard</div>
                       <div className="employeedetails-row employeedetails-education-row">
-                        <div id="field-wrapper-school12" className="employeedetails-col-md-6 employeedetails-mb-4">
+                        <div id="field-wrapper-school12" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("school12")) ? "block" : "none" }}>
                           <div className="employeedetails-detail-label">12th School</div>
                           <input
                             className={`employeedetails-detail-input ${!canEditField("school12") ? "employeedetails-input-locked" : ""}`}
@@ -3871,7 +4120,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           />
                         </div>
 
-                        <div id="field-wrapper-marks12" className="employeedetails-col-md-6 employeedetails-mb-4">
+                        <div id="field-wrapper-marks12" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("marks12")) ? "block" : "none" }}>
                           <div className="employeedetails-d-flex employeedetails-justify-content-between employeedetails-align-items-center employeedetails-mb-1">
                             <div className="employeedetails-detail-label employeedetails-mb-0">12th Marks</div>
                             <div className="employeedetails-marks-total-selector">
@@ -3917,7 +4166,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           </div>
                         </div>
 
-                        <div id="field-wrapper-passedOutYear12" className="employeedetails-col-md-6 employeedetails-mb-4">
+                        <div id="field-wrapper-passedOutYear12" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("passedOutYear12")) ? "block" : "none" }}>
                           <div className="employeedetails-detail-label">12th Passed-Out Year</div>
                           <div className="employeedetails-field-wrapper">
                             <input
@@ -3938,7 +4187,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           </div>
                         </div>
 
-                        <div id="field-wrapper-marksheet12" className="employeedetails-col-md-6 employeedetails-mb-4">
+                        <div id="field-wrapper-marksheet12" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("marksheet12")) ? "block" : "none" }}>
                           <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span>12th Marksheet</span>
                           </div>
@@ -4166,7 +4415,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                 <div id="field-wrapper-courses" className="employeedetails-courses-section">
                   <div className="employeedetails-d-flex employeedetails-justify-content-between employeedetails-align-items-center employeedetails-mb-3">
                     <h6 className="employeedetails-section-title employeedetails-mb-0"> College Courses</h6>
-                    {canEditField("courses") && (
+                    {!isRejectedMode && canEditField("courses") && (
                       <button
                         className="employeedetails-btn employeedetails-btn-sm employeedetails-btn-outline-primary"
                         onClick={() => setShowAddCourse(!showAddCourse)}
@@ -4363,23 +4612,23 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           </div>
 
                           <div className="employeedetails-row employeedetails-course-fields-row">
-                            <div className="employeedetails-col-md-6 employeedetails-mb-3">
+                            <div className="employeedetails-col-md-6 employeedetails-mb-3" style={{ display: !isRejectedMode ? "block" : "none" }}>
                               <DetailInput
                                 label="College Name"
                                 value={course.collegeName}
                                 onChange={(v) => handleCourseChange(index, "collegeName", v)}
-                                disabled={!canEditField()} visible={canEditField()}
+                                disabled={!canEditField("courses")} visible={!isRejectedMode}
                               />
                             </div>
-                            <div className="employeedetails-col-md-6 employeedetails-mb-3">
+                            <div className="employeedetails-col-md-6 employeedetails-mb-3" style={{ display: !isRejectedMode ? "block" : "none" }}>
                               <DetailInput
                                 label="Course Name"
                                 value={course.courseName}
                                 onChange={(v) => handleCourseChange(index, "courseName", v)}
-                                disabled={!canEditField()} visible={canEditField()}
+                                disabled={!canEditField("courses")} visible={!isRejectedMode}
                               />
                             </div>
-                            <div className="employeedetails-col-md-6 employeedetails-mb-3">
+                            <div className="employeedetails-col-md-6 employeedetails-mb-3" style={{ display: !isRejectedMode ? "block" : "none" }}>
                               <div style={{ padding: 0 }}>
                                 <div className="employeedetails-detail-label">CGPA / Percentage</div>
                                 <input
@@ -4404,7 +4653,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                 />
                               </div>
                             </div>
-                            <div className="employeedetails-col-md-6 employeedetails-mb-3">
+                            <div className="employeedetails-col-md-6 employeedetails-mb-3" style={{ display: !isRejectedMode ? "block" : "none" }}>
                               <div style={{ padding: 0 }}>
                                 <div className="employeedetails-detail-label">Year (e.g. 2021-2024)</div>
                                 <input
@@ -4435,7 +4684,11 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                 />
                               </div>
                             </div>
-                            <div id={index === 0 ? "field-wrapper-degreeCertificate" : `field-wrapper-course-certificate-${index}`} className="employeedetails-col-md-6 employeedetails-mb-3">
+                            <div
+                              id={`field-wrapper-courses.${index}.certificate`}
+                              data-field-wrapper={index === 0 ? "field-wrapper-degreeCertificate" : `field-wrapper-course-certificate-${index}`}
+                              className="employeedetails-col-md-6 employeedetails-mb-3"
+                            >
                               <div className="employeedetails-file-upload-container">
                                 <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span>Degree Certificate</span>
@@ -4447,7 +4700,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                     handleCourseFileChange(index, e.target.files[0], e.target)
                                   }
                                   accept="image/*,.pdf"
-                                  disabled={!canEditField("courses")}
+                                  disabled={!canEditField("courses") && !isFieldRejected(`courses.${index}.certificate`)}
                                 />
                                 {(filePreviews[`course_${course.id}_certificate`] || filePreviews[`course_${course._id}_certificate`] || course.certificateUrl || (typeof course.certificate === "string" && course.certificate)) && !(course.certificate instanceof File) && (
                                   <div className="employeedetails-file-name">
@@ -4466,7 +4719,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                 <Divider />
 
                 {/* ===== PROFESSIONAL CERTIFICATIONS / EXTRA COURSES ===== */}
-                {canEditField("courses") && (
+                {(!isRejectedMode ? canEditField("courses") : (isFieldRejected("professionalCertifications") || isFieldRejected("courses") || rejectedFields?.some(rf => String(rf).includes("professionalCertifications")))) && (
                   <div className="employeedetails-certifications-section" style={{ marginTop: "24px", marginBottom: "24px" }}>
                     <div className="employeedetails-cert-section-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "10px" }}>
                       <div>
@@ -4477,7 +4730,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                           Have you completed any additional certifications or short courses (e.g., MERN Stack, AWS, etc.)?
                         </p>
                       </div>
-                      {hasCertifications === "yes" && (
+                      {!isRejectedMode && hasCertifications === "yes" && (
                         <button
                           type="button"
                           className="employeedetails-btn employeedetails-btn-sm employeedetails-btn-primary"
@@ -4489,32 +4742,34 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                       )}
                     </div>
 
-                    <div className="employeedetails-cert-radios" style={{ display: "flex", gap: "20px", marginBottom: "18px", alignItems: "center", flexWrap: "wrap" }}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500", color: hasCertifications === "yes" ? "#4f46e5" : "#374151" }}>
-                        <input
-                          type="radio"
-                          name="hasCertifications"
-                          value="yes"
-                          checked={hasCertifications === "yes"}
-                          onChange={() => handleHasCertificationsChange("yes")}
-                          style={{ accentColor: "#4f46e5" }}
-                        />
-                        Yes, I have certifications
-                      </label>
-                      <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500", color: hasCertifications === "no" ? "#4f46e5" : "#374151" }}>
-                        <input
-                          type="radio"
-                          name="hasCertifications"
-                          value="no"
-                          checked={hasCertifications === "no"}
-                          onChange={() => handleHasCertificationsChange("no")}
-                          style={{ accentColor: "#4f46e5" }}
-                        />
-                        No
-                      </label>
-                    </div>
+                    {!isRejectedMode && (
+                      <div className="employeedetails-cert-radios" style={{ display: "flex", gap: "20px", marginBottom: "18px", alignItems: "center", flexWrap: "wrap" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500", color: hasCertifications === "yes" ? "#4f46e5" : "#374151" }}>
+                          <input
+                            type="radio"
+                            name="hasCertifications"
+                            value="yes"
+                            checked={hasCertifications === "yes"}
+                            onChange={() => handleHasCertificationsChange("yes")}
+                            style={{ accentColor: "#4f46e5" }}
+                          />
+                          Yes, I have certifications
+                        </label>
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500", color: hasCertifications === "no" ? "#4f46e5" : "#374151" }}>
+                          <input
+                            type="radio"
+                            name="hasCertifications"
+                            value="no"
+                            checked={hasCertifications === "no"}
+                            onChange={() => handleHasCertificationsChange("no")}
+                            style={{ accentColor: "#4f46e5" }}
+                          />
+                          No
+                        </label>
+                      </div>
+                    )}
 
-                    {hasCertifications === "yes" && (
+                    {(hasCertifications === "yes" || isRejectedMode) && (
                       <>
                         {certifications.length === 0 ? (
                           <div style={{ padding: "28px 16px", textAlign: "center", backgroundColor: "#f9fafb", borderRadius: "8px", border: "1px dashed #d1d5db" }}>
@@ -4527,6 +4782,8 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                             {certifications.map((cert, index) => (
                               <div
                                 key={cert.id || index}
+                                id={`field-wrapper-professionalCertifications.${index}.certificate`}
+                                data-field-wrapper={`field-wrapper-prof-cert-${index}`}
                                 className="employeedetails-course-card employeedetails-p-4 employeedetails-border employeedetails-rounded"
                                 style={{
                                   backgroundColor: "#ffffff",
@@ -4539,19 +4796,21 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                   <span style={{ fontWeight: 600, fontSize: "14px", color: "#1f2937", wordBreak: "break-word" }}>
                                     {cert.courseName?.trim() ? cert.courseName : `Certification #${index + 1}`}
                                   </span>
-                                  <button
-                                    type="button"
-                                    className="employeedetails-btn employeedetails-btn-sm employeedetails-btn-outline-danger"
-                                    onClick={() => handleRemoveCertification(index)}
-                                    style={{ fontSize: "12px", padding: "4px 10px" }}
-                                  >
-                                    Remove
-                                  </button>
+                                  {!isRejectedMode && (
+                                    <button
+                                      type="button"
+                                      className="employeedetails-btn employeedetails-btn-sm employeedetails-btn-outline-danger"
+                                      onClick={() => handleRemoveCertification(index)}
+                                      style={{ fontSize: "12px", padding: "4px 10px" }}
+                                    >
+                                      Remove
+                                    </button>
+                                  )}
                                 </div>
 
                                 <div className="employeedetails-course-grid">
                                   {/* Course Name */}
-                                  <div>
+                                  <div style={{ display: !isRejectedMode ? "block" : "none" }}>
                                     <div className="employeedetails-detail-label">
                                       Course Name <span style={{ color: "#ef4444" }}>*</span>
                                     </div>
@@ -4568,7 +4827,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                   </div>
 
                                   {/* Start Month and Year */}
-                                  <div>
+                                  <div style={{ display: !isRejectedMode ? "block" : "none" }}>
                                     <div className="employeedetails-detail-label">
                                       Start Month and Year <span style={{ color: "#ef4444" }}>*</span>
                                     </div>
@@ -4601,7 +4860,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                   </div>
 
                                   {/* End Month and Year */}
-                                  <div>
+                                  <div style={{ display: !isRejectedMode ? "block" : "none" }}>
                                     <div className="employeedetails-detail-label">
                                       End Month and Year <span style={{ color: "#ef4444" }}>*</span>
                                     </div>
@@ -4634,7 +4893,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                   </div>
 
                                   {/* Course Duration */}
-                                  <div>
+                                  <div style={{ display: !isRejectedMode ? "block" : "none" }}>
                                     <div className="employeedetails-detail-label">
                                       Course Duration <span style={{ color: "#ef4444" }}>*</span>
                                     </div>
@@ -4678,7 +4937,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                   </div>
 
                                   {/* Course Type */}
-                                  <div>
+                                  <div style={{ display: !isRejectedMode ? "block" : "none" }}>
                                     <div className="employeedetails-detail-label">
                                       Course Type <span style={{ color: "#ef4444" }}>*</span>
                                     </div>
@@ -4702,7 +4961,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                   </div>
 
                                   {/* Institution / College Name */}
-                                  <div>
+                                  <div style={{ display: !isRejectedMode ? "block" : "none" }}>
                                     <div className="employeedetails-detail-label">
                                       Institution Name <span style={{ color: "#ef4444" }}>*</span>
                                     </div>
@@ -4718,14 +4977,15 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                     )}
                                   </div>
 
-                                  {/* Certificate Upload (Optional) */}
-                                  <div className="employeedetails-full">
+                                  {/* Certificate Upload */}
+                                  <div id={`field-wrapper-prof-cert-${index}`} className="employeedetails-full">
                                     <div className="employeedetails-detail-label">Certificate</div>
                                     <input
                                       type="file"
                                       accept="image/*,.pdf"
                                       className="employeedetails-detail-input employeedetails-file-input-aligned"
                                       onChange={(e) => handleCertFileChange(index, e.target.files[0], e.target)}
+                                      disabled={!canEditField("courses") && !isFieldRejected("professionalCertifications") && !isFieldRejected(`professionalCertifications.${index}.certificate`)}
                                     />
                                     {cert.certificateFile && (
                                       <div className="employeedetails-file-name" style={{ color: "#16a34a", fontSize: "12px", marginTop: "4px" }}>
@@ -4733,17 +4993,11 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                                       </div>
                                     )}
                                     {!cert.certificateFile && (cert.certificateUrl || (typeof cert.certificate === "string" && cert.certificate)) && (
-                                      <div style={{ marginTop: "4px" }}>
-                                        <a
-                                          href={cert.certificateUrl || cert.certificate}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          style={{ fontSize: "12px", color: "#4f46e5", textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                                        >
-                                          📎 View Uploaded Certificate
-                                        </a>
+                                      <div className="employeedetails-file-name" style={{ marginTop: "4px" }}>
+                                        Existing File: {(cert.certificateUrl || cert.certificate).split("/").pop().split("?")[0]}
                                       </div>
                                     )}
+                                    {renderCertFilePreview(index)}
                                   </div>
                                 </div>
                               </div>
@@ -4763,7 +5017,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
               <>
                 <h6 className="employeedetails-section-title">KYC Details</h6>
                 <div className="employeedetails-row">
-                  <div id="field-wrapper-aadhaarNo" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-aadhaarNo" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("aadhaarNo")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label">Aadhaar No (12 digit)</div>
                     <div className="employeedetails-field-wrapper">
                       <div style={{ position: "relative" }}>
@@ -4809,7 +5063,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                       )}
                     </div>
                   </div>
-                  <div id="field-wrapper-panNo" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-panNo" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("panNo")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label">PAN Number</div>
                     <div className="employeedetails-field-wrapper">
                       <div style={{ position: "relative" }}>
@@ -4856,7 +5110,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     </div>
                   </div>
 
-                  <div id="field-wrapper-aadhaarFile" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-aadhaarFile" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("aadhaarFile")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>Aadhaar Upload</span>
                       <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: '500' }}>* Note: Only use the masked aadhar files only</span>
@@ -4880,7 +5134,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     </div>
                   </div>
 
-                  <div id="field-wrapper-panFile" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-panFile" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("panFile")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>PAN Card</span>
                     </div>
@@ -4933,17 +5187,19 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     label="Bank Name"
                     value={formData.bankName}
                     onChange={(v) => handleChange("bankName", v)}
-                    disabled={!canEditField()} visible={canEditField()}
+                    disabled={!canEditField("bankName")}
+                    visible={!isRejectedMode || canEditField("bankName")}
                   />
                   <DetailInput
                     id="field-wrapper-accountHolder"
                     label="Account Holder Name"
                     value={formData.accountHolder}
                     onChange={(v) => handleChange("accountHolder", v)}
-                    disabled={!canEditField()} visible={canEditField()}
+                    disabled={!canEditField("accountHolder")}
+                    visible={!isRejectedMode || canEditField("accountHolder")}
                   />
 
-                  <div id="field-wrapper-accountNumber" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-accountNumber" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("accountNumber")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label">Account Number</div>
                     <div className="employeedetails-field-wrapper">
                       <input
@@ -4966,7 +5222,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     </div>
                   </div>
 
-                  <div id="field-wrapper-ifscCode" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-ifscCode" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("ifscCode")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label">IFSC Code</div>
                     <div className="employeedetails-field-wrapper">
                       <input
@@ -4993,7 +5249,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     </div>
                   </div>
 
-                  <div id="field-wrapper-branch" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-branch" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("branch")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label">Branch Name</div>
                     <div className="employeedetails-field-wrapper">
                       <input
@@ -5029,7 +5285,7 @@ const EmployeeDetails = ({ isAdmin = false }) => {
                     </div>
                   )}
 
-                  <div id="field-wrapper-passbookFile" className="employeedetails-col-md-6 employeedetails-mb-4">
+                  <div id="field-wrapper-passbookFile" className="employeedetails-col-md-6 employeedetails-mb-4" style={{ display: (!isRejectedMode || canEditField("passbookFile")) ? "block" : "none" }}>
                     <div className="employeedetails-detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>Bank Passbook/Cancelled Cheque</span>
                     </div>
@@ -5078,22 +5334,52 @@ const EmployeeDetails = ({ isAdmin = false }) => {
 
             {/* ===== FORM ACTIONS ===== */}
             <div className="employeedetails-form-actions">
-              {!isAdmin && !canEditProfile && (
-                <p style={{ color: "#f44336", marginBottom: "10px", fontSize: "14px" }}>
-                  {editMessage || "You are not allowed to edit your profile. Please send a request."}
-                </p>
+              {isHrRestrictedFromEdit ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "100%" }}>
+                  <div style={{
+                    background: "#fef3c7",
+                    border: "1px solid #f59e0b",
+                    color: "#92400e",
+                    padding: "10px 18px",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                    fontWeight: "500",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}>
+                    <span>⚠️</span>
+                    <span>Direct editing of employee profiles is disabled for HR by Administrator Configuration.</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="employeedetails-btn-save"
+                    style={{ background: "#3A466D", cursor: "pointer" }}
+                    onClick={() => navigate("/admin/employees/manage-employee")}
+                  >
+                    Back to Employee Directory
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {!effectiveIsAdmin && !canEditProfile && (
+                    <p style={{ color: "#f44336", marginBottom: "10px", fontSize: "14px" }}>
+                      {editMessage || "You are not allowed to edit your profile. Please send a request."}
+                    </p>
+                  )}
+                  <button
+                    className="employeedetails-btn-save"
+                    onClick={handleSave}
+                    disabled={isSaving || (!effectiveIsAdmin && !canEditProfile)}
+                  >
+                    {isSaving
+                      ? "Saving..."
+                      : approvalStatus === "rejected"
+                        ? "Resubmit for Admin Review"
+                        : "Save Changes"}
+                  </button>
+                </>
               )}
-              <button
-                className="employeedetails-btn-save"
-                onClick={handleSave}
-                disabled={isSaving || (!isAdmin && !canEditProfile)}
-              >
-                {isSaving
-                  ? "Saving..."
-                  : approvalStatus === "rejected"
-                    ? "Resubmit for Admin Review"
-                    : "Save Changes"}
-              </button>
             </div>
           </div>
         )}

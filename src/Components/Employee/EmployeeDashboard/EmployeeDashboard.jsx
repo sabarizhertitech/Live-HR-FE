@@ -473,6 +473,8 @@ const EmployeeDashboard = () => {
   const [todoLoading, setTodoLoading] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [todoCurrentPage, setTodoCurrentPage] = useState(1);
+  const todoItemsPerPage = 5;
   const [isEditMode, setIsEditMode] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [upcomingPage, setUpcomingPage] = useState(1);
@@ -2337,20 +2339,32 @@ const EmployeeDashboard = () => {
               );
             })()}
 
-            {/* â”€â”€ EMPLOYEE BIRTHDAY CELEBRATION CARD (FOR CO-WORKERS) â”€â”€ */}
+            {/* ── EMPLOYEE BIRTHDAY CELEBRATION CARD (FOR CO-WORKERS) ── */}
             {todayBirthdays.filter((emp) => String(emp._id) !== String(employee?._id)).length > 0 && (
               <div className="admin-birthday-card">
-                {/* Background Floating Low-Opacity Balloons */}
-                <div className="admin-birthday-card__bg-balloon b1">ðŸŽˆ</div>
-                <div className="admin-birthday-card__bg-balloon b2">ðŸŽˆ</div>
-                <div className="admin-birthday-card__bg-balloon b3">ðŸŽˆ</div>
-                <div className="admin-birthday-card__bg-balloon b4">ðŸŽˆ</div>
-                <div className="admin-birthday-card__bg-balloon b5">ðŸŽˆ</div>
-
-                {/* Background Floating Decorative Particles */}
-                <div className="admin-birthday-card__bg-particle p1">âœ¨</div>
-                <div className="admin-birthday-card__bg-particle p2">ðŸŒŸ</div>
-                <div className="admin-birthday-card__bg-particle p3">ðŸŽŠ</div>
+                {/* Background Floating Festive Elements: Balloons, Cakes, Birthday Caps, Poppers, Candies */}
+                <div className="admin-birthday-card__bg-item b1" title="Balloon">{"\u{1F388}"}</div>
+                <div className="admin-birthday-card__bg-item b2" title="Cake">{"\u{1F382}"}</div>
+                <div className="admin-birthday-card__bg-item b3" title="Birthday Cap">{"\u{1F973}"}</div>
+                <div className="admin-birthday-card__bg-item b4" title="Popper">{"\u{1F389}"}</div>
+                <div className="admin-birthday-card__bg-item b5" title="Candy">{"\u{1F36C}"}</div>
+                <div className="admin-birthday-card__bg-item b6" title="Lollipop">{"\u{1F36D}"}</div>
+                <div className="admin-birthday-card__bg-item b7" title="Balloon">{"\u{1F388}"}</div>
+                <div className="admin-birthday-card__bg-item b8" title="Cake Slice">{"\u{1F370}"}</div>
+                <div className="admin-birthday-card__bg-item b9" title="Party Cap">
+                  <svg width="28" height="28" viewBox="0 0 36 36" fill="none" style={{ verticalAlign: "middle" }}>
+                    <path d="M18 4L6 31C6 31 12 33 18 33C24 33 30 31 30 31L18 4Z" fill="#F43F5E" />
+                    <path d="M12.5 16.5L8.2 26C11 27 14.5 27.5 18 27.5C21.5 27.5 25 27 27.8 26L23.5 16.5H12.5Z" fill="#FBBF24" />
+                    <path d="M15 10.5L13.5 14H22.5L21 10.5H15Z" fill="#60A5FA" />
+                    <circle cx="18" cy="4" r="3.5" fill="#FBBF24" />
+                    <circle cx="13" cy="22" r="1.5" fill="#FFFFFF" />
+                    <circle cx="18" cy="20" r="1.5" fill="#FFFFFF" />
+                    <circle cx="23" cy="22" r="1.5" fill="#FFFFFF" />
+                  </svg>
+                </div>
+                <div className="admin-birthday-card__bg-item b10" title="Confetti Popper">{"\u{1F38A}"}</div>
+                <div className="admin-birthday-card__bg-item b11" title="Birthday Cake">{"\u{1F382}"}</div>
+                <div className="admin-birthday-card__bg-item b12" title="Candy">{"\u{1F36C}"}</div>
 
                 <div className="admin-birthday-card__header">
                   <div className="admin-birthday-card__icon-badge">
@@ -2920,46 +2934,77 @@ const EmployeeDashboard = () => {
                       </div>
                     </div>
 
-                    {todoLoading ? (
-                      <div className="d-flex justify-content-center align-items-center py-5">
-                        <Spinner animation="border" variant="primary" />
-                      </div>
-                    ) : todos.filter((t) => t.status?.toLowerCase() === "pending").length === 0 ? (
-                      <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center">
-                        <p className="text-muted mb-0">
-                          No pending To Do List. Relax or create a new one!
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="dash-todo-list-container">
-                        {todos
-                          .filter((t) => t.status?.toLowerCase() === "pending")
-                          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                          .map((todo) => (
-                            <div
-                              key={todo._id}
-                              className="dash-todo-card"
-                              onClick={() => {
-                                setSelectedTodo(todo);
-                                setShowDetailModal(true);
-                              }}
-                            >
-                              <div className="dash-todo-content">
-                                <h5 className="dash-todo-item-title">{todo.title || todo.description.split("\n")[0]}</h5>
-                                <p className="dash-todo-item-desc">
-                                  {todo.title ? todo.description : (todo.description.split("\n").slice(1).join("\n") || "Aliquam porta nisl dolor, molestie pellentesque elit molestie in. Morbi metus neque, elementum ullam")}
-                                </p>
+                    {(() => {
+                      if (todoLoading) {
+                        return (
+                          <div className="d-flex justify-content-center align-items-center py-5">
+                            <Spinner animation="border" variant="primary" />
+                          </div>
+                        );
+                      }
+
+                      const pendingTodos = todos
+                        .filter((t) => t.status?.toLowerCase() === "pending")
+                        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+                      if (pendingTodos.length === 0) {
+                        return (
+                          <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center">
+                            <p className="text-muted mb-0">
+                              No pending To Do List. Relax or create a new one!
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      const totalTodoPages = Math.max(1, Math.ceil(pendingTodos.length / todoItemsPerPage));
+                      const activeTodoPage = todoCurrentPage > totalTodoPages ? 1 : todoCurrentPage;
+                      const paginatedTodos = pendingTodos.slice(
+                        (activeTodoPage - 1) * todoItemsPerPage,
+                        activeTodoPage * todoItemsPerPage
+                      );
+
+                      return (
+                        <>
+                          <div className="dash-todo-list-container">
+                            {paginatedTodos.map((todo) => (
+                              <div
+                                key={todo._id}
+                                className="dash-todo-card"
+                                onClick={() => {
+                                  setSelectedTodo(todo);
+                                  setShowDetailModal(true);
+                                }}
+                              >
+                                <div className="dash-todo-content">
+                                  <h5 className="dash-todo-item-title">{todo.title || todo.description.split("\n")[0]}</h5>
+                                  <p className="dash-todo-item-desc">
+                                    {todo.title ? todo.description : (todo.description.split("\n").slice(1).join("\n") || "Aliquam porta nisl dolor, molestie pellentesque elit molestie in. Morbi metus neque, elementum ullam")}
+                                  </p>
+                                </div>
+                                <div className="dash-todo-right">
+                                  <span className="todo-create-date">
+                                    Due Date: {formatFullDate(todo.dueDate)}
+                                  </span>
+                                  <div className="dash-todo-status-badge">{todo.status || "Pending"}</div>
+                                </div>
                               </div>
-                              <div className="dash-todo-right">
-                                <span className="todo-create-date">
-                                  Due Date: {formatFullDate(todo.dueDate)}
-                                </span>
-                                <div className="dash-todo-status-badge">{todo.status || "Pending"}</div>
-                              </div>
+                            ))}
+                          </div>
+
+                          {pendingTodos.length > 0 && (
+                            <div className="mt-3">
+                              <Pagination
+                                totalItems={pendingTodos.length}
+                                pageSize={todoItemsPerPage}
+                                currentPage={activeTodoPage}
+                                onPageChange={(page) => setTodoCurrentPage(page)}
+                              />
                             </div>
-                          ))}
-                      </div>
-                    )}
+                          )}
+                        </>
+                      );
+                    })()}
                   </Card.Body>
                 </Card>
               </Col>

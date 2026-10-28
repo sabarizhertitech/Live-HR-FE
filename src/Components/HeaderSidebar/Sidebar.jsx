@@ -11,6 +11,13 @@ import { useUser } from "../UserContext";
 import { toast } from "react-toastify";
 import { messaging, deleteToken } from "../../firebase";
 import { checkProfileRestriction } from "../../utils/profileCompletionRestriction";
+import {
+  getCachedHrAccessConfig,
+  canHrAddEmployee,
+  canHrViewEmployee,
+  canHrDailyAttendance,
+  canHrMonthlyAttendance,
+} from "../../utils/hrAccessHelper";
 
 const ICON_BASE = "/ICONS";
 
@@ -446,19 +453,43 @@ function Sidebar() {
         const res = await portalInstance.get("/api/notifications");
         const allNotifs = res.data?.data || [];
         const filtered = allNotifs.filter(
-          (n) => n && (n.type === "SECURITY_APPROVED" || n.type === "SECURITY_REJECTED" || n.type === "HR_APPROVAL_APPROVED" || n.type === "HR_APPROVAL_REJECTED" || n.type === "PROFILE_APPROVED" || n.type === "PROFILE_REJECTED")
+          (n) =>
+            n &&
+            (n.type === "SECURITY_APPROVED" ||
+              n.type === "SECURITY_REJECTED" ||
+              n.type === "HR_APPROVAL_APPROVED" ||
+              n.type === "HR_APPROVAL_REJECTED" ||
+              n.type === "PROFILE_APPROVED" ||
+              n.type === "PROFILE_REJECTED" ||
+              n.type === "PERMISSION_APPROVED" ||
+              n.type === "PERMISSION_REJECTED")
         );
         generalNotifs = filtered
           .filter((n) => !dismissedIds.includes(n._id))
           .map((n) => ({
             id: n._id,
             uniqueKey: `general-${n._id}`,
-            type: n.type?.startsWith("PROFILE") ? "PROFILE_DECISION" : (n.type?.startsWith("HR_APPROVAL") ? "HR_APPROVAL_DECISION" : "SECURITY_DECISION"),
-            title: n.title || "Notification",
+            type: n.type?.startsWith("PERMISSION")
+              ? "PERMISSION_DECISION"
+              : n.type?.startsWith("PROFILE")
+              ? "PROFILE_DECISION"
+              : n.type?.startsWith("HR_APPROVAL")
+              ? "HR_APPROVAL_DECISION"
+              : "SECURITY_DECISION",
+            title:
+              n.title ||
+              (n.type === "PERMISSION_APPROVED"
+                ? "Permission Approved"
+                : "Permission Rejected"),
             message: n.message,
-            subtext: "",
+            subtext:
+              n.type === "PERMISSION_APPROVED"
+                ? "Approved by Admin"
+                : n.type === "PERMISSION_REJECTED"
+                ? "Rejected by Admin"
+                : "",
             targetModule: n.metadata?.targetModule || n.targetModule,
-            url: n.metadata?.url || n.url,
+            url: n.metadata?.url || n.url || "/emp/request-leave",
             timestamp: n.createdAt,
             time: n.createdAt,
           }));
@@ -548,7 +579,7 @@ function Sidebar() {
           console.error("Failed to dismiss holiday assignment notification:", err);
         }
       }
-      if (notif.type === "SECURITY_DECISION" || notif.type === "HR_APPROVAL_DECISION") {
+      if (notif.type === "SECURITY_DECISION" || notif.type === "HR_APPROVAL_DECISION" || notif.type === "PROFILE_DECISION" || notif.type === "PERMISSION_DECISION") {
         try {
           await portalInstance.put(`/api/notifications/${notif.id}/read`);
         } catch (err) {
@@ -600,11 +631,16 @@ function Sidebar() {
               console.error("Failed to dismiss holiday assignment notification:", err);
             }
           }
-          if (n.type === "SECURITY_DECISION" || n.type === "PROFILE_DECISION") {
+          if (
+            n.type === "SECURITY_DECISION" ||
+            n.type === "PROFILE_DECISION" ||
+            n.type === "HR_APPROVAL_DECISION" ||
+            n.type === "PERMISSION_DECISION"
+          ) {
             try {
               await portalInstance.put(`/api/notifications/${n.id}/read`);
             } catch (err) {
-              console.error("Failed to read security/profile notification:", err);
+              console.error("Failed to read notification:", err);
             }
           }
         })
@@ -689,7 +725,7 @@ function Sidebar() {
           console.error("Failed to dismiss holiday assignment notification:", err);
         }
       }
-      if (notif.type === "SECURITY_DECISION" || notif.type === "HR_APPROVAL_DECISION" || notif.type === "PROFILE_DECISION") {
+      if (notif.type === "SECURITY_DECISION" || notif.type === "HR_APPROVAL_DECISION" || notif.type === "PROFILE_DECISION" || notif.type === "PERMISSION_DECISION") {
         try {
           await portalInstance.put(`/api/notifications/${notif.id}/read`);
         } catch (err) {
@@ -697,7 +733,9 @@ function Sidebar() {
         }
       }
       setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
-      if (notif.type === "PROFILE_DECISION") {
+      if (notif.type === "PERMISSION_DECISION") {
+        navigate(notif.url || "/emp/request-leave");
+      } else if (notif.type === "PROFILE_DECISION") {
         navigate(notif.url || "/emp/my-details");
       } else if (notif.type === "TASK") {
         navigate("/emp/tasks");
@@ -1050,6 +1088,10 @@ function Sidebar() {
         parent = "Audit Dashboard";
         child = "";
       }
+      else if (path.includes("/admin/configuration")) {
+        parent = "Configuration";
+        child = "";
+      }
     } else {
       if (path.includes("/holiday-management")) parent = "Holiday Management";
       else if (path.includes("/leave-management")) {
@@ -1290,6 +1332,7 @@ function Sidebar() {
       ]
     },
     { title: "HR Requests", iconName: "Leave Requests", path: "/admin/hr-requests" },
+    { title: "Configuration", iconName: "Configuration", path: "/admin/configuration" },
     { title: "Audit Dashboard", iconName: "Audit Dashboard", path: "/admin/audit" },
     {
       title: "Web Crawler",
@@ -1365,56 +1408,80 @@ function Sidebar() {
     // },
 
     ...(user?.isHr
-      ? [
-        {
-          isSectionTitle: true,
-          title: "Hr Access",
-        },
-        {
-          isHrItem: true,
-          title: "Employees",
-          iconName: "Employee",
-          subItems: [
-            { label: "Add Employee", path: "/admin/employees/add-employee", iconName: "Add" },
-            { label: "Manage Employee", path: "/admin/employees/manage-employee", iconName: "Manage Employee" },
-          ]
-        },
-        {
-          isHrItem: true,
-          title: "Employee Attendance",
-          iconName: "Attendance",
-          subItems: [
-            { label: "Daily Report", path: "/admin/attendance", iconName: "Attendance" },
-            { label: "Attendance Report", path: "/admin/attendance-report", iconName: "Attendance" },
-          ]
-        },
-        {
-          isHrItem: true,
-          title: "Leave & Holidays",
-          iconName: "Leave Requests",
-          subItems: [
-            { label: "Holiday Requests", path: "/emp/holiday-requests", iconName: "Leave Requests", requiresHolidayAssignment: true },
-            { label: "Leave Management", path: "/admin/leave-management", iconName: "Manage Employee" }
-          ]
-        },
-        {
-          isHrItem: true,
-          title: "Slip Generation",
-          iconName: "Salary Slip",
-          subItems: [
-            { label: "Payslip", path: "/admin/payslip-generator", iconName: "Salary Slip" },
-            { label: "Appointment Letter", path: "/admin/appointment-letter", iconName: "Salary Slip" },
-            { label: "Termination Letter", path: "/admin/termination-letter", iconName: "Salary Slip" },
-            { label: "Increment Letter", path: "/admin/increment-letter", iconName: "Salary Slip" }
-          ]
-        },
-        {
-          isHrItem: true,
-          title: "HR Requests",
-          iconName: "Leave Requests",
-          path: "/emp/hr-requests"
-        }
-      ]
+      ? (() => {
+          const hrConfig = getCachedHrAccessConfig();
+          const empSubItems = [];
+          if (canHrAddEmployee(user, hrConfig)) {
+            empSubItems.push({ label: "Add Employee", path: "/admin/employees/add-employee", iconName: "Add" });
+          }
+          if (canHrViewEmployee(user, hrConfig)) {
+            empSubItems.push({ label: "Manage Employee", path: "/admin/employees/manage-employee", iconName: "Manage Employee" });
+          }
+
+          const attSubItems = [];
+          if (canHrDailyAttendance(user, hrConfig)) {
+            attSubItems.push({ label: "Daily Report", path: "/admin/attendance", iconName: "Attendance" });
+          }
+          if (canHrMonthlyAttendance(user, hrConfig)) {
+            attSubItems.push({ label: "Attendance Report", path: "/admin/attendance-report", iconName: "Attendance" });
+          }
+
+          const hrMenuItems = [
+            {
+              isSectionTitle: true,
+              title: "Hr Access",
+            },
+          ];
+
+          if (empSubItems.length > 0) {
+            hrMenuItems.push({
+              isHrItem: true,
+              title: "Employees",
+              iconName: "Employee",
+              subItems: empSubItems,
+            });
+          }
+
+          if (attSubItems.length > 0) {
+            hrMenuItems.push({
+              isHrItem: true,
+              title: "Employee Attendance",
+              iconName: "Attendance",
+              subItems: attSubItems,
+            });
+          }
+
+          hrMenuItems.push(
+            {
+              isHrItem: true,
+              title: "Leave & Holidays",
+              iconName: "Leave Requests",
+              subItems: [
+                { label: "Holiday Requests", path: "/emp/holiday-requests", iconName: "Leave Requests", requiresHolidayAssignment: true },
+                { label: "Leave Management", path: "/admin/leave-management", iconName: "Manage Employee" }
+              ]
+            },
+            {
+              isHrItem: true,
+              title: "Slip Generation",
+              iconName: "Salary Slip",
+              subItems: [
+                { label: "Payslip", path: "/admin/payslip-generator", iconName: "Salary Slip" },
+                { label: "Appointment Letter", path: "/admin/appointment-letter", iconName: "Salary Slip" },
+                { label: "Termination Letter", path: "/admin/termination-letter", iconName: "Salary Slip" },
+                { label: "Increment Letter", path: "/admin/increment-letter", iconName: "Salary Slip" }
+              ]
+            },
+            {
+              isHrItem: true,
+              title: "HR Requests",
+              iconName: "Leave Requests",
+              path: "/emp/hr-requests"
+            }
+          );
+
+          return hrMenuItems;
+        })()
       : [])
   ];
 

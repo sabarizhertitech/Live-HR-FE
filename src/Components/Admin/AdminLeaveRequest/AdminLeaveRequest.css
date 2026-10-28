@@ -83,7 +83,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
   gap: 15px;
 }
@@ -456,6 +456,19 @@
   transform: translateY(-1px);
 }
 
+.adminLeaveRequest-sno-excess {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #f97316;
+  color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 11px;
+}
+
 .adminLeaveRequest-headerCell,
 .adminLeaveRequest-headerCellstart {
   font-size: 11px;
@@ -676,6 +689,7 @@
     left: 8px;
     right: 8px;
     top: 62px;
+    padding: 0 !important;
   }
 
   .adminLeaveRequest-panel {

@@ -61,6 +61,44 @@ const getLogByAction = (logs = [], action) => {
   return [...logs].reverse().find((l) => l.action === action) || null;
 };
 
+// ─── Render Description Point-by-Point ────────────────────────────────────
+const renderDescription = (desc) => {
+  if (!desc || !desc.trim()) return null;
+
+  const rawLines = desc.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+  const lines = [];
+  rawLines.forEach(l => {
+    if ((l.match(/•/g) || []).length > 1) {
+      const sub = l.split(/(?=(?:^|\s+)•\s+)/).map(s => s.trim()).filter(Boolean);
+      lines.push(...sub);
+    } else if (/(?:^|\s+)\d+[\.\)]\s+/.test(l) && (l.match(/\d+[\.\)]/g) || []).length > 1) {
+      const sub = l.split(/(?=(?:^|\s+)\d+[\.\)]\s+)/).map(s => s.trim()).filter(Boolean);
+      lines.push(...sub);
+    } else {
+      lines.push(l);
+    }
+  });
+
+  if (lines.length > 1) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "6px", textAlign: "left", width: "100%" }}>
+        {lines.map((line, i) => (
+          <div key={i} style={{ lineHeight: "1.5", wordBreak: "break-word", whiteSpace: "pre-line" }}>
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ whiteSpace: "pre-line", wordBreak: "break-word", lineHeight: "1.5", textAlign: "left" }}>
+      {desc}
+    </div>
+  );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 const DEFAULT_AVATAR = "/avatar.png";
 
@@ -615,7 +653,7 @@ const SecurityModels = ({ requestId, onClose, onEdit }) => {
                   {request.description && (
                     <div style={{ marginTop: "16px" }}>
                       <h6 className="security-maker-details-section-label" style={{ marginBottom: "6px" }}>Description</h6>
-                      <p className="security-maker-details-task-desc">{request.description}</p>
+                      <div className="security-maker-details-task-desc">{renderDescription(request.description)}</div>
                     </div>
                   )}
 

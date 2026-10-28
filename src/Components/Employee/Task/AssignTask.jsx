@@ -68,6 +68,7 @@ function AssignTask({ onClose, onSuccess }) {
   const [projectPages, setProjectPages] = useState([]);
   const [newPageVal, setNewPageVal] = useState("");
   const [phasePointByPoint, setPhasePointByPoint] = useState({});
+  const [isTaskPointByPoint, setIsTaskPointByPoint] = useState(false);
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -379,6 +380,107 @@ function AssignTask({ onClose, onSuccess }) {
       .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
       .filter(Boolean)
       .join("\n");
+  };
+
+  const handleToggleTaskPointByPoint = () => {
+    const nextMode = !isTaskPointByPoint;
+    setIsTaskPointByPoint(nextMode);
+    const currentDetails = formData.taskDetails || "";
+    if (nextMode) {
+      setFormData(prev => ({
+        ...prev,
+        taskDetails: formatToNumberedPoints(currentDetails)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        taskDetails: removeNumberedPoints(currentDetails)
+      }));
+    }
+  };
+
+  const handleTaskDetailsKeyDown = (e) => {
+    if (!isTaskPointByPoint) return;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const textarea = e.target;
+      const { selectionStart, selectionEnd, value } = textarea;
+
+      const textBeforeCursor = value.substring(0, selectionStart);
+      const textAfterCursor = value.substring(selectionEnd);
+
+      const linesBefore = textBeforeCursor.split("\n");
+      const currentLine = linesBefore[linesBefore.length - 1];
+
+      const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*(.*)$/);
+
+      if (match) {
+        const content = match[2];
+
+        if (!content.trim()) {
+          const newLines = linesBefore.slice(0, -1);
+          const newBefore = newLines.length > 0 ? newLines.join("\n") + "\n" : "";
+          const newText = newBefore + textAfterCursor;
+          setFormData(prev => ({ ...prev, taskDetails: newText }));
+          setTimeout(() => {
+            textarea.selectionStart = textarea.selectionEnd = newBefore.length;
+          }, 0);
+          return;
+        }
+
+        const insertion = "\n• ";
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        setFormData(prev => ({ ...prev, taskDetails: newText }));
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      } else {
+        const insertion = "\n• ";
+        const newText = textBeforeCursor + insertion + textAfterCursor;
+        const newCursorPos = selectionStart + insertion.length;
+
+        setFormData(prev => ({ ...prev, taskDetails: newText }));
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+        }, 0);
+      }
+    }
+  };
+
+  const handleTaskDetailsPaste = (e) => {
+    if (!isTaskPointByPoint) return;
+
+    const pastedText = e.clipboardData?.getData("text");
+    if (!pastedText || !pastedText.includes("\n")) return;
+
+    e.preventDefault();
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    const textBefore = value.substring(0, selectionStart);
+    const textAfter = value.substring(selectionEnd);
+
+    const pastedLines = pastedText
+      .split("\n")
+      .map((l) => l.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, "").trim())
+      .filter(Boolean);
+
+    const linesBefore = textBefore.split("\n");
+    const currentLine = linesBefore[linesBefore.length - 1];
+    const match = currentLine.match(/^([•\-\*]|\d+[\.\)])\s*/);
+
+    const formattedPaste = pastedLines
+      .map(line => `• ${line}`)
+      .join("\n");
+
+    const newText = textBefore + formattedPaste + textAfter;
+    setFormData(prev => ({ ...prev, taskDetails: newText }));
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = (textBefore + formattedPaste).length;
+    }, 0);
   };
 
   const handleTogglePhasePointByPoint = (index) => {
@@ -722,6 +824,7 @@ function AssignTask({ onClose, onSuccess }) {
       });
       setShowAllProjects(false);
       setPhasePointByPoint({});
+      setIsTaskPointByPoint(false);
       setUploadedFiles([]);
       if (onSuccess) onSuccess();
       setTimeout(() => onClose && onClose(), 1500);
@@ -1134,13 +1237,45 @@ function AssignTask({ onClose, onSuccess }) {
             </div>
 
             {/* Task Details */}
-            <div className="form-group" >
-              <label>Task Details *</label>
+            <div className="form-group" style={{ marginBottom: "5px" }}>
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <label style={{ margin: 0 }}>Task Details *</label>
+                <label
+                  className="d-flex align-items-center gap-1"
+                  onClick={handleToggleTaskPointByPoint}
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "500",
+                    color: isTaskPointByPoint ? "#5977f8" : "#77728e",
+                    cursor: "pointer",
+                    userSelect: "none",
+                    margin: 0
+                  }}
+                  title="Format description as bullet points (• Point)"
+                >
+                  <input
+                    type="radio"
+                    name="employeeTaskDetailsPointByPoint"
+                    checked={isTaskPointByPoint}
+                    readOnly
+                    style={{
+                      cursor: "pointer",
+                      accentColor: "#5977f8",
+                      width: "12px",
+                      height: "12px",
+                      margin: 0
+                    }}
+                  />
+                  <span>Point by Point</span>
+                </label>
+              </div>
               <textarea
                 name="taskDetails"
                 value={formData.taskDetails}
                 onChange={handleChange}
-                placeholder="Describe the task..."
+                onKeyDown={handleTaskDetailsKeyDown}
+                onPaste={handleTaskDetailsPaste}
+                placeholder={isTaskPointByPoint ? "• Enter first point..." : "Describe the task..."}
                 className="hrms-unified-input-style hrms-common-textarea"
               />
             </div>

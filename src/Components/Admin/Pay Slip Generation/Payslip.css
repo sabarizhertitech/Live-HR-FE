@@ -509,7 +509,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 18px 24px;
-    border-bottom: 1px solid #e2e8f0;
 }
 
 .bulk-modal-header h2 {
@@ -517,6 +516,29 @@
     font-size: 18px;
     font-weight: 500;
     color: #3A466D;
+}
+
+.bulk-modal-back-arrow-btn {
+    background: none;
+    border: none;
+    padding: 3px;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #3A466D;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.bulk-modal-back-arrow-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.bulk-modal-back-arrow-btn svg {
+    display: block;
 }
 
 .bulk-modal-subtitle {
@@ -527,10 +549,63 @@
 
 .bulk-modal-header-actions {
     display: flex;
-    gap: 18px;
+    gap: 14px;
     margin-left: auto;
     margin-right: 20px;
     align-items: center;
+}
+
+/* ── Bulk Modal Header Tabs ── */
+.bulk-header-tabs {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    gap: 3px;
+}
+
+.bulk-header-tab {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.2;
+    outline: none;
+}
+
+.bulk-header-tab:hover {
+    color: #1e293b;
+}
+
+.bulk-header-tab.active {
+    background: #ffffff;
+    color: #2563eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.bulk-header-tab-badge {
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.bulk-header-tab.active .bulk-header-tab-badge {
+    background: #ef4444;
+    color: #ffffff;
 }
 
 .bulk-pt-label {
@@ -603,7 +678,7 @@
     /* Show Firefox scrollbar */
     -ms-overflow-style: auto;
     /* Show IE/Edge scrollbar */
-    padding: 20px 28px 30px;
+    padding: 0px 22px 10px;
 }
 
 .bulk-modal-table-wrapper::-webkit-scrollbar {
@@ -637,47 +712,51 @@
 /* ── Bulk Table ── */
 .bulk-modal-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     min-width: 100%;
     font-size: 13px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .bulk-modal-table thead tr {
-    background: #111827;
+    background: #f6f6f6;
 }
 
 .bulk-modal-table thead th {
-    color: #ffffff;
+    color: #3a466d;
     padding: 12px 15px;
     text-align: left;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
     border-right: none;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .bulk-modal-table thead th:first-child {
     width: 44px;
     text-align: center;
-    border-radius: 8px 0 0 0;
+    border-top-left-radius: 7px;
 }
 
 .bulk-modal-table thead th:last-child {
     border-right: none;
-    border-radius: 0 8px 0 0;
+    border-top-right-radius: 7px;
 }
 
 .bulk-modal-table thead th input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
-    accent-color: #ffffff;
+    accent-color: #5977f8;
 }
 
 .bulk-modal-table tbody tr {
-    border-bottom: 1px solid #f1f5f9;
     transition: background 0.12s;
 }
 
@@ -685,7 +764,7 @@
     background: #f8fafc;
 }
 
-.bulk-modal-table tbody tr:last-child {
+.bulk-modal-table tbody tr:last-child td {
     border-bottom: none;
 }
 
@@ -693,6 +772,7 @@
     padding: 11px 14px;
     color: #374151;
     vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .bulk-modal-table tbody td:first-child {
@@ -721,6 +801,327 @@
 .bulk-modal-empname {
     font-weight: 600;
     color: #1e293b;
+}
+
+/* ── LOP Text Only Tag (Red) ── */
+.bulk-lop-text-only {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+/* ── LOP Tag in Main Table Row (Red) ── */
+.bulk-lop-tag-red {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #dc2626;
+    letter-spacing: 0.1px;
+    width: fit-content;
+}
+
+.bulk-lop-red-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #dc2626;
+    display: inline-block;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+    flex-shrink: 0;
+}
+
+/* ── LOP Tag in Main Table Row (Gray - Not Deducted) ── */
+.bulk-lop-tag-gray {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.1px;
+    width: fit-content;
+}
+
+.bulk-lop-gray-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #94a3b8;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* ── Per-Employee LOP Yes/No Toggle Buttons ── */
+.bulk-lop-row-actions {
+    margin-top: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.bulk-lop-row-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.bulk-lop-btn-group {
+    display: inline-flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bulk-lop-toggle-btn {
+    border: none;
+    background: #ffffff;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+    outline: none;
+}
+
+.bulk-lop-toggle-btn:hover:not(.active) {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.bulk-lop-toggle-btn--yes.active {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.bulk-lop-toggle-btn--no.active {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* ── LOP Confirmation Modal ── */
+.lop-confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10005;
+}
+
+.lop-confirm-modal {
+    width: calc(100% - 30px);
+    max-width: 720px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    box-sizing: border-box;
+    overflow: hidden;
+    animation: lopModalFadeIn 0.2s ease-out;
+}
+
+@keyframes lopModalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.lop-confirm-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 15px 14px;
+}
+
+.lop-confirm-modal-header h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.lop-confirm-modal-header p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.lop-confirm-modal-body {
+    padding: 10px 20px;
+    overflow-y: auto;
+    max-height: 55vh;
+}
+
+.lop-confirm-table-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lop-confirm-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.lop-confirm-table thead tr {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lop-confirm-table thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.lop-confirm-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.lop-confirm-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.lop-confirm-table tbody td {
+    padding: 10px 14px;
+    color: #334155;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.lop-confirm-radio-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 3px 6px;
+    border-radius: 6px;
+}
+
+.lop-confirm-radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.lop-confirm-radio-label.active {
+    color: #1e40af;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.lop-confirm-radio-label input[type="radio"] {
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #4f46e5;
+}
+
+.lop-confirm-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+
+.lop-confirm-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+}
+
+.lop-confirm-btn--cancel {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+.lop-confirm-btn--cancel:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.lop-confirm-btn--no {
+    background: #fa4e4e;
+    border: 1px solid #f87171;
+    color: #ffffff;
+}
+
+.lop-confirm-btn--no:hover {
+    background: #f55d5d;
+    border-color: #ef4444;
+}
+
+.lop-confirm-btn--deduct {
+    background: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+}
+
+.lop-confirm-btn--deduct:hover {
+    background: #4338ca;
 }
 
 .bulk-modal-allowances {
@@ -820,6 +1221,30 @@
 
 .bulk-modal-btn--selected:hover:not(:disabled) {
     background: #1e2547;
+    transform: translateY(-1px);
+}
+
+.bulk-modal-btn--not-deduct {
+    background: #ffffff;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+}
+
+.bulk-modal-btn--not-deduct:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #ef4444;
+    transform: translateY(-1px);
+}
+
+.bulk-modal-btn--deduct {
+    background: #2563eb;
+    color: #ffffff;
+    border: 1.5px solid #2563eb;
+}
+
+.bulk-modal-btn--deduct:hover:not(:disabled) {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
     transform: translateY(-1px);
 }
 
@@ -1258,7 +1683,7 @@
     }
 
     .bulk-modal-table-wrapper {
-        padding: 16px 16px;
+        padding: 5px 16px;
     }
 
     .bulk-modal-footer {
@@ -1839,6 +2264,10 @@
         left: 8px !important;
         right: 8px !important;
         top: 62px !important;
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 24px !important;
     }
 
     .pay-slip-generator-card {
@@ -2162,6 +2591,13 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    gap: 12px;
+}
+
+.payslip-header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .payslip-header-title {
@@ -2169,6 +2605,90 @@
     font-weight: 500;
     color: #77728e;
     margin: 0;
+}
+
+.payslip-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.payslip-mobile-filter-icon {
+    display: none !important;
+}
+
+.payslip-desktop-filter-icon {
+    display: flex !important;
+}
+
+.payslip-header-btn {
+    height: 36px !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+}
+
+.payslip-header-btn:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+.payslip-header-btn--generate {
+    background-color: #5977f8 !important;
+    color: #ffffff !important;
+}
+
+.payslip-header-btn--generate:hover:not(:disabled) {
+    background-color: #4765e6 !important;
+}
+
+.payslip-header-btn--zip {
+    background-color: #22c55e !important;
+    color: #ffffff !important;
+}
+
+.payslip-header-btn--zip:hover:not(:disabled) {
+    background-color: #16a34a !important;
+}
+
+.payslip-bulk-delete-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    height: 36px !important;
+    cursor: pointer !important;
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+.payslip-filter-dual-dropdown {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.payslip-filter-dual-dropdown > div {
+    flex: 1 1 50% !important;
+    min-width: 0 !important;
 }
 
 .payslip-zip-download-btn {
@@ -2245,4 +2765,306 @@ input[type="number"] {
     cursor: not-allowed !important;
     opacity: 0.45 !important;
     pointer-events: none !important;
+}
+
+/* ==============================================================
+   RESPONSIVE STYLES (MATCHING MOBILE SCREENS FOR PAYSLIP GENERATION)
+   ============================================================== */
+
+@media (max-width: 992px) {
+    .pay-slip-generator-main {
+        left: 15px !important;
+        right: 15px !important;
+        top: 84px !important;
+        padding-top: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .payslip-filters-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .pay-slip-generator-main {
+        left: 12px !important;
+        right: 12px !important;
+        top: 74px !important;
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 24px !important;
+    }
+
+    .pay-slip-generator-card {
+        padding: 16px 14px !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+    }
+
+    .payslip-header-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .payslip-header-title-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    .payslip-mobile-filter-icon {
+        display: flex !important;
+    }
+
+    .payslip-desktop-filter-icon {
+        display: none !important;
+    }
+
+    .payslip-header-actions {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .payslip-header-btn {
+        flex: 1 1 calc(50% - 6px) !important;
+        min-width: 125px !important;
+        height: 36px !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+    }
+
+    .payslip-bulk-delete-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        height: 36px !important;
+        font-size: 12px !important;
+        order: -1;
+    }
+
+    .payslip-filters {
+        padding: 14px 12px !important;
+        border-radius: 10px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .payslip-filters-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .payslip-filter-field {
+        width: 100% !important;
+    }
+
+    .payslip-filter-field .custom-dropdown-container,
+    .payslip-filter-field .custom-dropdown-trigger {
+        width: 100% !important;
+    }
+
+    .payslip-filter-actions {
+        display: flex !important;
+        justify-content: stretch !important;
+        width: 100% !important;
+        gap: 10px !important;
+        margin-top: 14px !important;
+    }
+
+    .payslip-filter-actions button {
+        flex: 1 1 50% !important;
+        height: 36px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+    }
+
+    .pay-slip-generator-table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        width: 100% !important;
+        border-radius: 8px !important;
+        border: 1px solid #e5e7eb !important;
+    }
+
+    .payslip-table-main {
+        min-width: 650px !important;
+        width: 100% !important;
+    }
+
+    .payslip-table-cell,
+    .payslip-table-header-cell {
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+    }
+
+    .payslip-row-actions-group {
+        display: flex !important;
+        gap: 6px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .payslip-btn {
+        padding: 5px 10px !important;
+        font-size: 11px !important;
+    }
+
+    /* Bulk Payslip Modal */
+    .bulk-modal-overlay {
+        padding: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .bulk-modal-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        max-height: 94vh !important;
+        border-radius: 12px !important;
+    }
+
+    .bulk-selection-container {
+        padding: 20px 14px !important;
+    }
+
+    .bulk-selection-dropdown-group {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .bulk-dropdown-col {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .bulk-selection-container button {
+        width: 100% !important;
+        margin-top: 10px !important;
+    }
+
+    .bulk-modal-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 12px 14px 16px !important;
+    }
+
+    .bulk-modal-footer-actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 8px !important;
+    }
+
+    .bulk-modal-footer-actions button {
+        width: 100% !important;
+    }
+
+    /* PDF preview modal */
+    .salary-slip-modal-box {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: 90vh !important;
+        border-radius: 10px !important;
+    }
+
+    /* LOP Confirmation Modal (Mobile Scroll) */
+    .lop-confirm-modal {
+        width: calc(100% - 24px) !important;
+        max-width: 95vw !important;
+        max-height: 85vh !important;
+        margin: auto !important;
+    }
+
+    .lop-confirm-modal-header {
+        padding: 16px 14px 10px !important;
+    }
+
+    .lop-confirm-modal-header h3 {
+        font-size: 15px !important;
+    }
+
+    .lop-confirm-modal-header p {
+        font-size: 11.5px !important;
+    }
+
+    .lop-confirm-modal-body {
+        padding: 8px 12px !important;
+        max-height: 55vh !important;
+    }
+
+    .lop-confirm-table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        width: 100% !important;
+    }
+
+    .lop-confirm-table {
+        min-width: 580px !important;
+        width: max-content !important;
+    }
+
+    .lop-confirm-table thead th,
+    .lop-confirm-table tbody td {
+        padding: 8px 10px !important;
+        font-size: 11.5px !important;
+        white-space: nowrap !important;
+    }
+
+    .lop-confirm-modal-footer {
+        padding: 10px 14px 14px !important;
+    }
+
+    .lop-confirm-modal-footer button {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .pay-slip-generator-main {
+        left: 8px !important;
+        right: 8px !important;
+        top: 62px !important;
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 20px !important;
+    }
+
+    .pay-slip-generator-card {
+        padding: 14px 10px !important;
+    }
+
+    .payslip-header-actions {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .payslip-header-btn {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        font-size: 12px !important;
+    }
+
+    .bulk-selection-title {
+        font-size: 14px !important;
+        text-align: center;
+    }
+
+    .bulk-modal-header h2 {
+        font-size: 15px !important;
+    }
 }

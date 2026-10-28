@@ -76,7 +76,7 @@ const NotificationBell = () => {
       case "PROFILE_EDIT_REJECTED": return "❌";
       case "PROFILE_COMPLETION_REQUEST": return "📋";
       case "PROFILE_APPROVED": return "✅";
-      case "PROFILE_REJECTED": return "⚠️";
+      case "PROFILE_REJECTED": return "";
       case "SECURITY_REQUEST": return "🛡️";
       case "SECURITY_APPROVED": return "🔓";
       case "SECURITY_REJECTED": return "";
@@ -87,6 +87,9 @@ const NotificationBell = () => {
       case "LEAVE_REJECTED":
       case "WFH_REJECTED": return "❌";
       case "TASK_DUE": return "⏰";
+      case "PERMISSION_REQUEST": return "📋";
+      case "PERMISSION_APPROVED": return "✅";
+      case "PERMISSION_REJECTED": return "❌";
       default: return "🔔";
     }
   };
@@ -111,6 +114,9 @@ const NotificationBell = () => {
       case "WFH_APPROVED": return "#22c55e"; // green for approved
       case "LEAVE_REJECTED":
       case "WFH_REJECTED": return "#ef4444"; // red for rejected
+      case "PERMISSION_REQUEST": return "#f59e0b";
+      case "PERMISSION_APPROVED": return "#22c55e";
+      case "PERMISSION_REJECTED": return "#ef4444";
       case "TASK_DUE": return "#ea580c"; // orange/amber for task due
       default: return "#6b7280";
     }

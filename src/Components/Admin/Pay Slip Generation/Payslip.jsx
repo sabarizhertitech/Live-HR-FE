@@ -10,6 +10,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import arrow from "../../../../public/Down Arrow.svg";
 import JSZip from "jszip";
+import { useUser } from "../../UserContext";
+import { canHrGenerateSlips, canHrDeleteSlips } from "../../../utils/hrAccessHelper";
 
 
 const LocalPayslipDropdown = ({ options, value, onChange, placeholder, style, className }) => {
@@ -119,13 +121,15 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
   const [deductionsMap, setDeductionsMap] = useState({});
   const [relievedModesMap, setRelievedModesMap] = useState({});
   const [customDaysMap, setCustomDaysMap] = useState({});
+  const [lopConfirmModal, setLopConfirmModal] = useState(null);
+  const [lopPopupModes, setLopPopupModes] = useState({});
 
   const [taxEditEmployee, setTaxEditEmployee] = useState(null);
   const [tempDeductions, setTempDeductions] = useState([]);
 
   const [allPT, setAllPT] = useState(false);
 
-  const calculateDefaultDeductions = (emp, month, year, includePT) => {
+  const calculateDefaultDeductions = (emp, month, year, includePT, deductLop = true) => {
     const history = emp.salaryHistory || emp.details?.salaryHistory || [];
     const row = getApplicableSalary(history, month, year);
     const basic = Number(emp.overrideSalary ?? row?.basicSalary ?? 0);
@@ -166,6 +170,10 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
       if (ptAmount > 0) {
         deductions.push({ label: "Professional Tax", amount: ptAmount });
       }
+    }
+
+    if (deductLop && emp.lopAmount && Number(emp.lopAmount) > 0) {
+      deductions.push({ label: "Loss of Pay (LOP)", amount: Number(emp.lopAmount) });
     }
 
     return deductions;
@@ -374,10 +382,12 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
           emp,
           selectedMonth,
           selectedYear,
-          is2026OrFuture
+          is2026OrFuture,
+          true
         );
       });
       setDeductionsMap(initialDeductions);
+      setSelected([]);
 
       setStep("table");
     } catch (err) {
@@ -466,20 +476,23 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
     );
     setDeductionsMap((prev) => ({
       ...prev,
-      [editEmployee._id]: calculateDefaultDeductions(updatedEmp, selectedMonth, selectedYear, allPT)
+      [editEmployee._id]: calculateDefaultDeductions(updatedEmp, selectedMonth, selectedYear, allPT, true)
     }));
     setEditEmployee(null);
   };
 
   const selectableEmployees = activeEmployees.filter(e => !e.hasGeneratedSlip);
   const allSelected =
-    selectableEmployees.length > 0 && selected.length === selectableEmployees.length;
+    selectableEmployees.length > 0 &&
+    selectableEmployees.every((e) => selected.includes(String(e._id)));
 
   const toggleSelectAll = () => {
     if (allSelected) {
-      setSelected([]);
+      const currentIds = new Set(selectableEmployees.map((e) => String(e._id)));
+      setSelected((prev) => prev.filter((id) => !currentIds.has(id)));
     } else {
-      setSelected(selectableEmployees.map((e) => String(e._id)));
+      const currentIds = selectableEmployees.map((e) => String(e._id));
+      setSelected((prev) => Array.from(new Set([...prev, ...currentIds])));
     }
   };
 
@@ -587,11 +600,31 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
       .join(", ");
   };
 
-  const callBulkApi = async (ids) => {
+  const callBulkApi = async (ids, lopDecision = true) => {
     setBulkLoading(true);
     setBulkResult(null);
 
     try {
+      const isLopLabel = (label) =>
+        /^(loss of pay|loss of pay \(lop\)|lop)$/i.test((label || "").trim());
+
+      // Update deductionsMap locally for any employee set to not deduct
+      setDeductionsMap((prev) => {
+        const next = { ...prev };
+        ids.forEach((id) => {
+          let deduct = true;
+          if (typeof lopDecision === "boolean") {
+            deduct = lopDecision;
+          } else if (lopDecision && typeof lopDecision === "object") {
+            deduct = (lopDecision[id] || "yes") === "yes";
+          }
+          if (!deduct && next[id]) {
+            next[id] = next[id].filter((d) => !isLopLabel(d.label));
+          }
+        });
+        return next;
+      });
+
       const res = await portalInstance.post(
         "/salary-slip/admin/generate-multiple-salary-slip",
         {
@@ -642,13 +675,34 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
                 ? Number(customDays)
                 : defaultDays;
 
+              const hasLop = Boolean(emp.hasLop && (emp.lopDays > 0 || Number(emp.lopAmount) > 0));
+              let shouldDeductLop = false;
+              if (hasLop) {
+                if (typeof lopDecision === "boolean") {
+                  shouldDeductLop = lopDecision;
+                } else if (lopDecision && typeof lopDecision === "object") {
+                  shouldDeductLop = (lopDecision[emp._id] || "yes") === "yes";
+                }
+              }
+
+              let empDeductions = deductionsMap[emp._id] || [];
+              if (!shouldDeductLop) {
+                empDeductions = empDeductions.filter(d => !isLopLabel(d.label));
+              } else if (hasLop && emp.lopAmount > 0) {
+                const hasEntry = empDeductions.some(d => isLopLabel(d.label));
+                if (!hasEntry) {
+                  empDeductions = [...empDeductions, { label: "Loss of Pay (LOP)", amount: Number(emp.lopAmount) }];
+                }
+              }
+
               return {
                 empId: emp._id,
                 overrideSalary: emp.overrideSalary,
                 overrideAllowances: emp.overrideAllowances,
-                deductions: deductionsMap[emp._id] || [],
+                deductions: empDeductions,
                 relievedSalaryMode: relievedModesMap[emp._id] || "full",
-                customPayableDays: resolvedPayableDays
+                customPayableDays: resolvedPayableDays,
+                deductLop: shouldDeductLop
               };
             })
         }
@@ -701,15 +755,40 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
     }
   };
 
+  const triggerGeneration = (ids) => {
+    const eligibleTargetEmployees = activeEmployees.filter(
+      (e) => ids.includes(String(e._id)) && !e.hasGeneratedSlip
+    );
+    const lopTargetEmployees = eligibleTargetEmployees.filter(
+      (e) => Boolean(e.hasLop && (e.lopDays > 0 || Number(e.lopAmount) > 0))
+    );
+
+    if (lopTargetEmployees.length > 0) {
+      const initialModes = {};
+      lopTargetEmployees.forEach((emp) => {
+        initialModes[emp._id] = "yes";
+      });
+      setLopPopupModes(initialModes);
+      setLopConfirmModal({
+        ids: eligibleTargetEmployees.map((e) => String(e._id)),
+        employees: lopTargetEmployees
+      });
+    } else {
+      callBulkApi(eligibleTargetEmployees.map((e) => String(e._id)), false);
+    }
+  };
+
   const handleGenerateSelected = () => {
     if (!selected.length) return;
-    callBulkApi(selected);
+    triggerGeneration(selected);
   };
 
   const handleGenerateAll = () => {
-    const allIds = activeEmployees.map((e) => e._id);
+    const allIds = activeEmployees
+      .filter((e) => !e.hasGeneratedSlip)
+      .map((e) => String(e._id));
     if (!allIds.length) return;
-    callBulkApi(allIds);
+    triggerGeneration(allIds);
   };
 
   /* trap scroll behind modal */
@@ -727,16 +806,45 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
           {/* Modal Header */}
           <div className="bulk-modal-header" style={step === "selection" ? { borderBottom: "none" } : {}}>
             <div>
-              <h2>Payslip Generation</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {step === "table" && (
+                  <button
+                    type="button"
+                    className="bulk-modal-back-arrow-btn"
+                    onClick={() => {
+                      setStep("selection");
+                      setSelected([]);
+                      setActiveTab("payslip");
+                    }}
+                    aria-label="Back"
+                    title="Back"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                )}
+                <h2>Payslip Generation</h2>
+              </div>
               {step === "table" && (
                 <p className="bulk-modal-subtitle">
-                  {monthNames[Number(selectedMonth) - 1]} {selectedYear} &mdash; {activeEmployees.length} eligible employee{activeEmployees.length !== 1 ? "s" : ""}
+                  {`${monthNames[Number(selectedMonth) - 1]} ${selectedYear} — ${activeEmployees.length} eligible employee${activeEmployees.length !== 1 ? "s" : ""}`}
                 </p>
               )}
             </div>
 
             {step === "table" && (
               <div className="bulk-modal-header-actions">
+
                 <label className="bulk-pt-label">
                   <input
                     type="checkbox"
@@ -822,298 +930,277 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
                   </div>
                 ) : (
                   <table className="bulk-modal-table">
-                    <thead>
-                      <tr>
-                        <th>
-                          <input
-                            type="checkbox"
-                            checked={allSelected}
-                            onChange={toggleSelectAll}
-                            className="cursor-pointer"
-                            title={allSelected ? "Deselect All" : "Select All"}
-                          />
-                        </th>
-                        <th>Emp ID</th>
-                        <th>Employee Name</th>
-                        <th>Account No</th>
-                        <th>Bank Name</th>
-                        <th>Salary Details</th>
-                        <th>Allowances</th>
-                        <th>Deductions</th>
-                        <th>Final Salary</th>
-                        <th className="text-center">Edit</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeEmployees.map((emp, idx) => {
-                        const id = String(emp._id);
-                        const isChecked = selected.includes(id);
-                        return (
-                          <tr
-                            key={`bulk-emp-${id}-${idx}`}
-                            className={`${isChecked ? "bulk-modal-row--selected" : ""} ${emp.hasGeneratedSlip ? "bulk-modal-row--disabled" : ""}`}
-                            onClick={() => toggleRow(id, emp)}
-                            style={emp.hasGeneratedSlip ? { opacity: 0.65, backgroundColor: "#f8fafc", cursor: "not-allowed" } : {}}
-                          >
-                            <td>
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                disabled={emp.hasGeneratedSlip}
-                                readOnly
-                              />
-                            </td>
-                            <td className="bulk-modal-empid">{emp.empId || "-"}</td>
-                            <td className="bulk-modal-empname">
-                              {emp.name || "-"}
-                              {emp.hasGeneratedSlip && (
-                                <span style={{
-                                  marginLeft: "8px",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  fontSize: "11px",
-                                  fontWeight: "600",
-                                  backgroundColor: "#e2e8f0",
-                                  color: "#475569"
-                                }}>
-                                  Already Generated
-                                </span>
-                              )}
-                              {(() => {
-                                const m = Number(selectedMonth);
-                                const y = Number(selectedYear);
+                      <thead>
+                        <tr>
+                          <th>
+                            <input
+                              type="checkbox"
+                              checked={allSelected}
+                              onChange={toggleSelectAll}
+                              className="cursor-pointer"
+                              title={allSelected ? "Deselect All" : "Select All"}
+                            />
+                          </th>
+                          <th>Emp ID</th>
+                          <th>Employee Name</th>
+                          <th>Account No</th>
+                          <th>Bank Name</th>
+                          <th>Salary Details</th>
+                          <th>Allowances</th>
+                          <th>Deductions</th>
+                          <th>Final Salary</th>
+                          <th className="text-center">Edit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeEmployees.map((emp, idx) => {
+                          const id = String(emp._id);
+                          const isChecked = selected.includes(id);
+                          return (
+                            <tr
+                              key={`bulk-emp-${id}-${idx}`}
+                              className={`${isChecked ? "bulk-modal-row--selected" : ""} ${emp.hasGeneratedSlip ? "bulk-modal-row--disabled" : ""}`}
+                              onClick={() => toggleRow(id, emp)}
+                              style={emp.hasGeneratedSlip ? { opacity: 0.65, backgroundColor: "#f8fafc", cursor: "not-allowed" } : {}}
+                            >
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  disabled={emp.hasGeneratedSlip}
+                                  readOnly
+                                />
+                              </td>
+                              <td className="bulk-modal-empid">{emp.empId || "-"}</td>
+                              <td className="bulk-modal-empname">
+                                <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                  <span>{emp.name || "-"}</span>
+                                  {emp.hasGeneratedSlip && (
+                                    <span style={{
+                                      padding: "2px 8px",
+                                      borderRadius: "4px",
+                                      fontSize: "11px",
+                                      fontWeight: "600",
+                                      backgroundColor: "#e2e8f0",
+                                      color: "#475569"
+                                    }}>
+                                      Already Generated
+                                    </span>
+                                  )}
+                                  {Boolean(emp.hasLop && (emp.lopDays > 0 || Number(emp.lopAmount) > 0)) && (
+                                    <span className="bulk-lop-text-only">LOP</span>
+                                  )}
+                                </div>
+                                {(() => {
+                                  const m = Number(selectedMonth);
+                                  const y = Number(selectedYear);
 
-                                let isRelievedThisMonth = false;
-                                if (emp.dateRelieved) {
-                                  const d = new Date(emp.dateRelieved);
-                                  if (!isNaN(d.getTime())) {
-                                    isRelievedThisMonth = (d.getMonth() + 1 === m) && (d.getFullYear() === y);
-                                  }
-                                }
-
-                                let isJoinedThisMonth = false;
-                                if (emp.dateJoined) {
-                                  const d = new Date(emp.dateJoined);
-                                  if (!isNaN(d.getTime())) {
-                                    isJoinedThisMonth = (d.getMonth() + 1 === m) && (d.getFullYear() === y);
-                                  }
-                                }
-
-                                if (!isRelievedThisMonth && !isJoinedThisMonth) return null;
-
-                                const badgeLabel = isRelievedThisMonth ? "Relieved:" : "Joined:";
-                                const badgeColor = isRelievedThisMonth ? "#dc2626" : "#2563eb";
-
-                                return (
-                                  <div style={{ marginTop: "4px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px", position: "relative", zIndex: 9999 }} onClick={(e) => e.stopPropagation()}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                      <span style={{ fontSize: "11px", color: badgeColor, fontWeight: "600", whiteSpace: "nowrap" }}>{badgeLabel}</span>
-                                      <CustomDropdown
-                                        options={[
-                                          { label: "Full Salary", value: "full" },
-                                          { label: "Deduction Salary", value: "deduct" }
-                                        ]}
-                                        value={relievedModesMap[id] || "full"}
-                                        onChange={(val) => {
-                                          setRelievedModesMap((prev) => ({ ...prev, [id]: val }));
-                                        }}
-                                        direction="up"
-                                        className="relieved-mode-dropdown"
-                                        style={{ width: "140px", position: "relative", zIndex: 9999 }}
-                                      />
-                                    </div>
-                                    {relievedModesMap[id] === "deduct" && (
-                                      <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
-                                        <span style={{ fontSize: "11px", color: "#475569", fontWeight: "600", whiteSpace: "nowrap" }}>Worked Days:</span>
-                                        <input
-                                          type="text"
-                                          inputMode="numeric"
-                                          pattern="[0-9]*"
-                                          value={customDaysMap[id] ?? (() => {
-                                            const totalMonthDays = new Date(y, m, 0).getDate();
-                                            if (isRelievedThisMonth && emp.dateRelieved) {
-                                              const d = new Date(emp.dateRelieved);
-                                              return !isNaN(d.getTime()) ? d.getDate() : totalMonthDays;
-                                            }
-                                            if (isJoinedThisMonth && emp.dateJoined) {
-                                              const d = new Date(emp.dateJoined);
-                                              return !isNaN(d.getTime()) ? totalMonthDays - d.getDate() + 1 : totalMonthDays;
-                                            }
-                                            return totalMonthDays;
-                                          })()}
-                                          onChange={(e) => {
-                                            const raw = e.target.value.replace(/[^0-9]/g, "");
-                                            if (raw === "") {
-                                              setCustomDaysMap((prev) => ({ ...prev, [id]: "" }));
-                                              return;
-                                            }
-                                            const monthDays = new Date(y, m, 0).getDate();
-                                            const val = Math.max(1, Math.min(monthDays, Number(raw)));
-                                            setCustomDaysMap((prev) => ({ ...prev, [id]: val }));
-                                          }}
-                                          onWheel={(e) => e.target.blur()}
-                                          onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
-                                          style={{
-                                            width: "50px",
-                                            padding: "2px 4px",
-                                            fontSize: "11px",
-                                            borderRadius: "4px",
-                                            border: "1px solid #cbd5e1",
-                                            textAlign: "center",
-                                            outline: "none",
-                                            fontWeight: "600"
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })()}
-                            </td>
-                            <td>
-                              {(() => {
-                                const row = getApplicableBank(emp.bankHistory, selectedMonth, selectedYear);
-                                return maskAccountNumber(row?.accountNumber);
-                              })()}
-                            </td>
-                            <td>
-                              {(() => {
-                                const row = getApplicableBank(emp.bankHistory, selectedMonth, selectedYear);
-                                return row?.bankName || "-";
-                              })()}
-                            </td>
-                            <td>{getEarningsSummary(emp)}</td>
-                            <td className="bulk-modal-allowances">
-                              {getAllowancesSummary(emp)}
-                            </td>
-
-                            {(() => {
-                              const history = emp.salaryHistory || emp.details?.salaryHistory || [];
-                              const row = getApplicableSalary(history, selectedMonth, selectedYear);
-                              const hasOverride = emp.overrideSalary !== undefined || emp.overrideAllowances !== undefined;
-
-                              const mode = relievedModesMap[id] || "full";
-                              let basic = Number(
-                                emp.overrideSalary ?? row?.basicSalary ?? 0
-                              );
-                              let allowances = (
-                                emp.overrideAllowances ??
-                                row?.allowances ??
-                                []
-                              ).reduce(
-                                (sum, a) => sum + Number(a.amount ?? a.value ?? 0),
-                                0
-                              );
-
-                              if (mode === "deduct" && !hasOverride) {
-                                const m = Number(selectedMonth);
-                                const y = Number(selectedYear);
-                                const monthDays = new Date(y, m, 0).getDate() || 30;
-
-                                let payableDays = customDaysMap[id];
-                                if (payableDays === undefined || payableDays === null) {
+                                  let isRelievedThisMonth = false;
                                   if (emp.dateRelieved) {
                                     const d = new Date(emp.dateRelieved);
-                                    if (!isNaN(d.getTime()) && (d.getMonth() + 1 === m) && (d.getFullYear() === y)) {
-                                      payableDays = d.getDate();
+                                    if (!isNaN(d.getTime())) {
+                                      isRelievedThisMonth = (d.getMonth() + 1 === m) && (d.getFullYear() === y);
                                     }
-                                  } else if (emp.dateJoined) {
-                                    const d = new Date(emp.dateJoined);
-                                    if (!isNaN(d.getTime()) && (d.getMonth() + 1 === m) && (d.getFullYear() === y)) {
-                                      payableDays = monthDays - d.getDate() + 1;
-                                    }
-                                  } else {
-                                    payableDays = monthDays;
                                   }
+
+                                  let isJoinedThisMonth = false;
+                                  if (emp.dateJoined) {
+                                    const d = new Date(emp.dateJoined);
+                                    if (!isNaN(d.getTime())) {
+                                      isJoinedThisMonth = (d.getMonth() + 1 === m) && (d.getFullYear() === y);
+                                    }
+                                  }
+
+                                  if (!isRelievedThisMonth && !isJoinedThisMonth) return null;
+
+                                  const badgeLabel = isRelievedThisMonth ? "Relieved:" : "Joined:";
+                                  const badgeColor = isRelievedThisMonth ? "#dc2626" : "#2563eb";
+
+                                  return (
+                                    <div style={{ marginTop: "4px", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px", position: "relative", zIndex: 9999 }} onClick={(e) => e.stopPropagation()}>
+                                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                                        <span style={{ fontSize: "11px", color: badgeColor, fontWeight: "600", whiteSpace: "nowrap" }}>{badgeLabel}</span>
+                                        <CustomDropdown
+                                          options={[
+                                            { label: "Full Salary", value: "full" },
+                                            { label: "Deduction Salary", value: "deduct" }
+                                          ]}
+                                          value={relievedModesMap[id] || "full"}
+                                          onChange={(val) => {
+                                            setRelievedModesMap((prev) => ({ ...prev, [id]: val }));
+                                          }}
+                                          direction="up"
+                                          className="relieved-mode-dropdown"
+                                          style={{ width: "140px", position: "relative", zIndex: 9999 }}
+                                        />
+                                      </div>
+                                      {relievedModesMap[id] === "deduct" && (
+                                        <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                                          <span style={{ fontSize: "11px", color: "#475569", fontWeight: "600", whiteSpace: "nowrap" }}>Worked Days:</span>
+                                          <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            value={customDaysMap[id] ?? (() => {
+                                              const totalMonthDays = new Date(y, m, 0).getDate();
+                                              if (isRelievedThisMonth && emp.dateRelieved) {
+                                                const d = new Date(emp.dateRelieved);
+                                                return !isNaN(d.getTime()) ? d.getDate() : totalMonthDays;
+                                              }
+                                              if (isJoinedThisMonth && emp.dateJoined) {
+                                                const d = new Date(emp.dateJoined);
+                                                return !isNaN(d.getTime()) ? totalMonthDays - d.getDate() + 1 : totalMonthDays;
+                                              }
+                                              return totalMonthDays;
+                                            })()}
+                                            onChange={(e) => {
+                                              const raw = e.target.value.replace(/[^0-9]/g, "");
+                                              if (raw === "") {
+                                                setCustomDaysMap((prev) => ({ ...prev, [id]: "" }));
+                                                return;
+                                              }
+                                              const monthDays = new Date(y, m, 0).getDate();
+                                              const val = Math.max(1, Math.min(monthDays, Number(raw)));
+                                              setCustomDaysMap((prev) => ({ ...prev, [id]: val }));
+                                            }}
+                                            onWheel={(e) => e.target.blur()}
+                                            onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
+                                            style={{
+                                              width: "50px",
+                                              padding: "2px 4px",
+                                              fontSize: "11px",
+                                              borderRadius: "4px",
+                                              border: "1px solid #cbd5e1",
+                                              textAlign: "center",
+                                              outline: "none",
+                                              fontWeight: "600"
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </td>
+                              <td>
+                                {(() => {
+                                  const row = getApplicableBank(emp.bankHistory, selectedMonth, selectedYear);
+                                  return maskAccountNumber(row?.accountNumber);
+                                })()}
+                              </td>
+                              <td>
+                                {(() => {
+                                  const row = getApplicableBank(emp.bankHistory, selectedMonth, selectedYear);
+                                  return row?.bankName || "-";
+                                })()}
+                              </td>
+                              <td>{getEarningsSummary(emp)}</td>
+                              <td className="bulk-modal-allowances">
+                                {getAllowancesSummary(emp)}
+                              </td>
+
+                              {(() => {
+                                const history = emp.salaryHistory || emp.details?.salaryHistory || [];
+                                const row = getApplicableSalary(history, selectedMonth, selectedYear);
+                                const hasOverride = emp.overrideSalary !== undefined || emp.overrideAllowances !== undefined;
+
+                                const mode = relievedModesMap[id] || "full";
+                                let basic = Number(
+                                  emp.overrideSalary ?? row?.basicSalary ?? 0
+                                );
+                                let allowances = (
+                                  emp.overrideAllowances ??
+                                  row?.allowances ??
+                                  []
+                                ).reduce(
+                                  (sum, a) => sum + Number(a.amount ?? a.value ?? 0),
+                                  0
+                                );
+
+                                if (mode === "deduct" && !hasOverride) {
+                                  const m = Number(selectedMonth);
+                                  const y = Number(selectedYear);
+                                  const monthDays = new Date(y, m, 0).getDate() || 30;
+
+                                  let payableDays = customDaysMap[id];
+                                  if (payableDays === undefined || payableDays === null) {
+                                    if (emp.dateRelieved) {
+                                      const d = new Date(emp.dateRelieved);
+                                      if (!isNaN(d.getTime()) && (d.getMonth() + 1 === m) && (d.getFullYear() === y)) {
+                                        payableDays = d.getDate();
+                                      }
+                                    } else if (emp.dateJoined) {
+                                      const d = new Date(emp.dateJoined);
+                                      if (!isNaN(d.getTime()) && (d.getMonth() + 1 === m) && (d.getFullYear() === y)) {
+                                        payableDays = monthDays - d.getDate() + 1;
+                                      }
+                                    } else {
+                                      payableDays = monthDays;
+                                    }
+                                  }
+                                  const ratio = Math.min(1, Math.max(0, payableDays / monthDays));
+                                  basic = Math.round(basic * ratio);
+                                  allowances = Math.round(allowances * ratio);
                                 }
-                                const ratio = Math.min(1, Math.max(0, payableDays / monthDays));
-                                basic = Math.round(basic * ratio);
-                                allowances = Math.round(allowances * ratio);
-                              }
 
-                              const total = basic + allowances;
+                                const total = basic + allowances;
 
-                              const totalDeductions = (deductionsMap[id] || []).reduce(
-                                (sum, d) => sum + Number(d.amount || 0),
-                                0
-                              );
-                              const finalSalary = Math.max(0, total - totalDeductions);
+                                const totalDeductions = (deductionsMap[id] || []).reduce(
+                                  (sum, d) => sum + Number(d.amount || 0),
+                                  0
+                                );
+                                const finalSalary = Math.max(0, total - totalDeductions);
 
-                              return (
-                                <>
-                                  <td onClick={(e) => e.stopPropagation()}>
-                                    {totalDeductions > 0 ? `₹${totalDeductions.toLocaleString("en-IN")}` : "₹0"}
-                                  </td>
-                                  <td>₹{finalSalary.toLocaleString("en-IN")}</td>
-                                </>
-                              );
-                            })()}
+                                return (
+                                  <>
+                                    <td onClick={(e) => e.stopPropagation()}>
+                                      {totalDeductions > 0 ? `₹${totalDeductions.toLocaleString("en-IN")}` : "₹0"}
+                                    </td>
+                                    <td>₹{finalSalary.toLocaleString("en-IN")}</td>
+                                  </>
+                                );
+                              })()}
 
-                            <td onClick={(e) => e.stopPropagation()} className="text-center">
-                              {emp.hasGeneratedSlip ? (
-                                <span style={{ fontSize: "12px", color: "#64748b", fontStyle: "italic" }}>
-                                  Payslip Generated
-                                </span>
-                              ) : (
-                                <div className="bulk-table-actions-group">
-                                  <button
-                                    className="bulk-modal-edit-btn"
-                                    type="button"
-                                    onClick={() => handleEditClick(emp)}
-                                  >
-                                    Salary Edit
-                                  </button>
-                                  <button
-                                    className="bulk-modal-edit-btn bulk-modal-edit-deductions-btn"
-                                    type="button"
-                                    onClick={() => handleTaxEditClick(emp)}
-                                  >
-                                    Edit Deductions
-                                  </button>
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              <td onClick={(e) => e.stopPropagation()} className="text-center">
+                                {emp.hasGeneratedSlip ? (
+                                  <span style={{ fontSize: "12px", color: "#64748b", fontStyle: "italic" }}>
+                                    Payslip Generated
+                                  </span>
+                                ) : (
+                                  <div className="bulk-table-actions-group">
+                                    <button
+                                      className="bulk-modal-edit-btn"
+                                      type="button"
+                                      onClick={() => handleEditClick(emp)}
+                                    >
+                                      Salary Edit
+                                    </button>
+                                    <button
+                                      className="bulk-modal-edit-btn bulk-modal-edit-deductions-btn"
+                                      type="button"
+                                      onClick={() => handleTaxEditClick(emp)}
+                                    >
+                                      Edit Deductions
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                 )}
               </div>
 
               {/* Footer Actions */}
               <div className="bulk-modal-footer">
-                <div className="bulk-modal-selection-info" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button
-                    className="hrms-common-btn-cancel"
-                    type="button"
-                    onClick={() => {
-                      setStep("selection");
-                      setSelected([]);
-                    }}
-                    disabled={bulkLoading}
-                  >
-                    Back
-                  </button>
+                <div className="bulk-modal-selection-info">
                   {selected.length > 0 && (
                     <span>{selected.length} selected</span>
                   )}
                 </div>
                 <div className="bulk-modal-footer-actions">
-                  {/* <button
-                    className="bulk-modal-btn bulk-modal-btn--close"
-                    onClick={onClose}
-                    disabled={bulkLoading}
-                  >
-                    Close
-                  </button> */}
-                  <button
-                    className="bulk-modal-btn bulk-deselect-all-btn"
-                    onClick={toggleSelectAll}
-                    disabled={bulkLoading || activeEmployees.length === 0}
-                  >
-                    {allSelected ? "Deselect All" : "Select All"}
-                  </button>
                   <button
                     className="bulk-modal-btn bulk-modal-btn--all"
                     onClick={handleGenerateAll}
@@ -1329,6 +1416,151 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
           </div>
         </div>
       )}
+
+      {/* LOP Confirmation Modal Popup */}
+      {lopConfirmModal && (
+        <div className="lop-confirm-modal-overlay">
+          <div className="lop-confirm-modal">
+            <div className="lop-confirm-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <button
+                  type="button"
+                  onClick={() => setLopConfirmModal(null)}
+                  className="bulk-modal-back-arrow-btn"
+                  aria-label="Back"
+                  title="Back"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div>
+                  <h3 style={{ margin: 0 }}>Loss of Pay (LOP) Confirmation</h3>
+                  <p style={{ margin: "4px 0 0" }}>
+                    The following employee{lopConfirmModal.employees.length > 1 ? "s have" : " has"} Loss of Pay (LOP) for {monthNames[Number(selectedMonth) - 1]} {selectedYear}.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="bulk-modal-btn--close"
+                onClick={() => setLopConfirmModal(null)}
+                title="Close"
+                aria-label="Close"
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "4px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer"
+                }}
+              >
+                <img
+                  src="/close.png"
+                  alt="Close"
+                  style={{ width: "22px", height: "23px", objectFit: "contain" }}
+                />
+              </button>
+            </div>
+
+            <div className="lop-confirm-modal-body">
+              <div className="lop-confirm-table-wrapper">
+                <table className="lop-confirm-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "60px", textAlign: "center" }}>S.No</th>
+                      <th style={{ width: "90px" }}>Emp ID</th>
+                      <th>Employee Name</th>
+                      <th style={{ textAlign: "center", width: "110px" }}>LOP Days</th>
+                      <th style={{ textAlign: "right", width: "130px" }}>LOP Amount</th>
+                      <th style={{ textAlign: "center", width: "150px" }}>Deduct LOP?</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lopConfirmModal.employees.map((emp, idx) => {
+                      const empId = String(emp._id);
+                      const isDeduct = (lopPopupModes[empId] || "yes") === "yes";
+                      return (
+                        <tr key={`lop-confirm-${empId}-${idx}`}>
+                          <td style={{ textAlign: "center", color: "#64748b", fontWeight: "600" }}>
+                            {idx + 1}
+                          </td>
+                          <td style={{ fontWeight: 600, color: "#475569" }}>
+                            {emp.empId || "-"}
+                          </td>
+                          <td style={{ fontWeight: 600, color: "#1e293b" }}>
+                            {emp.name || "-"}
+                          </td>
+                          <td style={{ textAlign: "center", color: "#374151" }}>
+                            {emp.lopDays} {emp.lopDays === 1 ? "day" : "days"}
+                          </td>
+                          <td style={{ textAlign: "right", fontWeight: "600", color: "#374151" }}>
+                            ₹{Number(emp.lopAmount || 0).toLocaleString("en-IN", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2
+                            })}
+                          </td>
+                          <td style={{ textAlign: "center" }}>
+                            <div className="lop-confirm-radio-group">
+                              <label className={`lop-confirm-radio-label ${isDeduct ? "active" : ""}`}>
+                                <input
+                                  type="radio"
+                                  name={`lop-popup-radio-${empId}`}
+                                  value="yes"
+                                  checked={isDeduct}
+                                  onChange={() => setLopPopupModes((prev) => ({ ...prev, [empId]: "yes" }))}
+                                />
+                                <span>Yes</span>
+                              </label>
+                              <label className={`lop-confirm-radio-label ${!isDeduct ? "active" : ""}`}>
+                                <input
+                                  type="radio"
+                                  name={`lop-popup-radio-${empId}`}
+                                  value="no"
+                                  checked={!isDeduct}
+                                  onChange={() => setLopPopupModes((prev) => ({ ...prev, [empId]: "no" }))}
+                                />
+                                <span>No</span>
+                              </label>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="lop-confirm-modal-footer" style={{ justifyContent: "flex-end", gap: "10px" }}>
+              <button
+                type="button"
+                className="common-modal-btn btn-update"
+                onClick={() => {
+                  const ids = lopConfirmModal.ids;
+                  setLopConfirmModal(null);
+                  callBulkApi(ids, lopPopupModes);
+                }}
+                disabled={bulkLoading}
+              >
+                {bulkLoading ? "Generating..." : "Generate Slip"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };
@@ -1337,7 +1569,9 @@ const BulkPayslipModal = ({ onClose, onGenerated, employees, form, fetchEmployee
    MAIN PAYSLIP PAGE
 ───────────────────────────────────────────── */
 const Payslip = () => {
-
+  const { user } = useUser();
+  const canGenerateSlips = canHrGenerateSlips(user);
+  const canDeleteSlips = canHrDeleteSlips(user);
 
   const [loading, setLoading] = useState(false);
   const [slipLoading, setSlipLoading] = useState(true);
@@ -2053,28 +2287,24 @@ const Payslip = () => {
             {/* FILTERS & HISTORY TABLE - Replacing Additional Deductions */}
             <div className="pay-slip-generator-section">
               <div className="payslip-header-bar">
-                <h4 className="payslip-header-title">Slip History</h4>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  {selectedSlips.length > 0 && (
+                <div className="payslip-header-title-row">
+                  <h4 className="payslip-header-title">Slip History</h4>
+                  <div
+                    className={`dwu-employee-filter-icon payslip-mobile-filter-icon ${showFilterPanel ? "active" : ""}`}
+                    onClick={() => setShowFilterPanel(prev => !prev)}
+                    title="Toggle Filters"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img src="/Filter.svg" alt="filter" />
+                  </div>
+                </div>
+
+                <div className="payslip-header-actions">
+                  {selectedSlips.length > 0 && canDeleteSlips && (
                     <button
                       className="payslip-bulk-delete-btn"
                       type="button"
                       onClick={() => setDeleteModal({ isOpen: true, slipId: null, isBulk: true, count: selectedSlips.length })}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 14px",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        borderRadius: "6px",
-                        height: "36px",
-                        cursor: "pointer",
-                        backgroundColor: "#ef4444",
-                        color: "#ffffff",
-                        border: "none",
-                        transition: "all 0.2s ease"
-                      }}
                       title="Delete selected salary slips"
                     >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2087,24 +2317,18 @@ const Payslip = () => {
                     </button>
                   )}
 
-                  <button
-                    className="common-modal-btn btn-update"
-                    onClick={() => setShowBulkModal(true)}
-                    type="button"
-                    style={{
-                      height: "36px",
-                      padding: "0 16px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      whiteSpace: "nowrap"
-                    }}
-                  >
-                    Generate Pay Slip
-                  </button>
+                  {canGenerateSlips && (
+                    <button
+                      className="common-modal-btn btn-update payslip-header-btn payslip-header-btn--generate"
+                      onClick={() => setShowBulkModal(true)}
+                      type="button"
+                    >
+                      Generate Pay Slip
+                    </button>
+                  )}
 
                   <button
-                    className="common-modal-btn btn-confirm-success"
+                    className="common-modal-btn btn-confirm-success payslip-header-btn payslip-header-btn--zip"
                     type="button"
                     onClick={handleDownloadZip}
                     disabled={zipLoading || filteredSlips.length === 0}
@@ -2128,7 +2352,7 @@ const Payslip = () => {
                   </button>
 
                   <div
-                    className={`dwu-employee-filter-icon ${showFilterPanel ? "active" : ""}`}
+                    className={`dwu-employee-filter-icon payslip-desktop-filter-icon ${showFilterPanel ? "active" : ""}`}
                     onClick={() => setShowFilterPanel(prev => !prev)}
                     title="Toggle Filters"
                     style={{ cursor: "pointer" }}
@@ -2183,7 +2407,7 @@ const Payslip = () => {
                       <>
                         <div className="payslip-filter-field">
                           <label className="payslip-filter-label">From</label>
-                          <div style={{ display: "flex", gap: "8px" }}>
+                          <div className="payslip-filter-dual-dropdown">
                             <LocalPayslipDropdown
                               options={fromMonthDropdownOptions}
                               value={filters.fromMonth}
@@ -2200,7 +2424,7 @@ const Payslip = () => {
                         </div>
                         <div className="payslip-filter-field">
                           <label className="payslip-filter-label">To</label>
-                          <div style={{ display: "flex", gap: "8px" }}>
+                          <div className="payslip-filter-dual-dropdown">
                             <LocalPayslipDropdown
                               options={toMonthDropdownOptions}
                               value={filters.toMonth}
@@ -2297,15 +2521,17 @@ const Payslip = () => {
                     <table className="payslip-table-main">
                       <thead className="payslip-table-header">
                         <tr>
-                          <th className="payslip-table-header-cell text-center" style={{ width: "45px", padding: "8px 10px" }}>
-                            <input
-                              type="checkbox"
-                              checked={isAllSelected}
-                              onChange={handleSelectAllSlips}
-                              style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#4f46e5" }}
-                              title="Select All"
-                            />
-                          </th>
+                          {canDeleteSlips && (
+                            <th className="payslip-table-header-cell text-center" style={{ width: "45px", padding: "8px 10px" }}>
+                              <input
+                                type="checkbox"
+                                checked={isAllSelected}
+                                onChange={handleSelectAllSlips}
+                                style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#4f46e5" }}
+                                title="Select All"
+                              />
+                            </th>
+                          )}
                           <th className="payslip-table-header-cell">S.No</th>
                           <th className="payslip-table-header-cell">Employee</th>
                           <th className="payslip-table-header-cell">Month</th>
@@ -2318,14 +2544,16 @@ const Payslip = () => {
                       <tbody>
                         {paginatedSlips.map((row, index) => (
                           <tr key={row._id} className="payslip-table-row">
-                            <td className="payslip-table-cell text-center" style={{ width: "45px", padding: "8px 10px" }}>
-                              <input
-                                type="checkbox"
-                                checked={selectedSlips.includes(row._id)}
-                                onChange={() => handleToggleSelectSlip(row._id)}
-                                style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#4f46e5" }}
-                              />
-                            </td>
+                            {canDeleteSlips && (
+                              <td className="payslip-table-cell text-center" style={{ width: "45px", padding: "8px 10px" }}>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedSlips.includes(row._id)}
+                                  onChange={() => handleToggleSelectSlip(row._id)}
+                                  style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: "#4f46e5" }}
+                                />
+                              </td>
+                            )}
                             <td className="payslip-table-cell payslip-table-cell--muted">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                             <td className="payslip-table-cell payslip-table-cell--bold">{row.employeeName || row.empCode || "-"}</td>
                             <td className="payslip-table-cell payslip-table-cell--muted">{monthNames[row.month - 1]}</td>
@@ -2350,12 +2578,14 @@ const Payslip = () => {
                                 >
                                   {downloadingId === row._id ? "Downloading..." : !row.pdfUrl ? "Preparing..." : "Download"}
                                 </button>
-                                <button
-                                  className="payslip-btn payslip-btn-delete"
-                                  onClick={() => setDeleteModal({ isOpen: true, slipId: row._id, isBulk: false, count: 1 })}
-                                >
-                                  Delete
-                                </button>
+                                {canDeleteSlips && (
+                                  <button
+                                    className="payslip-btn payslip-btn-delete"
+                                    onClick={() => setDeleteModal({ isOpen: true, slipId: row._id, isBulk: false, count: 1 })}
+                                  >
+                                    Delete
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>

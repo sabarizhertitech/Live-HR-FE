@@ -33,6 +33,7 @@ portalInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       sessionStorage.removeItem("Erti-Portal");
+      sessionStorage.setItem("session_expired_notice", "true");
       window.location.href = "/";
     }
     return Promise.reject(error);

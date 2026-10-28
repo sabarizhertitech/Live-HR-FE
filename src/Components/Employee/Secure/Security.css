@@ -425,7 +425,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 20px 0 !important;
 }
 
 .img-fluid {
@@ -1213,6 +1212,7 @@
   line-height: 1.5;
   word-break: break-word;
   overflow-wrap: break-word;
+  white-space: pre-line;
 }
 
 .security-maker-details-footer {

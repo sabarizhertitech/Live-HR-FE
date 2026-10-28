@@ -6,6 +6,8 @@ import "../../Common/CustomDropdown.css";
 import Sidebar from "../../HeaderSidebar/Sidebar";
 import { Icon } from "@iconify/react";
 import { portalInstance } from "../../../Services/instance";
+import { useUser } from "../../UserContext";
+import { canHrMonthlyAttendance } from "../../../utils/hrAccessHelper";
 
 /* =============================
    STATIC FALLBACK DATA
@@ -163,9 +165,34 @@ function MiniCalendar({ month, calendarData = [], year }) {
 ============================= */
 function AttendanceOverview() {
     const navigate = useNavigate();
+    const { user } = useUser();
+    const canMonthly = canHrMonthlyAttendance(user);
     const [searchParams, setSearchParams] = useSearchParams();
     const dropdownRef = useRef(null);
     const employeeId = searchParams.get("employeeId");
+
+    if (user?.isHr && user?.role !== "admin" && !canMonthly) {
+        return (
+            <div className="attendance-overview-page">
+                <Sidebar />
+                <div className="attendance-overview-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+                    <div style={{ background: "#ffffff", borderRadius: "12px", padding: "48px 32px", maxWidth: "560px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+                        <div style={{ fontSize: "44px", marginBottom: "16px" }}>🔒</div>
+                        <h3 style={{ color: "#1e293b", fontSize: "20px", marginBottom: "10px", fontWeight: "700" }}>Access Restricted</h3>
+                        <p style={{ color: "#64748b", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
+                            Monthly attendance overview is currently disabled for HR accounts per the Portal Access Configuration.
+                        </p>
+                        <button
+                            onClick={() => navigate("/")}
+                            style={{ background: "#3A466D", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "8px", fontWeight: "600", cursor: "pointer" }}
+                        >
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const handleBack = () => {
         navigate("/admin/attendance-report");

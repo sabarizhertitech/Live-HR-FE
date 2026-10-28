@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { portalInstance } from "../../../Services/instance";
 import { ToastContainer, toast } from "react-toastify";
@@ -43,6 +43,7 @@ const LeaveManagement = () => {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [prevYearHasData, setPrevYearHasData] = useState(false);
+  const categoryCacheRef = useRef({});
 
   const storedUser = JSON.parse(sessionStorage.getItem("Erti-Portal") || "{}");
   const isHrUser = storedUser?.role === "employee" && storedUser?.isHr;
@@ -85,109 +86,137 @@ const LeaveManagement = () => {
     return options;
   };
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (forceRefresh = false) => {
     try {
-      setLoading(true);
-
-      const res = await portalInstance.get(`/leave-categories?year=${selectedYear}`);
-      let liveList = res.data?.data || res.data || [];
-      if (!Array.isArray(liveList)) liveList = [];
-      setYearStatus(res.data?.status || "pending");
-      setIsReviewed(res.data?.isReviewed || false);
-      setAdminRemarks(res.data?.adminRemarks || "");
-
-      // Check if previous financial year has data
-      const prevYear = getPreviousFinancialYear(selectedYear);
-      if (prevYear) {
-        try {
-          const prevRes = await portalInstance.get(`/leave-categories?year=${prevYear}`);
-          const prevList = prevRes.data?.data || prevRes.data || [];
-          setPrevYearHasData(Array.isArray(prevList) && prevList.length > 0);
-        } catch {
-          setPrevYearHasData(false);
-        }
-      } else {
-        setPrevYearHasData(false);
+      if (forceRefresh) {
+        delete categoryCacheRef.current[selectedYear];
       }
 
-      if (isHrUser || isAdminUser) {
-        try {
-          const reqUrl = isHrUser
-            ? "/hr-approval/my-requests"
-            : "/hr-approval/requests?targetModule=LEAVE_CATEGORY";
-          const reqRes = await portalInstance.get(reqUrl);
-          const reqList = reqRes.data?.data || [];
+      const cached = !forceRefresh ? categoryCacheRef.current[selectedYear] : null;
+      if (cached) {
+        setCategories(cached.categories);
+        setYearStatus(cached.yearStatus);
+        setIsReviewed(cached.isReviewed);
+        setAdminRemarks(cached.adminRemarks);
+        setPrevYearHasData(cached.prevYearHasData);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
 
-          // 1. Pending/Rejected Create Requests
-          const pendingCreateRows = [];
-          reqList
-            .filter(
-              (r) =>
-                r.targetModule === "LEAVE_CATEGORY" &&
-                r.actionType === "CREATE_LEAVE_CATEGORY" &&
-                r.status !== "APPROVED"
-            )
-            .forEach((r) => {
-              if (Array.isArray(r.payload?.categories) && r.payload.categories.length > 0) {
-                r.payload.categories.forEach((catItem, cIdx) => {
-                  pendingCreateRows.push({
-                    _id: `pending_${r._id}_${cIdx}`,
-                    requestId: r._id,
-                    batchIndex: cIdx,
-                    name: catItem.name || "New Category",
-                    tiers: catItem.tiers || [],
-                    probationOthersLeaveCount: catItem.probationOthersLeaveCount || 0,
-                    permanentOthersLeaveCount: catItem.permanentOthersLeaveCount || 0,
-                    leaveCount: catItem.tiers?.[0]?.leaveCount || catItem.leaveCount || 0,
-                    eligibleMonths: catItem.tiers?.[0]?.eligibleMonths || 0,
-                    isPendingHr: true,
-                    hrStatus: r.status, // "PENDING" or "REJECTED"
-                    adminNote: r.adminNote,
-                  });
-                });
-              } else {
+      const prevYear = getPreviousFinancialYear(selectedYear);
+      const reqUrl = isHrUser
+        ? "/hr-approval/my-requests"
+        : isAdminUser
+        ? "/hr-approval/requests?targetModule=LEAVE_CATEGORY"
+        : null;
+
+      // Parallelize all network requests concurrently
+      const [currYearRes, prevYearRes, hrReqRes] = await Promise.allSettled([
+        portalInstance.get(`/leave-categories?year=${selectedYear}`),
+        prevYear ? portalInstance.get(`/leave-categories?year=${prevYear}`) : Promise.resolve(null),
+        reqUrl ? portalInstance.get(reqUrl) : Promise.resolve(null),
+      ]);
+
+      const res = currYearRes.status === "fulfilled" ? currYearRes.value : null;
+      let liveList = res?.data?.data || res?.data || [];
+      if (!Array.isArray(liveList)) liveList = [];
+      const newYearStatus = res?.data?.status || "pending";
+      const newIsReviewed = res?.data?.isReviewed || false;
+      const newAdminRemarks = res?.data?.adminRemarks || "";
+
+      setYearStatus(newYearStatus);
+      setIsReviewed(newIsReviewed);
+      setAdminRemarks(newAdminRemarks);
+
+      // Check if previous financial year has data
+      let newPrevYearHasData = false;
+      if (prevYear && prevYearRes.status === "fulfilled" && prevYearRes.value) {
+        const prevList = prevYearRes.value.data?.data || prevYearRes.value.data || [];
+        newPrevYearHasData = Array.isArray(prevList) && prevList.length > 0;
+      }
+      setPrevYearHasData(newPrevYearHasData);
+
+      let finalCategories = liveList;
+
+      if (reqUrl && hrReqRes.status === "fulfilled" && hrReqRes.value) {
+        const reqList = hrReqRes.value.data?.data || [];
+
+        // 1. Pending/Rejected Create Requests
+        const pendingCreateRows = [];
+        reqList
+          .filter(
+            (r) =>
+              r.targetModule === "LEAVE_CATEGORY" &&
+              r.actionType === "CREATE_LEAVE_CATEGORY" &&
+              r.status !== "APPROVED"
+          )
+          .forEach((r) => {
+            if (Array.isArray(r.payload?.categories) && r.payload.categories.length > 0) {
+              r.payload.categories.forEach((catItem, cIdx) => {
                 pendingCreateRows.push({
-                  _id: `pending_${r._id}`,
+                  _id: `pending_${r._id}_${cIdx}`,
                   requestId: r._id,
-                  name: r.payload?.name || "New Category",
-                  tiers: r.payload?.tiers || [],
-                  probationOthersLeaveCount: r.payload?.probationOthersLeaveCount || 0,
-                  permanentOthersLeaveCount: r.payload?.permanentOthersLeaveCount || 0,
-                  leaveCount: r.payload?.tiers?.[0]?.leaveCount || r.payload?.leaveCount || 0,
-                  eligibleMonths: r.payload?.tiers?.[0]?.eligibleMonths || 0,
+                  batchIndex: cIdx,
+                  name: catItem.name || "New Category",
+                  tiers: catItem.tiers || [],
+                  probationOthersLeaveCount: catItem.probationOthersLeaveCount || 0,
+                  permanentOthersLeaveCount: catItem.permanentOthersLeaveCount || 0,
+                  leaveCount: catItem.tiers?.[0]?.leaveCount || catItem.leaveCount || 0,
+                  eligibleMonths: catItem.tiers?.[0]?.eligibleMonths || 0,
                   isPendingHr: true,
                   hrStatus: r.status, // "PENDING" or "REJECTED"
                   adminNote: r.adminNote,
                 });
-              }
-            });
-
-          // 2. Mark existing live categories with pending action
-          const markedLiveList = liveList.map((cat) => {
-            const pendingAction = reqList.find(
-              (r) =>
-                r.targetModule === "LEAVE_CATEGORY" &&
-                (r.payload?.id === cat._id || r.payload?._id === cat._id) &&
-                r.status === "PENDING"
-            );
-            if (pendingAction) {
-              return {
-                ...cat,
-                hrStatus: "PENDING",
-                pendingActionType: pendingAction.actionType,
-              };
+              });
+            } else {
+              pendingCreateRows.push({
+                _id: `pending_${r._id}`,
+                requestId: r._id,
+                name: r.payload?.name || "New Category",
+                tiers: r.payload?.tiers || [],
+                probationOthersLeaveCount: r.payload?.probationOthersLeaveCount || 0,
+                permanentOthersLeaveCount: r.payload?.permanentOthersLeaveCount || 0,
+                leaveCount: r.payload?.tiers?.[0]?.leaveCount || r.payload?.leaveCount || 0,
+                eligibleMonths: r.payload?.tiers?.[0]?.eligibleMonths || 0,
+                isPendingHr: true,
+                hrStatus: r.status, // "PENDING" or "REJECTED"
+                adminNote: r.adminNote,
+              });
             }
-            return { ...cat, hrStatus: "APPROVED" };
           });
 
-          setCategories([...pendingCreateRows, ...markedLiveList]);
-          return;
-        } catch (e) {
-          console.error("Error fetching HR requests:", e);
-        }
+        // 2. Mark existing live categories with pending action
+        const markedLiveList = liveList.map((cat) => {
+          const pendingAction = reqList.find(
+            (r) =>
+              r.targetModule === "LEAVE_CATEGORY" &&
+              (r.payload?.id === cat._id || r.payload?._id === cat._id) &&
+              r.status === "PENDING"
+          );
+          if (pendingAction) {
+            return {
+              ...cat,
+              hrStatus: "PENDING",
+              pendingActionType: pendingAction.actionType,
+            };
+          }
+          return { ...cat, hrStatus: "APPROVED" };
+        });
+
+        finalCategories = [...pendingCreateRows, ...markedLiveList];
       }
 
-      setCategories(liveList);
+      setCategories(finalCategories);
+
+      // Save into in-memory cache for instant switching
+      categoryCacheRef.current[selectedYear] = {
+        categories: finalCategories,
+        yearStatus: newYearStatus,
+        isReviewed: newIsReviewed,
+        adminRemarks: newAdminRemarks,
+        prevYearHasData: newPrevYearHasData,
+      };
     } catch (err) {
       console.error(err);
       toast.error("Failed to load leave categories");
@@ -206,7 +235,7 @@ const LeaveManagement = () => {
       const res = await portalInstance.post("/leave-categories/submit", { year: selectedYear });
       if (res.data?.success) {
         toast.success(`Leave categories for FY ${selectedYear} submitted to Admin for approval!`);
-        fetchCategories();
+        fetchCategories(true);
       } else {
         toast.error(res.data?.message || "Failed to submit");
       }
@@ -223,7 +252,7 @@ const LeaveManagement = () => {
       const res = await portalInstance.put("/leave-categories/approve", { year: selectedYear });
       if (res.data?.success) {
         toast.success(`Leave categories for FY ${selectedYear} approved successfully!`);
-        fetchCategories();
+        fetchCategories(true);
       } else {
         toast.error(res.data?.message || "Failed to approve");
       }
@@ -249,7 +278,7 @@ const LeaveManagement = () => {
       });
       if (res.data?.success) {
         toast.success(`Leave categories for FY ${selectedYear} rejected with feedback.`);
-        fetchCategories();
+        fetchCategories(true);
       } else {
         toast.error(res.data?.message || "Failed to reject");
       }
@@ -266,7 +295,7 @@ const LeaveManagement = () => {
       const res = await portalInstance.post("/leave-categories/init-draft", { year: selectedYear });
       if (res.data?.success) {
         toast.success(`Previous year leave categories copied for FY ${selectedYear}!`);
-        fetchCategories();
+        fetchCategories(true);
       } else {
         toast.error(res.data?.message || "Failed to copy previous year data");
       }
@@ -343,8 +372,11 @@ const LeaveManagement = () => {
   };
 
   useEffect(() => {
-    fetchCategories();
     fetchReminder();
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
   }, [selectedYear]);
 
   // Hide banner once categories are reviewed (after any CRUD on leave categories)
@@ -704,7 +736,7 @@ const LeaveManagement = () => {
       }
       setShowDeleteModal(false);
       setCatToDeleteId(null);
-      fetchCategories();
+      fetchCategories(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to delete");
     }
@@ -751,7 +783,7 @@ const LeaveManagement = () => {
       }
       setSelectedCategoryIds([]);
       setShowBulkDeleteModal(false);
-      fetchCategories();
+      fetchCategories(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to bulk delete");
     }
@@ -1050,7 +1082,7 @@ const LeaveManagement = () => {
         }
       }
       setShowModal(false);
-      fetchCategories();
+      fetchCategories(true);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to save category");
     }
@@ -1060,7 +1092,7 @@ const LeaveManagement = () => {
     <>
       <Sidebar />
       <div className="lm-page-wrapper">
-          <ApprovalBanner moduleName="LEAVE_CATEGORY" onRefresh={fetchCategories} />
+          <ApprovalBanner moduleName="LEAVE_CATEGORY" onRefresh={() => fetchCategories(true)} />
 
           {/* ── Rejection Remarks Banner for HR ── */}
           {yearStatus === "rejected" && adminRemarks && (
@@ -1081,7 +1113,7 @@ const LeaveManagement = () => {
           )}
 
           {/* ── Banner for Empty / New Financial Year: Use Previous Year Data or Edit & Upload New Data ── */}
-          {categories.length === 0 && (
+          {!loading && categories.length === 0 && (
             <div className="lm-reminder-banner" style={{ marginTop: "12px", marginBottom: "16px" }}>
               <div className="lm-reminder-banner-text">
                 <h6>Configure Leave Categories for FY {selectedYear}</h6>
