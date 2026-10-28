@@ -689,16 +689,17 @@ const EmployeeDailyWorkUpdate = () => {
 
       const entry = validEntries[0];
       const isEditing = !!editingUpdate;
-      const isEditingToday = isEditing && (new Date(editingUpdate.updateDate || editingUpdate.createdAt).toISOString().split("T")[0] === todayStr);
+      const isEditingToday = isEditing && isTodayUpdate(editingUpdate.updateDate || editingUpdate.createdAt);
 
       const formattedCategory = entry.category ? entry.category.toUpperCase() : entry.category;
       const formattedProject = entry.project ? (entry.project.charAt(0).toUpperCase() + entry.project.slice(1).toLowerCase()) : entry.project;
       const formattedWorkType = isStackEligibleCategory(entry.category) ? (entry.workType || "").trim() : "";
       const formattedPages = entry.hasPages && Array.isArray(entry.pages) ? entry.pages : [];
 
-      const isCompletedEdit = isEditing && getStatusKey(editingUpdate.status || editingUpdate.phaseStatus) === "completed";
-      if (isCompletedEdit) {
-        toast.error("Completed work updates cannot be edited.");
+      const isCompleted = getStatusKey(editingUpdate?.status || editingUpdate?.phaseStatus) === "completed";
+      const isCompletedPastEdit = isEditing && isCompleted && !isEditingToday;
+      if (isCompletedPastEdit) {
+        toast.error("Completed work updates from previous days cannot be edited.");
         return;
       }
 
@@ -888,8 +889,10 @@ const EmployeeDailyWorkUpdate = () => {
   };
 
   const handleEditClick = (u) => {
-    if (getStatusKey(u.status || u.phaseStatus) === "completed") {
-      toast.info("Completed work updates are locked and cannot be edited.");
+    const isCompleted = getStatusKey(u.status || u.phaseStatus) === "completed";
+    const isToday = isTodayUpdate(u.updateDate || u.createdAt);
+    if (isCompleted && !isToday) {
+      toast.info("Completed work updates from previous days are locked and cannot be edited.");
       return;
     }
 
@@ -1862,10 +1865,10 @@ const EmployeeDailyWorkUpdate = () => {
                                     <span>Task</span>
                                     <ExternalLink size={12} />
                                   </button>
-                                ) : getStatusKey(u.status || u.phaseStatus) === "completed" ? (
+                                ) : (getStatusKey(u.status || u.phaseStatus) === "completed" && !isTodayUpdate(u.updateDate || u.createdAt)) ? (
                                   <span
                                     className="dwu-row-locked-icon"
-                                    title="Completed work update is locked"
+                                    title="Completed work update from previous day is locked"
                                   >
                                     <Lock size={15} />
                                   </span>
